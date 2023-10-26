@@ -2,14 +2,13 @@ import type { Actions, PageServerLoad } from "./$types"
 import db from "$lib/server/database"
 import { fail, redirect } from "@sveltejs/kit"
 
-import path from "path"
-import fs from "fs"
 import type { InsertBook } from "$lib/models/Book"
 import type { InsertAuthor } from "$lib/models/Author"
 import type { InsertPublisher } from "$lib/models/Publisher"
 import type { InsertSubject } from "$lib/models/Subject"
 import type { InsertLocation } from "$lib/models/Location"
 import type { InsertLanguage } from "$lib/models/Language"
+import saveFile from "$lib/utils/save-file"
 
 
 export const load: PageServerLoad = async () => ({
@@ -21,16 +20,14 @@ export const load: PageServerLoad = async () => ({
 })
 
 
-function saveImage(filename: string, content: Buffer) {
-    fs.writeFile(path.join("static", filename), content, (err) => {
-            if (err) {
-                console.error(err)
-                throw fail(500, {
-                    message: "Error saving front image"
-                })
-            }
-        }
-    )
+async function saveImage(filepath: string, content: Buffer) {
+    try {
+        await saveFile(filepath, content)
+    } catch (error) {
+        throw fail(500, {
+            message: "Error saving front image"
+        })
+    }
 }
 
 export const actions: Actions = {
@@ -59,7 +56,7 @@ export const actions: Actions = {
             const ext = frontImage.name.split(".").pop()
             frontImageFilename = `/images/${isbn}-front.${ext}`
             const content = Buffer.from(await frontImage.arrayBuffer())
-            saveImage(frontImageFilename, content)
+            await saveImage(frontImageFilename, content)
         }
 
         const backImage = formData.get("back_image") as File | null
@@ -68,7 +65,7 @@ export const actions: Actions = {
             const ext = backImage.name.split(".").pop()
             backImageFilename =  `/images/${isbn}-back.${ext}`
             const content = Buffer.from(await backImage.arrayBuffer())
-            saveImage(backImageFilename, content)
+            await saveImage(backImageFilename, content)
         }
 
         // TODO: double check what fields are required and which aren't
