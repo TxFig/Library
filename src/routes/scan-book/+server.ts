@@ -1,7 +1,7 @@
 import { json, error } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
 
-import { getOpenLibraryBook } from "$lib/utils/books"
+import { getOpenLibraryBook } from "$lib/utils/open-library"
 import db from "$lib/server/database"
 
 
