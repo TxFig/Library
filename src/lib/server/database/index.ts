@@ -17,11 +17,11 @@ import type { Subject, BooksSubjects } from "$lib/models/Subject"
 import type Location from "$lib/models/Location"
 import type Language from "$lib/models/Language"
 
-import { IMAGES_PATH } from "$env/static/private"
+import { DATABASE_PATH, IMAGES_PATH } from "$env/static/private"
 
 
 export const db = await sqlite.open({
-    filename: "./database/database.sqlite",
+    filename: DATABASE_PATH,
     driver: sqlite3.Database
 })
 
