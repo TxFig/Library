@@ -80,8 +80,8 @@
         return mb * 1000000
     }
 
-    let frontImageSrc: string = book.front_image ?? ""
-    let backImageSrc: string = book.back_image ?? ""
+    let frontImageSrc: string = book.front_image ? `/images/${book.front_image}` : ""
+    let backImageSrc: string = book.back_image ? `/images/${book.back_image}` : ""
 
     async function getDataURLImage(image: File): Promise<string | null> {
         if (!image) return null

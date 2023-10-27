@@ -129,7 +129,7 @@
             <a href={"/book/" + item.isbn} class="flex flex-col items-center justify-center">
                 {#if item.front_image}
                     <img
-                        src={item.front_image}
+                        src={`/images/${item.front_image}`}
                         alt={item.title}
                         class="mb-1"
                         loading="lazy"

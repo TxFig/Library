@@ -1,3 +1,7 @@
+import path from "path"
+import { formatImageFilename, saveFile } from "$lib/utils/images"
+import { IMAGES_PATH } from "$env/static/private"
+
 import type { InsertAuthor } from "$lib/models/Author"
 import type { InsertPublisher } from "$lib/models/Publisher"
 import type { InsertSubject } from "$lib/models/Subject"
@@ -18,6 +22,11 @@ export async function getOpenLibraryBook(isbn: string): Promise<InsertBookData |
 
 function capitalizeFirstLetter(string: string): string {
     return string[0].toUpperCase() + string.substring(1)
+}
+
+async function fetchImageContent(url: string): Promise<Buffer> {
+    const res = await fetch(url)
+    return Buffer.from(await res.arrayBuffer())
 }
 
 async function parseOpenLibraryData(
@@ -53,6 +62,14 @@ async function parseOpenLibraryData(
             : null
         : null
 
+    const imageURL = data.cover?.large ?? data.cover?.medium ?? data.cover?.small ?? null
+    const imageFilename = imageURL ? formatImageFilename(isbn, "front", imageURL) : null
+    if (imageURL) {
+        const imageFilepath = path.join(IMAGES_PATH, imageFilename!)
+        const content = await fetchImageContent(imageURL)
+        await saveFile(imageFilepath, content)
+    }
+
     const book: InsertBook = {
         title: data.title,
         subtitle: data.subtitle ?? null,
@@ -63,7 +80,7 @@ async function parseOpenLibraryData(
         isbn13: isbn13,
         isbn10: isbn10,
 
-        front_image: data.cover?.large ?? data.cover?.medium ?? data.cover?.small ?? null,
+        front_image: imageFilename,
         back_image: null
     }
 

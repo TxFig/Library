@@ -7,7 +7,10 @@
     export let data: PageData
     const { isbn, book, authors, publishers, subjects, location, language } = data
 
-    const images = [book.front_image, book.back_image].filter(Boolean) as string[]
+    const images = [
+        book.front_image ? `/images/${book.front_image}` : null,
+        book.back_image ? `/images/${book.back_image}` : null
+    ].filter(Boolean) as string[]
 
     async function deleteBook() {
         await fetch(`/api/book/${isbn}`, { method: "DELETE" })

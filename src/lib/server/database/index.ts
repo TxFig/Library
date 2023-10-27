@@ -17,6 +17,8 @@ import type { Subject, BooksSubjects } from "$lib/models/Subject"
 import type Location from "$lib/models/Location"
 import type Language from "$lib/models/Language"
 
+import { IMAGES_PATH } from "$env/static/private"
+
 
 export const db = await sqlite.open({
     filename: "./database/database.sqlite",
@@ -257,13 +259,13 @@ export async function deleteBookInfo(isbn: string) {
     const book = await getBookByISBN(isbn)
     if (!book) return
 
-    if (book.front_image && !book.front_image.startsWith("https")) {
-        fs.unlink(path.join("static", book.front_image), (err) => {
+    if (book.front_image) {
+        fs.unlink(path.join(IMAGES_PATH, book.front_image), (err) => {
             if (err) console.log("Error deleting book front image", err)
         })
     }
-    if (book.back_image && !book.back_image.startsWith("https")) {
-        fs.unlink(path.join("static", book.back_image), (err) => {
+    if (book.back_image) {
+        fs.unlink(path.join(IMAGES_PATH, book.back_image), (err) => {
             if (err) console.log("Error deleting book back image", err)
         })
     }

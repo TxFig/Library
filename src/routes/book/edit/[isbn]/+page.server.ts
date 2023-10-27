@@ -1,7 +1,11 @@
+import path from "path"
+
 import type { Actions, PageServerLoad } from "./$types"
 import { error, fail, redirect } from "@sveltejs/kit"
+
 import db from "$lib/server/database"
-import saveFile from "$lib/utils/save-file"
+import { formatImageFilename, saveFile } from "$lib/utils/images"
+import { IMAGES_PATH } from "$env/static/private"
 
 import type { InsertBook } from "$lib/models/Book"
 import type { InsertAuthor } from "$lib/models/Author"
@@ -37,8 +41,9 @@ export const load: PageServerLoad = async ({ params }) => {
     }
 }
 
-async function saveImage(filepath: string, content: Buffer) {
+async function saveImage(filename: string, content: Buffer) {
     try {
+        const filepath = path.join(IMAGES_PATH, filename)
         await saveFile(filepath, content)
     } catch (error) {
         throw fail(500, {
@@ -61,18 +66,16 @@ export const actions: Actions = {
 
         const frontImage = formData.get("front_image") as File | null
         let frontImageFilename: string | null = null
-        if (frontImage && !frontImage.name.startsWith("https")) {
-            const ext = frontImage.name.split(".").pop()
-            frontImageFilename = `/images/${isbn}-front.${ext}`
+        if (frontImage) {
+            frontImageFilename = formatImageFilename(isbn, "front", frontImage.name)
             const content = Buffer.from(await frontImage.arrayBuffer())
             await saveImage(frontImageFilename, content)
         }
 
         const backImage = formData.get("back_image") as File | null
         let backImageFilename: string | null = null
-        if (backImage && !backImage.name.startsWith("https")) {
-            const ext = backImage.name.split(".").pop()
-            backImageFilename = `/images/${isbn}-back.${ext}`
+        if (backImage) {
+            backImageFilename = formatImageFilename(isbn, "back", backImage.name)
             const content = Buffer.from(await backImage.arrayBuffer())
             await saveImage(backImageFilename, content)
         }
