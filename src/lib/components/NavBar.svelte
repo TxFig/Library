@@ -14,7 +14,7 @@
     <svelte:fragment slot="trail">
         <div>
             <a class="btn variant-ghost-primary" href="/scan-book">
-                <Icon icon="mdi:book-arrow-up-outline" width="24" height="24" />
+                <Icon icon="mdi:barcode-scan" width="24" height="24" />
                 <span class="hidden sm:block">Scan Book</span>
             </a>
             <a class="btn" href="/create-book">
