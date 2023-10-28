@@ -6,6 +6,7 @@
     import { Autocomplete, InputChip, FileDropzone, getToastStore, ListBox, ListBoxItem } from '@skeletonlabs/skeleton'
     import type { AutocompleteOption, ToastSettings } from '@skeletonlabs/skeleton'
     import Icon from "@iconify/svelte"
+    import PublishDate from "$lib/components/book-form/PublishDate.svelte";
 
 
     export let data: PageData
@@ -15,6 +16,17 @@
     } = data
 
     const toastStore = getToastStore()
+
+    let day: string | undefined,
+        month: string | undefined,
+        year: string | undefined
+
+    if (book.publish_date) {
+        const parts = book.publish_date.split("-")
+        if (parts.length == 1) year = book.publish_date
+        else if (parts.length == 2) [month, year] = parts
+        else [day, month, year] = parts
+    }
 
     //#region --------------------------------------------------- Authors Input
     let authorInputValue = ""
@@ -196,6 +208,8 @@
         <span>Publish Date</span>
         <input class="input" type="date" name="publish_date" value={book.publish_date}/>
     </label>
+
+    <PublishDate day={day} month={month} year={year}/>
 
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">

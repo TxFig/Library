@@ -80,12 +80,16 @@ export const actions: Actions = {
             await saveImage(backImageFilename, content)
         }
 
+        const day = formData.get("publish_date:day") as string | null
+        const month = formData.get("publish_date:month") as string | null
+        const year = formData.get("publish_date:year") as string | null
+        const publish_date = [day, month, year].filter(Boolean).join("-")
 
         const book: InsertBook = {
             title: formData.get("title") as string,
             subtitle: formData.get("subtitle") as string | null,
             number_of_pages: Number(formData.get("number_of_pages")),
-            publish_date: formData.get("publish_date") as string | null,
+            publish_date: publish_date,
 
             isbn: Number(isbn),
             isbn10: null, // TODO: fix: always overwrites previous values (from OpenLibrary)

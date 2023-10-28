@@ -7,6 +7,8 @@
     import type { AutocompleteOption, ToastSettings } from '@skeletonlabs/skeleton'
     import Icon from "@iconify/svelte"
 
+    import PublishDate from "$lib/components/book-form/PublishDate.svelte"
+
 
     export let data: PageData
     let {
@@ -199,6 +201,8 @@
         <span>Publish Date</span>
         <input class="input" type="date" name="publish_date" />
     </label>
+
+    <PublishDate/>
 
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
