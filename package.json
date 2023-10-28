@@ -1,6 +1,6 @@
 {
   "name": "library",
-  "version": "0.8",
+  "version": "0.8.1",
   "scripts": {
     "dev": "vite dev",
     "dev-host": "vite dev --host",
