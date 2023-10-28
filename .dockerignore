@@ -2,3 +2,5 @@ node_modules
 .svelte-kit
 build
 .env
+static/images
+database/database.sqlite
