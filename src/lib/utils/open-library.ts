@@ -70,11 +70,18 @@ async function parseOpenLibraryData(
         await saveFile(imageFilepath, content)
     }
 
+    // Convert from year-month-day to day-month-year
+    let publishDate = data.publish_date ?? null
+    if (publishDate) {
+        const parts = publishDate.split("-")
+        publishDate = parts.reverse().join("-")
+    }
+
     const book: InsertBook = {
         title: data.title,
         subtitle: data.subtitle ?? null,
         number_of_pages: data.number_of_pages ?? null,
-        publish_date: data.publish_date ?? null,
+        publish_date: publishDate,
 
         isbn: +isbn,
         isbn13: isbn13,
