@@ -40,10 +40,7 @@
 
     export async function search() {
         const arr = allResults.filter(
-            item => filters[item.type] &&
-                item.type == "book" ?
-                    (item.language_id?.toString() == languageFilter) || languageFilter == "all"
-                : true
+            item => filters[item.type]
         )
 
         if (searchQuery == "") {
@@ -107,13 +104,15 @@
                 </span>
             {/each}
         </div>
-        <select class="select w-fit" bind:value={languageFilter} on:change={search}>
-            <option value="" selected hidden>Language</option>
-            <option value="all">All</option>
-            {#each languages as lang}
-                <option value="{lang.id}">{lang.value}</option>
-            {/each}
-        </select>
+        <!--
+            <select class="select w-fit" bind:value={languageFilter} on:change={search}>
+                <option value="" selected hidden>Language</option>
+                <option value="all">All</option>
+                {#each languages as lang}
+                    <option value="{lang.id}">{lang.value}</option>
+                {/each}
+            </select>
+        -->
     </div>
 </div>
 
