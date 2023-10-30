@@ -1,3 +1,5 @@
+import { IMAGES_PATH } from "$env/static/private"
+import { fail, type ActionFailure } from "@sveltejs/kit"
 import fs from "fs/promises"
 import path from "path"
 
@@ -29,3 +31,19 @@ export function formatImageFilename(isbn: string, side: "front" | "back", origin
     const extension = originalName.split(".").pop()
     return `${isbn}-${side}.${extension}`
 }
+
+
+export async function saveImage(filename: string, content: Buffer): Promise<
+    ActionFailure<{ message: string }> | undefined
+> {
+    try {
+        const filepath = path.join(IMAGES_PATH, filename)
+        await saveFile(filepath, content)
+    } catch (error) {
+        return fail(500, {
+            message: "Error saving front image"
+        })
+    }
+}
+
+export default saveImage

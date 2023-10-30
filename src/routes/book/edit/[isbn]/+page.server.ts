@@ -1,10 +1,10 @@
 import path from "path"
 
 import type { Actions, PageServerLoad } from "./$types"
-import { error, fail, redirect } from "@sveltejs/kit"
+import { ActionFailure, error, fail, redirect } from "@sveltejs/kit"
 
 import db from "$lib/server/database"
-import { formatImageFilename, saveFile } from "$lib/utils/images"
+import saveImage, { formatImageFilename, saveFile } from "$lib/utils/images"
 import { IMAGES_PATH } from "$env/static/private"
 
 import type { InsertBook } from "$lib/models/Book"
@@ -38,17 +38,6 @@ export const load: PageServerLoad = async ({ params }) => {
         allSubjects: await db.getAllSubjects(),
         allLocations: await db.getAllLocations(),
         allLanguages: await db.getAllLanguages()
-    }
-}
-
-async function saveImage(filename: string, content: Buffer) {
-    try {
-        const filepath = path.join(IMAGES_PATH, filename)
-        await saveFile(filepath, content)
-    } catch (error) {
-        throw fail(500, {
-            message: "Error saving front image"
-        })
     }
 }
 

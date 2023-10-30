@@ -1,11 +1,8 @@
-import path from "path"
-
 import type { Actions, PageServerLoad } from "./$types"
 import { fail, redirect } from "@sveltejs/kit"
 
 import db from "$lib/server/database"
-import { formatImageFilename, saveFile } from "$lib/utils/images"
-import { IMAGES_PATH } from "$env/static/private"
+import saveImage, { formatImageFilename } from "$lib/utils/images"
 
 import type { InsertBook } from "$lib/models/Book"
 import type { InsertAuthor } from "$lib/models/Author"
@@ -22,18 +19,6 @@ export const load: PageServerLoad = async () => ({
     locations: await db.getAllLocations(),
     languages: await db.getAllLanguages()
 })
-
-
-async function saveImage(filename: string, content: Buffer) {
-    try {
-        const filepath = path.join(IMAGES_PATH, filename)
-        await saveFile(filepath, content)
-    } catch (error) {
-        throw fail(500, {
-            message: "Error saving front image"
-        })
-    }
-}
 
 export const actions: Actions = {
     default: async ({ request }) => {
@@ -60,7 +45,8 @@ export const actions: Actions = {
         if (frontImage) {
             frontImageFilename = formatImageFilename(isbn, "front", frontImage.name)
             const content = Buffer.from(await frontImage.arrayBuffer())
-            await saveImage(frontImageFilename, content)
+            const error = await saveImage(frontImageFilename, content)
+            if (error) return error
         }
 
         const backImage = formData.get("back_image") as File | null
@@ -68,7 +54,8 @@ export const actions: Actions = {
         if (backImage) {
             backImageFilename = formatImageFilename(isbn, "back", backImage.name)
             const content = Buffer.from(await backImage.arrayBuffer())
-            await saveImage(backImageFilename, content)
+            const error = await saveImage(backImageFilename, content)
+            if (error) return error
         }
 
         const day = formData.get("publish_date:day") as string | null
