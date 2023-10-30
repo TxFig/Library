@@ -1,11 +1,8 @@
-import path from "path"
-
 import type { Actions, PageServerLoad } from "./$types"
-import { ActionFailure, error, fail, redirect } from "@sveltejs/kit"
+import { error, fail, redirect } from "@sveltejs/kit"
 
 import db from "$lib/server/database"
-import saveImage, { formatImageFilename, saveFile } from "$lib/utils/images"
-import { IMAGES_PATH } from "$env/static/private"
+import saveImage, { formatImageFilename } from "$lib/utils/images"
 
 import type { InsertBook } from "$lib/models/Book"
 import type { InsertAuthor } from "$lib/models/Author"
