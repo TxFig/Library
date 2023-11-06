@@ -1,12 +1,18 @@
 FROM node:current-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 COPY package*.json ./
 
 RUN npm install
 COPY . .
 
 RUN npm run build
+
+# Remove unnecessary dev files
+RUN rm -rf src .svelte-kit *.js *.cjs *.ts tsconfig.json
+
+# Remove dev dependencies
+RUN npm prune --omit=dev
 
 EXPOSE 80
 CMD ["npm", "start"]

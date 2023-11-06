@@ -4,9 +4,9 @@
   "scripts": {
     "dev": "vite dev",
     "dev-host": "vite dev --host",
-    "build": "vite build && mkdir static\\images",
+    "build": "vite build && mkdir \"static/images\"",
     "preview": "vite preview",
-    "start": "node server.js",
+    "start": "node server.mjs",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
   },
