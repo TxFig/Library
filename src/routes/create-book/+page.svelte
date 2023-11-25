@@ -8,6 +8,8 @@
     import Icon from "@iconify/svelte"
 
     import PublishDate from "$lib/components/book-form/PublishDate.svelte"
+    import type { SubmitFunction } from "@sveltejs/kit";
+    import { goto } from "$app/navigation";
 
 
     export let data: PageData
@@ -79,9 +81,6 @@
     //#endregion
     //#region ---------------------------------------------------- Images Input
     const fileSizeLimit = 16 // MB
-    const fileSizeTooBig: ToastSettings = {
-        message: `File size can not exceeded ${fileSizeLimit} MB`
-    }
 
     function MB2Bytes(mb: number): number {
         return mb * 1000000
@@ -93,7 +92,7 @@
     async function getDataURLImage(image: File): Promise<string | null> {
         if (!image) return null
         if (image.size > MB2Bytes(fileSizeLimit)) {
-            toastStore.trigger(fileSizeTooBig)
+            triggerError(`Image size can not exceeded ${fileSizeLimit} MB`)
             return null
         }
 
@@ -160,21 +159,47 @@
 
     //#endregion
 
-    function onFormData(ev: FormDataEvent) {
-        const formData = ev.formData
+    function triggerError(message: string) {
+        toastStore.trigger({
+            message: message,
+            background: "variant-filled-error"
+        })
+    }
 
-        for (const [key, value] of [...formData.entries()]) {
+    const enhanceHandler: SubmitFunction<
+        Record<string, any>,
+        { message: string }
+    > = function({ formData }) {
+
+        for (const [key, value] of Array.from(formData.entries())) {
             if ((typeof value == "string" && value == "") ||
-                (typeof value == "object" && (value as File).name == "")
+            (typeof value == "object" && (value as File).name == "")
             ) {
                 formData.delete(key)
             }
         }
-    }
 
+        return ({ result }) => {
+            if (result.type == "failure" && result.data?.message) {
+                triggerError(result.data.message)
+            }
+            else if (result.type == "redirect") {
+                toastStore.trigger({
+                    message: "Book Creating Successful",
+                    background: "variant-filled-success"
+                })
+                goto(result.location)
+            }
+        }
+    }
 </script>
 
-<form class="space-y-6" method="post" use:enhance enctype="multipart/form-data" on:formdata={onFormData}>
+<form
+    class="space-y-6"
+    method="post"
+    enctype="multipart/form-data"
+    use:enhance={enhanceHandler}
+>
     <h2 class="h2">Book Creation</h2>
 
     <label class="label">
@@ -195,11 +220,6 @@
     <label class="label">
         <span>Number of pages</span>
         <input class="input" type="number" name="number_of_pages" />
-    </label>
-
-    <label class="label">
-        <span>Publish Date</span>
-        <input class="input" type="date" name="publish_date" />
     </label>
 
     <PublishDate/>

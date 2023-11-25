@@ -1,12 +1,14 @@
 import { json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
-import db from "$lib/server/database"
+import db from "$lib/server/database/"
 
 
 export const DELETE: RequestHandler = async ({ params }) => {
-    const { isbn } = params
+    const { isbn: isbnString } = params
 
-    await db.deleteBookInfo(isbn)
+    const isbn = Number(isbnString) // TODO: isbn validation
 
-    return json({ message: `Successfully deleted book, isbn ${isbn}` })
+    await db.deleteBook(isbn)
+
+    return json({ message: `Successfully deleted book, isbn ${isbnString}` })
 }

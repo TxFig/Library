@@ -1,11 +1,8 @@
 <script lang="ts">
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types"
-
-    import type Book from "$lib/models/Book"
-    import type Author from "$lib/models/Author"
-    import type Publisher from "$lib/models/Publisher"
-    import FuzzySearch from "fuzzy-search";
+    import FuzzySearch from "fuzzy-search"
+    import type { Author, Book, Publisher } from "@prisma/client";
 
 
     export let data: PageData
@@ -94,7 +91,7 @@
                 <!-- svelte-ignore a11y-no-static-element-interactions -->
                 <span
                     class="chip {filters[f] ? 'variant-filled' : 'variant-soft'}"
-                    on:click={() => { filter(f); }}
+                    on:click={() => { filter(f) }}
                     on:keypress
                 >
                     {#if filters[f]}

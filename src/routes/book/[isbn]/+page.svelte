@@ -5,7 +5,7 @@
     import ImageDisplayer from "$lib/components/ImageDisplayer.svelte"
 
     export let data: PageData
-    const { isbn, book, authors, publishers, subjects, location, language } = data
+    const { book } = data
 
     const images = [
         book.front_image ? `/images/${book.front_image}` : null,
@@ -13,7 +13,7 @@
     ].filter(Boolean) as string[]
 
     async function deleteBook() {
-        await fetch(`/api/book/${isbn}`, { method: "DELETE" })
+        await fetch(`/api/book/${book.isbn}`, { method: "DELETE" })
         window.location.href = "/"
     }
 
@@ -34,7 +34,7 @@
     }
 
     function redirectToEditPage() {
-        window.location.href = `/book/edit/${isbn}`
+        window.location.href = `/book/edit/${book.isbn}`
     }
 
     let subjectLimit = 10
@@ -62,49 +62,49 @@
             <p>Publish Date: {book.publish_date}</p>
         {/if}
 
-        {#if authors.length != 0}
+        {#if book.authors.length != 0}
             <div class="space-y-2">
                 <p>Authors:</p>
                 <div class="flex gap-2 flex-wrap">
-                    {#each authors as author}
+                    {#each book.authors as author}
                         <a class="chip variant-ringed-primary" href="/author/{author.name}">{author.name}</a>
                     {/each}
                 </div>
             </div>
         {/if}
-        {#if publishers.length != 0}
+        {#if book.publishers.length != 0}
             <div class="space-y-2">
                 <p>Publishers:</p>
                 <div class="flex gap-2 flex-wrap">
-                    {#each publishers as publisher}
+                    {#each book.publishers as publisher}
                         <a class="chip variant-ringed-primary" href="/publisher/{publisher.name}">{publisher.name}</a>
                     {/each}
                 </div>
             </div>
         {/if}
-        {#if subjects.length != 0}
+        {#if book.subjects.length != 0}
             <div class="space-y-2">
                 <p>Subjects:</p>
                 <div class="flex gap-2 flex-wrap">
-                    {#each subjects.slice(0, subjectLimit) as subject}
+                    {#each book.subjects.slice(0, subjectLimit) as subject}
                         <span class="chip variant-ringed-secondary px-4">{subject.value}</span>
                     {/each}
-                    {#if subjects.length > subjectLimit}
+                    {#if book.subjects.length > subjectLimit}
                         <button class="chip variant-ringed-tertiary px-4" on:click={() => subjectLimit = Infinity}>More...</button>
                     {/if}
                 </div>
             </div>
         {/if}
-        {#if location}
+        {#if book.location}
             <div class="flex items-center gap-1">
                 <Icon icon="mdi:location" width="16" />
-                <p>Location: {location.value}</p>
+                <p>Location: {book.location.value}</p>
             </div>
         {/if}
-        {#if language}
+        {#if book.language}
             <div class="flex items-center gap-1">
                 <Icon icon="mdi:language" width="16" />
-                <p>Language: {language.value}</p>
+                <p>Language: {book.language.value}</p>
             </div>
         {/if}
         <div class="flex items-center gap-1">

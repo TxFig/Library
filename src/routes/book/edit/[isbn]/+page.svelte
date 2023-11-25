@@ -1,36 +1,25 @@
 <script lang="ts">
     import type { PageData } from "./$types"
-    import { page } from "$app/stores"
     import { enhance } from "$app/forms"
 
     import { Autocomplete, InputChip, FileDropzone, getToastStore, ListBox, ListBoxItem } from '@skeletonlabs/skeleton'
     import type { AutocompleteOption, ToastSettings } from '@skeletonlabs/skeleton'
     import Icon from "@iconify/svelte"
-    import PublishDate from "$lib/components/book-form/PublishDate.svelte";
+    import PublishDate from "$lib/components/book-form/PublishDate.svelte"
 
 
     export let data: PageData
     const {
-        isbn, book, bookAuthors, bookPublishers, bookSubjects, bookLocation, bookLanguage,
+        book,
         allAuthors, allPublishers, allSubjects, allLocations, allLanguages
     } = data
 
     const toastStore = getToastStore()
 
-    let day: string | undefined,
-        month: string | undefined,
-        year: string | undefined
-
-    if (book.publish_date) {
-        const parts = book.publish_date.split("-")
-        if (parts.length == 1) year = book.publish_date
-        else if (parts.length == 2) [month, year] = parts
-        else [day, month, year] = parts
-    }
 
     //#region --------------------------------------------------- Authors Input
     let authorInputValue = ""
-    let authorsList: string[] = [...bookAuthors.map(author => author.name)]
+    let authorsList: string[] = [...book.authors.map(author => author.name)]
     const authors: AutocompleteOption[] = [
         ...allAuthors.map(author => ({
             label: author.name,
@@ -48,7 +37,7 @@
     //#endregion
     //#region ------------------------------------------------ Publishers Input
     let publisherInputValue = ""
-    let publisherList: string[] = [...bookPublishers.map(publisher => publisher.name)]
+    let publisherList: string[] = [...book.publishers.map(publisher => publisher.name)]
     const publishers: AutocompleteOption[] = [
         ...allPublishers.map(publisher => ({
             label: publisher.name,
@@ -66,7 +55,7 @@
     //#endregion
     //#region -------------------------------------------------- Subjects Input
     let subjectInputValue = ""
-    let subjectsList: string[] = [...bookSubjects.map(subject => subject.value)]
+    let subjectsList: string[] = [...book.subjects.map(subject => subject.value)]
     const subjects: AutocompleteOption[] = [
         ...allSubjects.map(subject => ({
             label: subject.value,
@@ -123,7 +112,7 @@
 
     //#endregion
     //#region -------------------------------------------------- Location Input
-    let locationSelected: string = bookLocation?.value ?? ""
+    let locationSelected: string = book.location?.value ?? ""
     let addLocationValue: string
     let locations = allLocations.map(loc => loc.value)
 
@@ -144,7 +133,7 @@
 
     //#endregion
     //#region -------------------------------------------------- Language Input
-    let languageSelected: string = bookLanguage?.value ?? ""
+    let languageSelected: string = book.language?.value ?? ""
     let addLanguageValue: string
     let languages = allLanguages.map(lang => lang.value)
 
@@ -176,7 +165,7 @@
             }
         }
 
-        formData.set("isbn", isbn)
+        formData.set("isbn", book.isbn.toString())
     }
 
 </script>
@@ -186,7 +175,7 @@
 
     <label class="label">
         <span>ISBN</span>
-        <input class="input" type="number" name="isbn" value={isbn} required disabled/>
+        <input class="input" type="number" name="isbn" value={book.isbn} required disabled/>
     </label>
 
     <label class="label">
@@ -204,12 +193,11 @@
         <input class="input" type="number" name="number_of_pages" value={book.number_of_pages}/>
     </label>
 
-    <label class="label">
-        <span>Publish Date</span>
-        <input class="input" type="date" name="publish_date" value={book.publish_date}/>
-    </label>
-
-    <PublishDate day={day} month={month} year={year}/>
+    <PublishDate
+        day={book.publish_date?.getDay()}
+        month={book.publish_date?.getMonth()}
+        year={book.publish_date?.getFullYear()}
+    />
 
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label">
@@ -312,7 +300,7 @@
     </label>
 
     <div class="flex justify-center gap-4 !mt-16">
-        <a href={`/book/${isbn}`} class="btn variant-ghost-error px-10 py-3">Cancel</a>
+        <a href={`/book/${book.isbn}`} class="btn variant-ghost-error px-10 py-3">Cancel</a>
         <button type="submit" class="btn variant-filled-primary px-10 py-3">Submit</button>
     </div>
 </form>

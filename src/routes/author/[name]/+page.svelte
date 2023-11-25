@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Icon from "@iconify/svelte";
+    import Icon from "@iconify/svelte"
     import type { PageData } from "./$types"
     export let data: PageData
-    const { author, books } = data
+    const { author } = data
 
 </script>
 
@@ -15,7 +15,7 @@
             grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10
             gap-5 px-5 justify-items-center"
     >
-        {#each books as book}
+        {#each author.books as book}
         <a href={"/book/" + book.isbn} class="flex flex-col items-center justify-center">
             {#if book.front_image}
                 <img

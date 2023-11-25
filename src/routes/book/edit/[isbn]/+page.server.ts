@@ -1,20 +1,16 @@
 import type { Actions, PageServerLoad } from "./$types"
 import { error, fail, redirect } from "@sveltejs/kit"
 
-import db from "$lib/server/database"
-import saveImage, { formatImageFilename } from "$lib/utils/images"
+import db from "$lib/server/database/"
+import type { InsertBookData } from "$lib/server/database"
 
-import type { InsertBook } from "$lib/models/Book"
-import type { InsertAuthor } from "$lib/models/Author"
-import type { InsertPublisher } from "$lib/models/Publisher"
-import type { InsertSubject } from "$lib/models/Subject"
-import type { InsertLocation } from "$lib/models/Location"
-import type { InsertLanguage } from "$lib/models/Language"
 
 
 export const load: PageServerLoad = async ({ params }) => {
-    const { isbn } = params
-    const book = await db.getBookByISBN(isbn)
+    const { isbn: isbnString } = params
+
+    const isbn = Number(isbnString) // TODO: validation (not nan, integer, inside 32int limit)
+    const book = await db.getEntireBookByISBN(isbn)
 
     if (!book) {
         throw error(404, {
@@ -23,13 +19,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }
 
     return {
-        isbn, book,
-        bookAuthors: await db.getAuthorsByBook(book),
-        bookPublishers: await db.getPublishersByBook(book),
-        bookSubjects: await db.getSubjectsByBook(book),
-        bookLocation: await db.getLocationByBook(book),
-        bookLanguage: await db.getLanguageByBook(book),
-
+        book,
         allAuthors: await db.getAllAuthors(),
         allPublishers: await db.getAllPublishers(),
         allSubjects: await db.getAllSubjects(),
@@ -51,60 +41,33 @@ export const actions: Actions = {
         }
 
         const frontImage = formData.get("front_image") as File | null
-        let frontImageFilename: string | null = null
-        if (frontImage) {
-            frontImageFilename = formatImageFilename(isbn, "front", frontImage.name)
-            const content = Buffer.from(await frontImage.arrayBuffer())
-            await saveImage(frontImageFilename, content)
-        }
-
         const backImage = formData.get("back_image") as File | null
-        let backImageFilename: string | null = null
-        if (backImage) {
-            backImageFilename = formatImageFilename(isbn, "back", backImage.name)
-            const content = Buffer.from(await backImage.arrayBuffer())
-            await saveImage(backImageFilename, content)
-        }
-
         const day = formData.get("publish_date:day") as string | null
         const month = formData.get("publish_date:month") as string | null
         const year = formData.get("publish_date:year") as string | null
         const publish_date = [day, month, year].filter(Boolean).join("-")
 
-        const book: InsertBook = {
+        const book: InsertBookData["book"] = {
             title: formData.get("title") as string,
             subtitle: formData.get("subtitle") as string | null,
             number_of_pages: Number(formData.get("number_of_pages")),
-            publish_date: publish_date,
+            publish_date: publish_date ? new Date(publish_date) : null,
 
             isbn: Number(isbn),
             isbn10: null, // TODO: fix: always overwrites previous values (from OpenLibrary)
             isbn13: null, // TODO: ^^^
 
-            front_image: frontImageFilename,
-            back_image: backImageFilename
+            front_image: frontImage,
+            back_image: backImage
         }
 
-        const formAuthors = formData.getAll("author") as string[]
-        const authors: InsertAuthor[] = formAuthors.map(author => ({ name: author }))
+        const authors: InsertBookData["authors"] = formData.getAll("author") as string[]
+        const publishers: InsertBookData["publishers"] = formData.getAll("publisher") as string[]
+        const subjects: InsertBookData["subjects"] = formData.getAll("subject") as string[]
+        const location: InsertBookData["location"] = formData.get("location") as string | undefined ?? null
+        const language: InsertBookData["language"] = formData.get("language") as string | undefined ?? null
 
-        const formPublishers = formData.getAll("publisher") as string[]
-        const publishers: InsertPublisher[] = formPublishers.map(publisher => ({ name: publisher }))
-
-        const formSubjects = formData.getAll("subject") as string[]
-        const subjects: InsertSubject[] = formSubjects.map(subject => ({ value: subject }))
-
-        const formLocation = formData.get("location") as string | undefined
-        const location: InsertLocation | null = formLocation
-            ? { value: formLocation }
-            : null
-
-        const formLanguage = formData.get("language") as string | undefined
-        const language: InsertLanguage | null = formLanguage
-            ? { value: formLanguage }
-            : null
-
-        await db.updateBookInfo({ book, authors, publishers, subjects, location, language })
+        await db.updateBook({ book, authors, publishers, subjects, location, language })
         throw redirect(303, `/book/${book.isbn}`)
     }
 }

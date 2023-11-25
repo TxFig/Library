@@ -4,17 +4,17 @@
     import NavBar from "$lib/components/NavBar.svelte"
 
     import { initializeStores } from "@skeletonlabs/skeleton"
-    initializeStores();
+    initializeStores()
 
     import { afterNavigate } from "$app/navigation"
     afterNavigate((params: any) => {
         const isNewPage: boolean =
             params.from &&
             params.to &&
-            params.from.route.id !== params.to.route.id;
-        const elemPage = document.querySelector("#page");
+            params.from.route.id !== params.to.route.id
+        const elemPage = document.querySelector("#page")
         if (isNewPage && elemPage !== null) {
-            elemPage.scrollTop = 0;
+            elemPage.scrollTop = 0
         }
     })
 

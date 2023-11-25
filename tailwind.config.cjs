@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config}*/
-const { skeleton } = require('@skeletonlabs/tw-plugin');
-const path = require("path");
+const { skeleton } = require('@skeletonlabs/tw-plugin')
+const path = require("path")
 
 const config = {
     content: [
@@ -26,6 +26,6 @@ const config = {
     ],
 
     darkMode: "class",
-};
+}
 
-module.exports = config;
+module.exports = config

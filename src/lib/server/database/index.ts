@@ -1,294 +1,351 @@
-import * as sqlite from "sqlite"
-import sqlite3 from "sqlite3"
-import fs from "fs"
-import path from "path"
+import { dev } from "$app/environment"
+import saveImage, { deleteImage, formatImageFilename } from "$lib/utils/images"
+import { PrismaClient } from "@prisma/client"
+import type { Book, Location, Language, Author, Publisher, Subject, Prisma } from "@prisma/client"
 
-import { getAllBooks, getBookByISBN, getBooksByAuthor, getBooksByPublisher, updateBook } from "./book"
-import { getAllAuthors, getAuthorByName, getAuthorsByBook } from "./authors"
-import { getAllPublishers, getPublisherByName, getPublishersByBook } from "./publishers"
-import { getAllSubjects, getSubjectsByBook } from "./subjects"
-import { getAllLocations, getLocationByBook } from "./location"
-import { getAllLanguages, getLanguageByBook } from "./language"
-
-import type { Book, InsertBookData } from "$lib/models/Book"
-import type { Author, BooksAuthors } from "$lib/models/Author"
-import type { Publisher, BooksPublishers } from "$lib/models/Publisher"
-import type { Subject, BooksSubjects } from "$lib/models/Subject"
-import type Location from "$lib/models/Location"
-import type Language from "$lib/models/Language"
-
-import { DATABASE_PATH, IMAGES_PATH } from "$env/static/private"
-
-
-export const db = await sqlite.open({
-    filename: DATABASE_PATH,
-    driver: sqlite3.Database
-})
-
-import createTablesSQL from "#/database/create-tables.sql?raw"
-await db.exec(createTablesSQL)
-
-type Table = {
-    Book: Book
-    Authors: Author
-    Publishers: Publisher
-    Subjects: Subject
-    Locations: Location
-    Languages: Language
-}
-type LinkingTable = {
-    Authors: BooksAuthors,
-    Publishers: BooksPublishers,
-    Subjects: BooksSubjects,
+declare global {
+    var prismaClient: PrismaClient
 }
 
-const linkingTableRelations = {
-    Authors   : { table: "BooksAuthors"   , otherId: "author_id"    },
-    Publishers: { table: "BooksPublishers", otherId: "publisher_id" },
-    Subjects  : { table: "BooksSubjects"  , otherId: "subject_id"   }
-} as const
 
-const oneToManyBookColumns = {
-    Locations: "location_id",
-    Languages: "language_id"
-} as const
-type OneToManyTable = keyof typeof oneToManyBookColumns
+export const prisma = getPrismaClientInstance()
 
-async function insertPropertyOrGetId<
-    TK extends keyof Table,
-    C extends keyof Table[TK]
->(
-    table: TK,
-    column: C,
-    value: Table[TK][C]
-): Promise<number> {
-    await db.run(`INSERT OR IGNORE INTO ${table as string} (${column as string}) VALUES (?)`, [value])
-    const result = await db.get<{ id: number }>(
-        `SELECT id FROM ${table as string} WHERE ${column as string} = ?`,
-        [value]
-    )
 
-    return result!.id
+function getPrismaClientInstance() {
+    if (dev) {
+        console.log("dev server db connection")
+        global.prismaClient ??= new PrismaClient()
+        return global.prismaClient
+    } else {
+        return new PrismaClient()
+    }
 }
 
-async function insertToLinkingTable<
-    T extends keyof LinkingTable,
->(
-    table: T,
-    bookId: number,
-    otherId: number
-): Promise<void> {
-    const { table: linkingTable, otherId: otherIdString } = linkingTableRelations[table]
-    await db.run(`
-        INSERT OR IGNORE INTO ${linkingTable} (book_id, ${otherIdString})
-        VALUES (?, ?)`,
-        [bookId, otherId]
-    )
+export async function close() {
+    await prisma.$disconnect()
+    console.log("disconnected db")
 }
 
-async function updateManyToManyRelation<TK extends keyof LinkingTable, T extends Table[TK]>(
-    table: TK,
-    oldProperties: T[],
-    newProperties: Omit<T, "id">[],
-    compareColumn: keyof Omit<T, "id">,
-    bookId: number
-): Promise<void> {
-    // New properties that need to be inserted
-    // (exclude old properties from new properties)
-    const propertiesForInsert = newProperties.filter(
-        newProperty => !oldProperties.some(
-            oldProperty => oldProperty[compareColumn] == newProperty[compareColumn]
-        )
-    )
 
-    // Old properties that need to be removed
-    // (exclude new properties from old properties)
-    const propertiesForRemoval = oldProperties.filter(
-        oldProperty => !newProperties.some(
-            newProperty => newProperty[compareColumn] == oldProperty[compareColumn]
-        )
-    )
+type InsertBook = Omit<Book, "locationId" | "languageId" | "front_image" | "back_image"> & {
+    front_image: File | null
+    back_image: File | null
+}
+export type InsertBookData = {
+    book: InsertBook
+    location: string | null
+    language: string | null
+    authors: string[]
+    publishers: string[]
+    subjects: string[]
+}
 
-    // Insert book-property relations for the new properties
-    for (const newProperty of propertiesForInsert) {
-        const otherId = await insertPropertyOrGetId(
-            table,
-        compareColumn as keyof Table[TK],
-        newProperty[compareColumn] as Table[TK][keyof Table[TK]]
-        )
-        await insertToLinkingTable(table, bookId, otherId)
+export async function createBook({ book, location, language, authors, publishers, subjects }: InsertBookData): Promise<Error | void> {
+    console.log("Creating book", book.isbn, book.title)
+
+    let frontImageFilename: string | null = null
+    if (book.front_image) {
+        frontImageFilename = formatImageFilename(book.isbn, "front", book.front_image.name)
+        const error = await saveImage(frontImageFilename, await book.front_image.arrayBuffer())
+        if (error) return error
     }
 
-    // Delete all relations between the book and removed properties
-    // And Delete the property is it doesn't have any other books
-    const { table: linkingTable, otherId } = linkingTableRelations[table]
-    for (const property of propertiesForRemoval) {
-        await db.run(
-            `DELETE FROM ${linkingTable} WHERE book_id = ? AND ${otherId} = ?`,
-            [bookId, property.id]
-        )
+    let backImageFilename: string | null = null
+    if (book.back_image) {
+        backImageFilename = formatImageFilename(book.isbn, "back", book.back_image.name)
+        const error = await saveImage(backImageFilename, await book.back_image.arrayBuffer())
+        if (error) return error
+    }
 
-        const remainingRelations = await db.all<LinkingTable[TK][]>(`
-            SELECT * FROM ${linkingTable}
-            WHERE ${otherId} = ?
-        `, [property.id])
-        if (remainingRelations.length == 0) {
-            db.run(`DELETE FROM ${table} WHERE id = ?`, [property.id])
+    try {
+        await prisma.book.create({
+            data: {
+                ...book,
+                front_image: frontImageFilename,
+                back_image: backImageFilename,
+                location: location ? {
+                    connectOrCreate: {
+                        where: { value: location },
+                        create: { value: location }
+                    }
+                } : undefined,
+                language: language ? {
+                    connectOrCreate: {
+                        where: { value: language },
+                        create: { value: language }
+                    }
+                } : undefined,
+                authors: {
+                    connectOrCreate: authors.map(author => ({
+                        where: { name: author },
+                        create: { name: author }
+                    }))
+                },
+                publishers: {
+                    connectOrCreate: publishers.map(publisher => ({
+                        where: { name: publisher },
+                        create: { name: publisher }
+                    }))
+                },
+                subjects: {
+                    connectOrCreate: subjects.map(subject => ({
+                        where: { value: subject },
+                        create: { value: subject }
+                    }))
+                }
+            },
+            include: {
+                location: Boolean(location),
+                language: Boolean(language),
+                authors: true,
+                publishers: true,
+                subjects: true
+            }
+        })
+    } catch (error) {
+        console.log("Error creating book")
+        console.log(error)
+    }
+}
+
+export async function updateBook({ book, location, language, authors, publishers, subjects }: InsertBookData): Promise<Error | void> {
+    console.log("Updating book", book.isbn, book.title)
+
+    let frontImageFilename: string | null = null
+    if (book.front_image) {
+        frontImageFilename = formatImageFilename(book.isbn, "front", book.front_image.name)
+
+        const deleteError = await deleteImage(frontImageFilename)
+        if (deleteError) return deleteError
+        const saveError = await saveImage(frontImageFilename, await book.front_image.arrayBuffer())
+        if (saveError) return deleteError
+    }
+
+    let backImageFilename: string | null = null
+    if (book.back_image) {
+        backImageFilename = formatImageFilename(book.isbn, "back", book.back_image.name)
+
+        const deleteError = await deleteImage(backImageFilename)
+        if (deleteError) return deleteError
+        const saveError = await saveImage(backImageFilename, await book.back_image.arrayBuffer())
+        if (saveError) return saveError
+    }
+
+    try {
+        await prisma.book.update({
+            where: { isbn: book.isbn },
+            data: {
+                ...book,
+                front_image: frontImageFilename,
+                back_image: backImageFilename,
+                location: location ? {
+                    connectOrCreate: {
+                        where: { value: location },
+                        create: { value: location }
+                    }
+                } : undefined,
+                language: language ? {
+                    connectOrCreate: {
+                        where: { value: language },
+                        create: { value: language }
+                    }
+                } : undefined,
+                authors: {
+                    connectOrCreate: authors.map(author => ({
+                        where: { name: author },
+                        create: { name: author }
+                    }))
+                },
+                publishers: {
+                    connectOrCreate: publishers.map(publisher => ({
+                        where: { name: publisher },
+                        create: { name: publisher }
+                    }))
+                },
+                subjects: {
+                    connectOrCreate: subjects.map(subject => ({
+                        where: { value: subject },
+                        create: { value: subject }
+                    }))
+                }
+            },
+            include: {
+                location: Boolean(location),
+                language: Boolean(language),
+                authors: true,
+                publishers: true,
+                subjects: true
+            }
+        })
+    } catch (error) {
+        console.log("Error updating book")
+        console.log(error)
+    }
+}
+
+export async function deleteBook(isbn: number): Promise<Error | void> {
+    console.log("Deleting book", isbn)
+
+    const book = await prisma.book.findUnique({
+        where: { isbn },
+        include: {
+            authors:    { include: { books: true } },
+            publishers: { include: { books: true } },
+            subjects:   { include: { books: true } },
         }
-    }
-}
-
-async function deleteManyToManyRelation<T extends keyof LinkingTable>(table: T, bookId: number): Promise<void> {
-    const { table: linkingTable, otherId } = linkingTableRelations[table]
-
-    const relations = await db.all<LinkingTable[T][]>(
-        `SELECT * FROM ${linkingTable} WHERE book_id = ?`,
-        [bookId]
-    )
-
-    for (const rel of relations) {
-        const other_id = rel[otherId as keyof LinkingTable[T]]
-        db.run(`DELETE FROM ${linkingTable} WHERE book_id = ? AND ${otherId} = ?`, [bookId, other_id])
-
-        const remainingRelations = await db.all<LinkingTable[T][]>(`
-            SELECT * FROM ${linkingTable}
-            WHERE ${otherId} = ?
-        `, [other_id])
-        if (remainingRelations.length == 0) {
-            db.run(`DELETE FROM ${table} WHERE id = ?`, [other_id])
-        }
-    }
-}
-
-async function deleteOneToManyRelation(table: OneToManyTable, id: number | null | undefined): Promise<void> {
-    if (!id) return
-
-    const column = oneToManyBookColumns[table]
-    const booksWithThisProperty = await db.all<Book[]>(`SELECT * FROM Books WHERE ${column} = ?`, id)
-
-    if (booksWithThisProperty.length == 0) {
-        db.run(`DELETE FROM ${table} WHERE id = ?`, [id])
-    }
-}
-
-
-export async function insertBookInfo({ book, authors, publishers, subjects, location, language }: InsertBookData): Promise<void> {
-    const locationId = location ? await insertPropertyOrGetId("Locations", "value", location.value) : null
-    const languageId = language ? await insertPropertyOrGetId("Languages", "value", language.value) : null
-
-    const { lastID: bookId } = await db.run(`
-        INSERT INTO Books (
-            title, subtitle, number_of_pages, publish_date, isbn, isbn10, isbn13,
-            front_image, back_image,
-            location_id, language_id
-        ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?,
-            ?, ?,
-            ?, ?
-        )`, [
-            book.title,
-            book.subtitle,
-            book.number_of_pages,
-            book.publish_date,
-            book.isbn,
-            book.isbn10,
-            book.isbn13,
-
-            book.front_image,
-            book.back_image,
-
-            locationId,
-            languageId
-        ]
-    )
-
-    if (!bookId) { //? program crashes before this (add try/catch blocks in db.run() (use better-sqlite3))
-        return
-    }
-
-    for (const author of authors) {
-        const authorId = await insertPropertyOrGetId("Authors", "name", author.name)
-        await insertToLinkingTable("Authors", bookId, authorId)
-    }
-
-    for (const publisher of publishers) {
-        const publisherId = await insertPropertyOrGetId("Publishers", "name", publisher.name)
-        await insertToLinkingTable("Publishers", bookId, publisherId)
-    }
-
-    for (const subject of subjects) {
-        const subjectId = await insertPropertyOrGetId("Subjects", "value", subject.value)
-        await insertToLinkingTable("Subjects", bookId, subjectId)
-    }
-}
-
-export async function updateBookInfo({ book, authors, publishers, subjects, location, language }: InsertBookData): Promise<void> {
-    const oldBook = await getBookByISBN(book.isbn.toString())
-    if (!oldBook) return
-
-    const locationId = location ? await insertPropertyOrGetId("Locations", "value", location.value) : null
-    const languageId = language ? await insertPropertyOrGetId("Languages", "value", language.value) : null
-
-    await updateBook({
-        id: oldBook.id,
-
-        title: book.title,
-        subtitle: book.subtitle,
-        number_of_pages: book.number_of_pages,
-        publish_date: book.publish_date,
-        isbn: book.isbn,
-        isbn10: book.isbn10,
-        isbn13: book.isbn13,
-
-        front_image: book.front_image ?? oldBook.front_image,
-        back_image: book.back_image ?? oldBook.back_image,
-
-        location_id: locationId,
-        language_id: languageId,
     })
 
-    const oldAuthors = await getAuthorsByBook(oldBook)
-    updateManyToManyRelation("Authors", oldAuthors, authors, "name", oldBook.id)
-    const oldPublishers = await getPublishersByBook(oldBook)
-    updateManyToManyRelation("Publishers", oldPublishers, publishers, "name", oldBook.id)
-    const oldSubjects = await getSubjectsByBook(oldBook)
-    updateManyToManyRelation("Subjects", oldSubjects, subjects, "value", oldBook.id)
-}
+    if (!book) {
+        return
+        // TODO: throw error
+    }
 
-export async function deleteBookInfo(isbn: string) {
-    const book = await getBookByISBN(isbn)
-    if (!book) return
+    // Delete book row
+    await prisma.book.delete({ where: { isbn } })
+
+    //* --- Delete authors from this book who don't have any other books
+    // Filter authors who don't have any other book besides the one being removed
+    const booklessAuthors = book.authors.filter(
+        author => author.books.filter(
+            authorBook => authorBook.isbn != isbn
+        ).length == 0
+    )
+    const booklessAuthorsIDs = booklessAuthors.map(author => author.id)
+
+    // Delete all bookless authors
+    await prisma.author.deleteMany({
+        where: {
+            id: { in: booklessAuthorsIDs }
+        }
+    })
+
+    //* --- Delete publishers from this book who don't have any other books
+    // Filter publishers who don't have any other book besides the one being removed
+    const booklessPublishers = book.publishers.filter(
+        publisher => publisher.books.filter(
+            publisherBook => publisherBook.isbn != isbn
+        ).length == 0
+    )
+    const booklessPublishersIDs = booklessPublishers.map(publisher => publisher.id)
+
+    // Delete all bookless publishers
+    await prisma.publisher.deleteMany({
+        where: {
+            id: { in: booklessPublishersIDs }
+        }
+    })
+
+    //* --- Delete subjects from this book who don't have any other books
+    // Filter subjects who don't have any other book besides the one being removed
+    const booklessSubjects = book.subjects.filter(
+        subject => subject.books.filter(
+            subjectBook => subjectBook.isbn != isbn
+        ).length == 0
+    )
+    const booklessSubjectsIDs = booklessSubjects.map(subject => subject.id)
+
+    // Delete all bookless subjects
+    await prisma.subject.deleteMany({
+        where: {
+            id: { in: booklessSubjectsIDs }
+        }
+    })
+
 
     if (book.front_image) {
-        fs.unlink(path.join(IMAGES_PATH, book.front_image), (err) => {
-            if (err) console.log("Error deleting book front image", err)
-        })
+        const error = await deleteImage(book.front_image)
+        if (error) return error
     }
     if (book.back_image) {
-        fs.unlink(path.join(IMAGES_PATH, book.back_image), (err) => {
-            if (err) console.log("Error deleting book back image", err)
-        })
+        const error = await deleteImage(book.back_image)
+        if (error) return error
     }
+}
 
-    db.run("DELETE FROM Books WHERE id = ?", [book.id])
 
-    await deleteManyToManyRelation("Authors", book.id)
-    await deleteManyToManyRelation("Publishers", book.id)
-    await deleteManyToManyRelation("Subjects", book.id)
+export async function doesBookExist(isbn: number): Promise<boolean> {
+    const book = await prisma.book.findUnique({
+        where: { isbn }
+    })
+    return Boolean(book)
+}
 
-    await deleteOneToManyRelation("Locations", book.location_id)
-    await deleteOneToManyRelation("Languages", book.language_id)
+
+type EntireBook = Book & {
+    authors: Author[]
+    publishers: Publisher[]
+    subjects: Subject[]
+    location: Location | null
+    language: Language | null
+}
+
+export function getEntireBookByISBN(isbn: number): Promise<EntireBook | null> {
+    return prisma.book.findUnique({
+        where: { isbn },
+        include: {
+            authors: true,
+            publishers: true,
+            subjects: true,
+            location: true,
+            language: true
+        }
+    })
+}
+
+export function getAllBooks(): Promise<Book[]> {
+    return prisma.book.findMany()
+}
+
+export function getAllAuthors(): Promise<Author[]> {
+    return prisma.author.findMany()
+}
+export function getAllPublishers(): Promise<Publisher[]> {
+    return prisma.publisher.findMany()
+}
+export function getAllSubjects(): Promise<Subject[]> {
+    return prisma.subject.findMany()
+}
+export function getAllLocations(): Promise<Location[]> {
+    return prisma.location.findMany()
+}
+export function getAllLanguages(): Promise<Language[]> {
+    return prisma.language.findMany()
+}
+
+type AuthorWithBooks = Author & {
+    books: Book[]
+}
+export async function getAuthorWithBooksByName(name: string): Promise<AuthorWithBooks | null> {
+    return prisma.author.findUnique({
+        where: { name },
+        include: {
+            books: true
+        }
+    })
+}
+
+
+type PublisherWithBooks = Publisher & {
+    books: Book[]
+}
+export async function getPublisherWithBooksByName(name: string): Promise<PublisherWithBooks | null> {
+    return prisma.publisher.findUnique({
+        where: { name },
+        include: {
+            books: true
+        }
+    })
 }
 
 
 export default {
-    insertBookInfo,
-    updateBookInfo,
-    deleteBookInfo,
+    close,
+    createBook,
+    updateBook,
+    deleteBook,
 
-    getBookByISBN,
-    getAuthorByName,
-    getPublisherByName,
+    doesBookExist,
+    getEntireBookByISBN,
 
     getAllBooks,
     getAllAuthors,
@@ -297,12 +354,6 @@ export default {
     getAllLocations,
     getAllLanguages,
 
-    getAuthorsByBook,
-    getPublishersByBook,
-    getSubjectsByBook,
-    getLocationByBook,
-    getLanguageByBook,
-
-    getBooksByAuthor,
-    getBooksByPublisher,
+    getAuthorWithBooksByName,
+    getPublisherWithBooksByName
 }

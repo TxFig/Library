@@ -1,7 +1,7 @@
 <script lang="ts">
-    export let day: string | undefined = undefined
-    export let month: string | undefined = undefined
-    export let year: string | undefined = undefined
+    export let day: number | undefined = undefined
+    export let month: number | undefined = undefined
+    export let year: number | undefined = undefined
 </script>
 
 <label class="label">

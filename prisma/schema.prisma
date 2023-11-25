@@ -1,0 +1,68 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Book {
+    isbn Int @id
+
+    title           String
+    subtitle        String?
+    number_of_pages Int?
+    publish_date    DateTime?
+
+    isbn10 Int?
+    isbn13 Int?
+
+    front_image String?
+    back_image  String?
+
+    location   Location? @relation(fields: [locationId], references: [id])
+    locationId Int?
+
+    language   Language? @relation(fields: [languageId], references: [id])
+    languageId Int?
+
+    authors    Author[]
+    publishers Publisher[]
+    subjects   Subject[]
+}
+
+model Location {
+    id    Int    @id @default(autoincrement())
+    value String @unique
+
+    books Book[]
+}
+
+model Language {
+    id    Int    @id @default(autoincrement())
+    value String @unique
+
+    books Book[]
+}
+
+model Author {
+    id   Int    @id @default(autoincrement())
+    name String @unique
+
+    books Book[]
+}
+
+model Publisher {
+    id   Int    @id @default(autoincrement())
+    name String @unique
+
+    books Book[]
+}
+
+model Subject {
+    id    Int    @id @default(autoincrement())
+    value String @unique
+
+    books Book[]
+}

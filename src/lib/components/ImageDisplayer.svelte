@@ -1,6 +1,6 @@
 <script lang="ts">
     import Icon from "@iconify/svelte"
-    import { onMount } from "svelte";
+    import { onMount } from "svelte"
 
     export let images: string[]
     let elemCarousel: HTMLDivElement
@@ -10,16 +10,16 @@
         const x =
             elemCarousel.scrollLeft === 0
                 ? elemCarousel.clientWidth * elemCarousel.childElementCount // loop
-                : elemCarousel.scrollLeft - elemCarousel.clientWidth; // step left
-        elemCarousel.scroll(x, 0);
+                : elemCarousel.scrollLeft - elemCarousel.clientWidth // step left
+        elemCarousel.scroll(x, 0)
     }
 
     function carouselRight(): void {
         const x =
             elemCarousel.scrollLeft === elemCarousel.scrollWidth - elemCarousel.clientWidth
                 ? 0 // loop
-                : elemCarousel.scrollLeft + elemCarousel.clientWidth; // step right
-        elemCarousel.scroll(x, 0);
+                : elemCarousel.scrollLeft + elemCarousel.clientWidth // step right
+        elemCarousel.scroll(x, 0)
     }
 
     function adjustImageMargin() {
