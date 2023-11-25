@@ -8,7 +8,6 @@ build
 .env.example
 
 static/images
-database/database.sqlite
 
 .git
 .gitignore

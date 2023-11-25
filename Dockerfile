@@ -9,7 +9,7 @@ COPY . .
 RUN npm run build
 
 # Remove unnecessary dev files
-RUN rm -rf src .svelte-kit *.js *.cjs *.ts tsconfig.json
+RUN rm -rf src .svelte-kit *.js *.cjs *.ts tsconfig.json prisma
 
 # Remove dev dependencies
 RUN npm prune --omit=dev
