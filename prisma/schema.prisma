@@ -7,16 +7,18 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+//import {  } from "./auth"
+
 model Book {
-    isbn Int @id
+    isbn Int @id @unique
 
     title           String
     subtitle        String?
     number_of_pages Int?
     publish_date    DateTime?
 
-    isbn10 Int?
-    isbn13 Int?
+    isbn10 Int? @unique
+    isbn13 Int? @unique
 
     front_image String?
     back_image  String?
