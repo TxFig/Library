@@ -1,7 +1,7 @@
 import type { Actions, PageServerLoad } from "./$types"
 import { fail, redirect } from "@sveltejs/kit"
 
-import db, { type InsertBookData } from "$lib/server/database/"
+import db, { type InsertBookData } from "$lib/server/database/book"
 
 
 export const load: PageServerLoad = async () => ({

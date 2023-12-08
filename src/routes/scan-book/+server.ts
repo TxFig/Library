@@ -2,7 +2,7 @@ import { json, error } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
 
 import { getOpenLibraryBook } from "$lib/utils/open-library"
-import db from "$lib/server/database/"
+import db from "$lib/server/database/book"
 
 
 export const POST: RequestHandler = async ({ request }) => {

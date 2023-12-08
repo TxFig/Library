@@ -1,8 +1,7 @@
 import type { Actions, PageServerLoad } from "./$types"
 import { error, fail, redirect } from "@sveltejs/kit"
 
-import db from "$lib/server/database/"
-import type { InsertBookData } from "$lib/server/database"
+import db, { type InsertBookData } from "$lib/server/database/book"
 
 
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { AppBar, popup, type PopupSettings } from "@skeletonlabs/skeleton"
+    import { AppBar, popup, type PopupSettings, LightSwitch } from "@skeletonlabs/skeleton"
     import Icon from "@iconify/svelte"
     import { page } from "$app/stores";
 

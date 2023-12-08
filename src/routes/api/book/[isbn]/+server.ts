@@ -1,6 +1,6 @@
 import { json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
-import db from "$lib/server/database/"
+import db from "$lib/server/database/book"
 
 
 export const DELETE: RequestHandler = async ({ params }) => {
