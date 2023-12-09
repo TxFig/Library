@@ -107,3 +107,15 @@ export async function createSession(userId: number): Promise<string> {
 
     return token
 }
+
+export async function getUserBySessionToken(sessionToken: string): Promise<User | null> {
+    return prisma.user.findFirst({
+        where: {
+            session: {
+                some: {
+                    token: sessionToken
+                }
+            }
+        }
+    })
+}

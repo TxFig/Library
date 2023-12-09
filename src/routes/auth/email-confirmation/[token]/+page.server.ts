@@ -27,7 +27,9 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
     await deleteEmailConfirmationRequestByToken(token)
 
     const sessionToken = await createSession(emailConfirmationRequest.userId)
-    cookies.set("sessionToken", sessionToken)
+    cookies.set("sessionToken", sessionToken, {
+        path: "/"
+    })
 
     return {
         username: emailConfirmationRequest.user.username
