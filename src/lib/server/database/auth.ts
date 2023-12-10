@@ -119,3 +119,13 @@ export async function getUserBySessionToken(sessionToken: string): Promise<User 
         }
     })
 }
+
+export async function getAllUsers(): Promise<User[]> {
+    return await prisma.user.findMany()
+}
+
+export async function createUser(user: Omit<User, "id">): Promise<void> {
+    await prisma.user.create({
+        data: user
+    })
+}
