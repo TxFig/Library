@@ -44,8 +44,10 @@
             </button>
             <div class="card p-4" data-popup="auth-popup">
                 <div class="flex flex-col gap-4">
-                    <a href="/user/{$page.data.user.username}" class="hover:underline">
-                        {$page.data.user.username}
+                    <p>{$page.data.user.username}</p>
+                    <a href="/user/{$page.data.user.username}" class="btn variant-outline-secondary">
+                        <Icon icon="material-symbols:person-sharp" width="24" height="24"/>
+                        <span>Profile</span>
                     </a>
                     <a href="/auth/sign-out" class="btn variant-outline-secondary">
                         <Icon icon="ph:sign-out" width="24" height="24"/>
