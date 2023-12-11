@@ -32,6 +32,6 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
     })
 
     return {
-        username: emailConfirmationRequest.user.username
+        user: emailConfirmationRequest.user
     }
 }
