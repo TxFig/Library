@@ -4,9 +4,10 @@
     import type { PageData } from "./$types";
     import CreateUserModalForm from "$lib/components/CreateUserModalForm.svelte"
     import { getModalStore, getToastStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
+    import type { User } from "@prisma/client";
 
     export let data: PageData
-    const { users } = data
+    let { users } = data
 
     const toastStore = getToastStore()
 
@@ -35,7 +36,19 @@
                 username: data.username
             })
         })
-        const json = await response.json()
+
+        const json: {
+            status: 200,
+            message: string,
+            user: User
+        } | {
+            status: 500,
+            message: string
+        } = await response.json()
+
+        if (json.status == 200) {
+            users = [...users, json.user]
+        }
 
         toastStore.trigger({
             message: json.message,
@@ -64,7 +77,7 @@
             </div>
         </div>
     {:else}
-        {#if !users}
+        {#if users.length == 0}
             <p class="variant-outline-error w-fit p-2 flex gap-1">
                 <Icon icon="material-symbols:error-outline" width="24" height="24"/>
                 <span>Error getting users</span>

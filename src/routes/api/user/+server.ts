@@ -14,13 +14,14 @@ export const POST: RequestHandler = async ({ request }) => {
     }
 
     try {
-        await createUser({
+        const user = await createUser({
             email: data.email,
             username: data.username
         })
         return json({
             status: 200,
-            message: "Successfully Created User"
+            message: "Successfully Created User",
+            user
         })
     } catch (error) {
         return json({

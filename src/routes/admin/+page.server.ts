@@ -5,8 +5,9 @@ import { getAllUsers } from "$lib/server/database/auth";
 
 export const load: PageServerLoad = async ({ cookies }) => {
     const sessionToken = cookies.get("sessionToken")
-    if (!sessionToken || !validate(sessionToken)) return {}
+    const loggedIn = sessionToken && validate(sessionToken)
+
     return {
-        users: getAllUsers()
+        users: loggedIn ? getAllUsers() : []
     }
 }
