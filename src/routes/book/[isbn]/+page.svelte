@@ -1,8 +1,9 @@
 <script lang="ts">
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types"
-    import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton"
+    import { getModalStore, RadioGroup, type ModalSettings, RadioItem } from "@skeletonlabs/skeleton"
     import ImageDisplayer from "$lib/components/ImageDisplayer.svelte"
+    import { page } from "$app/stores";
 
     export let data: PageData
     const { book } = data
@@ -38,6 +39,7 @@
     }
 
     let subjectLimit = 10
+    let userState = 0
 </script>
 
 <div class="flex flex-col sm:flex-row justify-center items-center h-full pb-20 sm:gap-4">
@@ -111,6 +113,25 @@
             <Icon icon="material-symbols:barcode" width="16" />
             <p>ISBN: {book.isbn}</p>
         </div>
+        {#if $page.data.user}
+            <div>
+                <p>Reading State:</p>
+                <RadioGroup class="flex flex-col">
+                    <RadioItem bind:group={userState} name="userState" value={0} class="flex pl-5 items-center gap-2 pr-8">
+                        <Icon icon="fa6-regular:eye-slash" width="16" height="16"/>
+                        <span>Not Read</span>
+                    </RadioItem>
+                    <RadioItem bind:group={userState} name="userState" value={1} class="flex items-center gap-2 pr-8">
+                        <Icon icon="fa6-regular:bookmark" width="16" height="16"/>
+                        <span>Currently Reading</span>
+                    </RadioItem>
+                    <RadioItem bind:group={userState} name="userState" value={2} class="flex items-center gap-2 pr-8">
+                        <Icon icon="fa6-regular:circle-check" width="16" height="16"/>
+                        <span>Already Read</span>
+                    </RadioItem>
+                </RadioGroup>
+            </div>
+        {/if}
     </div>
 </div>
 <div class="fixed left-0 bottom-0 w-screen h-20 px-6 bg-surface-900 border-t-2 border-surface-500-400-token bg-opacity-95">
