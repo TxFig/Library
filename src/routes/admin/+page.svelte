@@ -25,7 +25,6 @@
     }
 
     async function createUserFormSubmit(data: { email: string, username: string }) {
-        console.log(data)
         const response = await fetch("/api/user/", {
             method: "post",
             headers: {
