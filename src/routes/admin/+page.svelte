@@ -63,13 +63,13 @@
                 </a>
             </div>
         </div>
-        {:else}
+    {:else}
         {#if !users}
             <p class="variant-outline-error w-fit p-2 flex gap-1">
                 <Icon icon="material-symbols:error-outline" width="24" height="24"/>
                 <span>Error getting users</span>
             </p>
-            {:else}
+        {:else}
             <div class="table-container">
                 <table class="table table-hover">
                     <thead>
@@ -81,11 +81,11 @@
                     </thead>
                     <tbody>
                         {#each users as user}
-                        <tr>
-                            <td>{user.id}</td>
-                            <td>{user.email}</td>
-                            <td>{user.username}</td>
-                        </tr>
+                            <tr>
+                                <td>{user.id}</td>
+                                <td>{user.email}</td>
+                                <td>{user.username}</td>
+                            </tr>
                         {/each}
                     </tbody>
                 </table>
