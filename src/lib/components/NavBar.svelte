@@ -49,7 +49,7 @@
                         <Icon icon="material-symbols:person-sharp" width="24" height="24"/>
                         <span>Profile</span>
                     </a>
-                    <a href="/auth/sign-out" class="btn variant-outline-secondary">
+                    <a href="/auth/sign-out?path={$page.url.href}" class="btn variant-outline-secondary">
                         <Icon icon="ph:sign-out" width="24" height="24"/>
                         <span>Sign out</span>
                     </a>

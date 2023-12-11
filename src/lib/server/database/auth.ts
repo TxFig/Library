@@ -108,6 +108,28 @@ export async function createSession(userId: number): Promise<string> {
     return token
 }
 
+//* Delete all user sessions from one session token
+export async function deleteSession(sessionToken: string): Promise<void> {
+    const user = await prisma.user.findFirst({
+        where: {
+            session: {
+                some: {
+                    token: sessionToken
+                }
+            }
+        }
+    })
+    if (!user) return
+
+    await prisma.session.deleteMany({
+        where: {
+            user: {
+                id: user.id
+            }
+        }
+    })
+}
+
 export async function getUserBySessionToken(sessionToken: string): Promise<User | null> {
     return prisma.user.findFirst({
         where: {
