@@ -4,7 +4,13 @@ import { createUser } from "$lib/server/database/auth";
 
 
 //* Create User
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
+    if (!locals.user) {
+        throw error(401, {
+            message: "Need to be logged in to create users"
+        })
+    }
+
     const data = await request.json()
 
     if (!(data.email && data.username)) {
