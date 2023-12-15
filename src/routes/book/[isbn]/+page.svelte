@@ -134,15 +134,18 @@
         {/if}
     </div>
 </div>
-<div class="fixed left-0 bottom-0 w-screen h-20 px-6 bg-surface-900 border-t-2 border-surface-500-400-token bg-opacity-95">
-    <div class="flex flex-row-reverse items-center h-full gap-4">
-        <button class="btn variant-ringed-error rounded-lg" on:click={showPopupDeleteBook}>
-            <span>Delete</span>
-            <Icon icon="ic:baseline-delete" width="24" />
-        </button>
-        <button class="btn variant-ringed-primary rounded-lg" on:click={redirectToEditPage}>
-            <span>Edit</span>
-            <Icon icon="material-symbols:edit" width="24" />
-        </button>
+
+{#if $page.data.user}
+    <div class="fixed left-0 bottom-0 w-screen h-20 px-6 bg-surface-900 border-t-2 border-surface-500-400-token bg-opacity-95">
+        <div class="flex flex-row-reverse items-center h-full gap-4">
+            <button class="btn variant-ringed-error rounded-lg" on:click={showPopupDeleteBook}>
+                <span>Delete</span>
+                <Icon icon="ic:baseline-delete" width="24" />
+            </button>
+            <button class="btn variant-ringed-primary rounded-lg" on:click={redirectToEditPage}>
+                <span>Edit</span>
+                <Icon icon="material-symbols:edit" width="24" />
+            </button>
+        </div>
     </div>
-</div>
+{/if}

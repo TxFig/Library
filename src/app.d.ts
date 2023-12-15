@@ -8,7 +8,11 @@ declare global {
         interface Error {
             message: string
         }
-        // interface Locals {}
+
+        interface Locals {
+            user: User | null
+        }
+
         interface PageData {
             user: User | null
         }

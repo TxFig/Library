@@ -28,7 +28,13 @@ export const load: PageServerLoad = async ({ params }) => {
 }
 
 export const actions: Actions = {
-    default: async ({ request }) => {
+    default: async ({ request, locals }) => {
+        if (!locals.user) {
+            throw error(401, {
+                message: "Need to be logged in"
+            })
+        }
+
         const formData = await request.formData()
 
         const isbn = formData.get("isbn") as string | null
