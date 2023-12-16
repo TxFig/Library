@@ -4,6 +4,7 @@
     import { getModalStore, RadioGroup, type ModalSettings, RadioItem } from "@skeletonlabs/skeleton"
     import ImageDisplayer from "$lib/components/ImageDisplayer.svelte"
     import { page } from "$app/stores";
+    import { goto } from "$app/navigation";
 
     export let data: PageData
     const { book } = data
@@ -35,7 +36,7 @@
     }
 
     function redirectToEditPage() {
-        window.location.href = `/book/edit/${book.isbn}`
+        goto(`/book/edit/${book.isbn}`)
     }
 
     let subjectLimit = 10
