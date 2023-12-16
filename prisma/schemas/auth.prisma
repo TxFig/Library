@@ -8,7 +8,7 @@ model User {
 
     emailConfirmationRequest EmailConfirmationRequest?
     session                  Session[]
-    UserBookReadingState     UserBookReadingState[]
+    userBookReadingState     UserBookReadingState[]
 }
 
 model EmailConfirmationRequest {

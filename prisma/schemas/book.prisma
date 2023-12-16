@@ -24,7 +24,7 @@ model Book {
     authors              Author[]
     publishers           Publisher[]
     subjects             Subject[]
-    UserBookReadingState UserBookReadingState[]
+    userBookReadingState UserBookReadingState[]
 }
 
 model Location {

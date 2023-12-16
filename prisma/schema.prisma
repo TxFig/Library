@@ -27,7 +27,7 @@ model User {
 
   emailConfirmationRequest EmailConfirmationRequest?
   session                  Session[]
-  UserBookReadingState     UserBookReadingState[]
+  userBookReadingState     UserBookReadingState[]
 }
 
 model EmailConfirmationRequest {
@@ -91,7 +91,7 @@ model Book {
   authors              Author[]
   publishers           Publisher[]
   subjects             Subject[]
-  UserBookReadingState UserBookReadingState[]
+  userBookReadingState UserBookReadingState[]
 }
 
 model Location {
