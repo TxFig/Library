@@ -27,6 +27,7 @@ model User {
 
   emailConfirmationRequest EmailConfirmationRequest?
   session                  Session[]
+  UserBookReadingState     UserBookReadingState[]
 }
 
 model EmailConfirmationRequest {
@@ -45,6 +46,22 @@ model Session {
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+}
+
+model UserBookReadingState {
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+  bookId Int
+  book   Book @relation(fields: [bookId], references: [isbn])
+
+  state ReadingState
+
+  @@id([userId, bookId])
+}
+
+enum ReadingState {
+  READING
+  READ
 }
 
 //
@@ -71,9 +88,10 @@ model Book {
   language   Language? @relation(fields: [languageId], references: [id])
   languageId Int?
 
-  authors    Author[]
-  publishers Publisher[]
-  subjects   Subject[]
+  authors              Author[]
+  publishers           Publisher[]
+  subjects             Subject[]
+  UserBookReadingState UserBookReadingState[]
 }
 
 model Location {

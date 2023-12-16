@@ -1,3 +1,6 @@
+import { UserBookReadingState } from "auth"
+
+
 model Book {
     isbn Int @id @unique
 
@@ -18,9 +21,10 @@ model Book {
     language   Language? @relation(fields: [languageId], references: [id])
     languageId Int?
 
-    authors    Author[]
-    publishers Publisher[]
-    subjects   Subject[]
+    authors              Author[]
+    publishers           Publisher[]
+    subjects             Subject[]
+    UserBookReadingState UserBookReadingState[]
 }
 
 model Location {
