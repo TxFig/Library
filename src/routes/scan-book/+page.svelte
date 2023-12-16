@@ -2,6 +2,8 @@
     import { onMount } from "svelte"
     import { SlideToggle, getModalStore, type ModalSettings } from "@skeletonlabs/skeleton"
     import Quagga from "@ericblade/quagga2"
+    import { page } from "$app/stores";
+    import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
 
     const modalStore = getModalStore()
 
@@ -44,7 +46,7 @@
             return
         }
 
-        initQuagga()
+        if ($page.data.user) initQuagga()
     })
 
     function initQuagga() {
@@ -151,31 +153,35 @@
 
 </script>
 
-<div class="flex flex-col justify-center items-center h-max space-y-4">
-    {#if mediaDevicesAvailable}
-        <SlideToggle
-            name="camera-flash"
-            bind:checked={flashMode}
-            on:click={toggleFlash}
-        >
-            Camera Flash
-        </SlideToggle>
+{#if $page.data.user}
+    <div class="flex flex-col justify-center items-center h-max space-y-4">
+        {#if mediaDevicesAvailable}
+            <SlideToggle
+                name="camera-flash"
+                bind:checked={flashMode}
+                on:click={toggleFlash}
+            >
+                Camera Flash
+            </SlideToggle>
 
-        <div bind:this={cameraViewer} class="relative"></div>
-        <style>
-            canvas {
-                position: absolute;
-                top: 0%;
-            }
-        </style>
+            <div bind:this={cameraViewer} class="relative"></div>
+            <style>
+                canvas {
+                    position: absolute;
+                    top: 0%;
+                }
+            </style>
 
-        {#if displayISBN}
-            <h1 class="text-2xl text-center">ISBN Code: {displayISBN}</h1>
+            {#if displayISBN}
+                <h1 class="text-2xl text-center">ISBN Code: {displayISBN}</h1>
+            {:else}
+                <p>Scanning...</p>
+            {/if}
+
         {:else}
-            <p>Scanning...</p>
+            <h1 class="text-2xl text-center">Media devices not available</h1>
         {/if}
-
-    {:else}
-        <h1 class="text-2xl text-center">Media devices not available</h1>
-    {/if}
-</div>
+    </div>
+{:else}
+    <NotLoggedIn/>
+{/if}

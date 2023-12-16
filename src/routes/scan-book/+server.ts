@@ -5,7 +5,13 @@ import { getOpenLibraryBook } from "$lib/utils/open-library"
 import db from "$lib/server/database/book"
 
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
+    if (!locals.user) {
+        throw error(401, {
+            message: "Need to be logged in"
+        })
+    }
+
     const { isbn: isbnString }: { isbn: string } = await request.json()
 
     const isbn = Number(isbnString)
