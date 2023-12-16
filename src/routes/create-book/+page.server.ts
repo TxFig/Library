@@ -1,5 +1,5 @@
 import type { Actions, PageServerLoad } from "./$types"
-import { fail, redirect } from "@sveltejs/kit"
+import { fail, redirect, error } from "@sveltejs/kit"
 
 import db, { type InsertBookData } from "$lib/server/database/book"
 
@@ -15,7 +15,13 @@ export const load: PageServerLoad = async () => ({
 const INT32LIMIT = 2147483647 // TODO: move to db side
 
 export const actions: Actions = {
-    default: async ({ request }) => {
+    default: async ({ request, locals }) => {
+        if (!locals.user) {
+            throw error(401, {
+                message: "Need to be logged in"
+            })
+        }
+
         const formData = await request.formData()
 
         const isbnString = formData.get("isbn") as string | null
@@ -67,10 +73,10 @@ export const actions: Actions = {
         const location: InsertBookData["location"] = formData.get("location") as string | undefined ?? null
         const language: InsertBookData["language"] = formData.get("language") as string | undefined ?? null
 
-        const error = await db.createBook({ book, authors, publishers, subjects, location, language })
-        if (error) {
+        const createBookError = await db.createBook({ book, authors, publishers, subjects, location, language })
+        if (createBookError) {
             return fail(400, {
-                message: error.message
+                message: createBookError.message
             })
         }
 

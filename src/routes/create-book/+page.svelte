@@ -10,6 +10,7 @@
     import PublishDate from "$lib/components/book-form/PublishDate.svelte"
     import type { SubmitFunction } from "@sveltejs/kit";
     import { goto } from "$app/navigation";
+    import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
 
 
     export let data: PageData
@@ -194,137 +195,141 @@
     }
 </script>
 
-<form
-    class="space-y-6"
-    method="post"
-    enctype="multipart/form-data"
-    use:enhance={enhanceHandler}
->
-    <h2 class="h2">Book Creation</h2>
+{#if $page.data.user}
+    <form
+        class="space-y-6"
+        method="post"
+        enctype="multipart/form-data"
+        use:enhance={enhanceHandler}
+    >
+        <h2 class="h2">Book Creation</h2>
 
-    <label class="label">
-        <span>ISBN<sup class="text-red-500">*</sup></span>
-        <input class="input" type="number" name="isbn" bind:value={isbn} required/>
-    </label>
+        <label class="label">
+            <span>ISBN<sup class="text-red-500">*</sup></span>
+            <input class="input" type="number" name="isbn" bind:value={isbn} required/>
+        </label>
 
-    <label class="label">
-        <span>Title<sup class="text-red-500">*</sup></span>
-        <input class="input" type="text" name="title" required />
-    </label>
+        <label class="label">
+            <span>Title<sup class="text-red-500">*</sup></span>
+            <input class="input" type="text" name="title" required />
+        </label>
 
-    <label class="label">
-        <span>Subtitle</span>
-        <input class="input" type="text" name="subtitle" />
-    </label>
+        <label class="label">
+            <span>Subtitle</span>
+            <input class="input" type="text" name="subtitle" />
+        </label>
 
-    <label class="label">
-        <span>Number of pages</span>
-        <input class="input" type="number" name="number_of_pages" />
-    </label>
+        <label class="label">
+            <span>Number of pages</span>
+            <input class="input" type="number" name="number_of_pages" />
+        </label>
 
-    <PublishDate/>
+        <PublishDate/>
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span>Authors</span>
-        <InputChip bind:input={authorInputValue} bind:value={authorsList} name="author" placeholder="Enter Author..." allowUpperCase />
-        <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
-            <Autocomplete
-                bind:input={authorInputValue}
-                options={authors}
-                denylist={authorsList}
-                on:selection={onAuthorSelect}
-            />
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="label">
+            <span>Authors</span>
+            <InputChip bind:input={authorInputValue} bind:value={authorsList} name="author" placeholder="Enter Author..." allowUpperCase />
+            <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
+                <Autocomplete
+                    bind:input={authorInputValue}
+                    options={authors}
+                    denylist={authorsList}
+                    on:selection={onAuthorSelect}
+                />
+            </div>
+        </label>
+
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="label">
+            <span>Publishers</span>
+            <InputChip bind:input={publisherInputValue} bind:value={publisherList} name="publisher" placeholder="Enter Publisher..." allowUpperCase />
+            <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
+                <Autocomplete
+                    bind:input={publisherInputValue}
+                    options={publishers}
+                    denylist={publisherList}
+                    on:selection={onPublisherSelect}
+                />
+            </div>
+        </label>
+
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="label">
+            <span>Subjects</span>
+            <InputChip bind:input={subjectInputValue} bind:value={subjectsList} name="subject" allowUpperCase />
+            <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
+                <Autocomplete
+                    bind:input={subjectInputValue}
+                    options={subjects}
+                    denylist={subjectsList}
+                    on:selection={onSubjectSelect}
+                />
+            </div>
+        </label>
+
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <div class="flex gap-6">
+            <div class="flex flex-col space-y-2 w-full">
+                <label class="label">Front Image</label>
+                <FileDropzone name="front_image" accept="image/*" on:change={onFrontImageChange}>
+                    <svelte:fragment slot="lead">
+                        <div class="flex justify-center">
+                            <Icon icon="uil:image-upload" color="white" width="32" height="32" />
+                        </div>
+                    </svelte:fragment>
+                </FileDropzone>
+                {#if frontImageSrc}
+                    <img src={frontImageSrc} alt="Book Front" class="w-full">
+                {/if}
+            </div>
+            <div class="flex flex-col space-y-2 w-full">
+                <label class="label">Back Image</label>
+                <FileDropzone name="back_image" accept="image/*" on:change={onBackImageChange}>
+                    <svelte:fragment slot="lead">
+                        <div class="flex justify-center">
+                            <Icon icon="uil:image-upload" color="white" width="32" height="32" />
+                        </div>
+                    </svelte:fragment>
+                </FileDropzone>
+                {#if backImageSrc}
+                    <img src={backImageSrc} alt="Book Back" class="w-full">
+                {/if}
+            </div>
         </div>
-    </label>
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span>Publishers</span>
-        <InputChip bind:input={publisherInputValue} bind:value={publisherList} name="publisher" placeholder="Enter Publisher..." allowUpperCase />
-        <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
-            <Autocomplete
-                bind:input={publisherInputValue}
-                options={publishers}
-                denylist={publisherList}
-                on:selection={onPublisherSelect}
-            />
-        </div>
-    </label>
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="label flex flex-col gap-2">
+            <span>Book Location</span>
+            <ListBox class="border border-dashed border-surface-600-300-token">
+                {#each locations as loc}
+                    <ListBoxItem bind:group={locationSelected} name="location" value={loc}>{loc}</ListBoxItem>
+                {/each}
+            </ListBox>
+            <div class="input-group input-group-divider grid-cols-[1fr_auto]">
+                <input placeholder="Add Location..." bind:value={addLocationValue} on:keydown={addLocationKeyDown}/>
+                <button type="button" class="variant-filled-secondary !px-10" on:click={addBookLocation}>Add</button>
+            </div>
+        </label>
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span>Subjects</span>
-        <InputChip bind:input={subjectInputValue} bind:value={subjectsList} name="subject" allowUpperCase />
-        <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
-            <Autocomplete
-                bind:input={subjectInputValue}
-                options={subjects}
-                denylist={subjectsList}
-                on:selection={onSubjectSelect}
-            />
-        </div>
-    </label>
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="label flex flex-col gap-2">
+            <span>Book Language</span>
+            <ListBox class="border border-dashed border-surface-600-300-token">
+                {#each languages as lang}
+                    <ListBoxItem bind:group={languageSelected} name="language" value={lang}>{lang}</ListBoxItem>
+                {/each}
+            </ListBox>
+            <div class="input-group input-group-divider grid-cols-[1fr_auto]">
+                <input placeholder="Add Language..." bind:value={addLanguageValue} on:keydown={addLanguageKeyDown}/>
+                <button type="button" class="variant-filled-secondary !px-10" on:click={addBookLanguage}>Add</button>
+            </div>
+        </label>
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <div class="flex gap-6">
-        <div class="flex flex-col space-y-2 w-full">
-            <label class="label">Front Image</label>
-            <FileDropzone name="front_image" accept="image/*" on:change={onFrontImageChange}>
-                <svelte:fragment slot="lead">
-                    <div class="flex justify-center">
-                        <Icon icon="uil:image-upload" color="white" width="32" height="32" />
-                    </div>
-                </svelte:fragment>
-            </FileDropzone>
-            {#if frontImageSrc}
-                <img src={frontImageSrc} alt="Book Front" class="w-full">
-            {/if}
+        <div class="flex justify-center !mt-16">
+            <button type="submit" class="btn bg-primary-500 px-10 py-3">Submit</button>
         </div>
-        <div class="flex flex-col space-y-2 w-full">
-            <label class="label">Back Image</label>
-            <FileDropzone name="back_image" accept="image/*" on:change={onBackImageChange}>
-                <svelte:fragment slot="lead">
-                    <div class="flex justify-center">
-                        <Icon icon="uil:image-upload" color="white" width="32" height="32" />
-                    </div>
-                </svelte:fragment>
-            </FileDropzone>
-            {#if backImageSrc}
-                <img src={backImageSrc} alt="Book Back" class="w-full">
-            {/if}
-        </div>
-    </div>
-
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label flex flex-col gap-2">
-        <span>Book Location</span>
-        <ListBox class="border border-dashed border-surface-600-300-token">
-            {#each locations as loc}
-                <ListBoxItem bind:group={locationSelected} name="location" value={loc}>{loc}</ListBoxItem>
-            {/each}
-        </ListBox>
-        <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-            <input placeholder="Add Location..." bind:value={addLocationValue} on:keydown={addLocationKeyDown}/>
-            <button type="button" class="variant-filled-secondary !px-10" on:click={addBookLocation}>Add</button>
-        </div>
-    </label>
-
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label flex flex-col gap-2">
-        <span>Book Language</span>
-        <ListBox class="border border-dashed border-surface-600-300-token">
-            {#each languages as lang}
-                <ListBoxItem bind:group={languageSelected} name="language" value={lang}>{lang}</ListBoxItem>
-            {/each}
-        </ListBox>
-        <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-            <input placeholder="Add Language..." bind:value={addLanguageValue} on:keydown={addLanguageKeyDown}/>
-            <button type="button" class="variant-filled-secondary !px-10" on:click={addBookLanguage}>Add</button>
-        </div>
-    </label>
-
-    <div class="flex justify-center !mt-16">
-        <button type="submit" class="btn bg-primary-500 px-10 py-3">Submit</button>
-    </div>
-</form>
+    </form>
+{:else}
+    <NotLoggedIn/>
+{/if}
