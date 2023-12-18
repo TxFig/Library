@@ -5,9 +5,11 @@
     import ImageDisplayer from "$lib/components/ImageDisplayer.svelte"
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
+    import type { AllReadingState } from "$lib/server/database/auth";
+    import type { UpdateUserBookReadingStateData } from "../../api/reading-state/+server";
 
     export let data: PageData
-    const { book } = data
+    const { book, readingState } = data
 
     const images = [
         book.front_image ? `/images/${book.front_image}` : null,
@@ -39,8 +41,23 @@
         goto(`/book/edit/${book.isbn}`)
     }
 
+    async function setReadingState(state: AllReadingState) {
+        const updateData: UpdateUserBookReadingStateData = {
+            state,
+            isbn: book.isbn
+        }
+
+        await fetch(`/api/reading-state/`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updateData),
+        })
+    }
+
     let subjectLimit = 10
-    let userState = 0
+    let userState: AllReadingState = readingState ?? "NOT READ"
 </script>
 
 <div class="flex flex-col sm:flex-row justify-center items-center h-full pb-20 sm:gap-4">
@@ -118,15 +135,33 @@
             <div>
                 <p>Reading State:</p>
                 <RadioGroup class="flex flex-col">
-                    <RadioItem bind:group={userState} name="userState" value={0} class="flex pl-5 items-center gap-2 pr-8">
+                    <RadioItem
+                        bind:group={userState}
+                        name="userState"
+                        value={"NOT READ"}
+                        on:click={() => setReadingState("NOT READ")}
+                        class="flex pl-5 items-center gap-2 pr-8"
+                    >
                         <Icon icon="fa6-regular:eye-slash" width="16" height="16"/>
                         <span>Not Read</span>
                     </RadioItem>
-                    <RadioItem bind:group={userState} name="userState" value={1} class="flex items-center gap-2 pr-8">
+                    <RadioItem
+                        bind:group={userState}
+                        name="userState"
+                        value={"READING"}
+                         on:click={() => setReadingState("READING")}
+                         class="flex items-center gap-2 pr-8"
+                        >
                         <Icon icon="fa6-regular:bookmark" width="16" height="16"/>
                         <span>Currently Reading</span>
                     </RadioItem>
-                    <RadioItem bind:group={userState} name="userState" value={2} class="flex items-center gap-2 pr-8">
+                    <RadioItem
+                        bind:group={userState}
+                        name="userState"
+                        value={"READ"}
+                        on:click={() => setReadingState("READ")}
+                        class="flex items-center gap-2 pr-8"
+                    >
                         <Icon icon="fa6-regular:circle-check" width="16" height="16"/>
                         <span>Already Read</span>
                     </RadioItem>

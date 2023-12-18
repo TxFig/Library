@@ -10,7 +10,7 @@ import {
     EMAIL_USER,
     ORIGIN
 } from "$env/static/private"
-import type { User, EmailConfirmationRequest } from "@prisma/client"
+import type { User, EmailConfirmationRequest, ReadingState } from "@prisma/client"
 
 
 const transport = nodemailer.createTransport({
@@ -150,4 +150,43 @@ export async function createUser(user: Omit<User, "id">): Promise<User> {
     return await prisma.user.create({
         data: user
     })
+}
+
+export type AllReadingState = "NOT READ" | ReadingState
+export async function updateUserReadingState(bookId: number, userId: number, state: AllReadingState): Promise<void> {
+    if (state == "NOT READ") {
+        try {
+            await prisma.userBookReadingState.delete({
+                where: {
+                    userId_bookId: { bookId, userId }
+                }
+            })
+        } catch {}
+    } else {
+        await prisma.userBookReadingState.upsert({
+            where: {
+                userId_bookId: { bookId, userId }
+            },
+            create: {
+                state,
+                bookId,
+                userId
+            },
+            update: {
+                state
+            }
+        })
+    }
+}
+
+export async function getBookReadingState(isbn: number, userId: number): Promise<ReadingState | null> {
+    const userBookReadingState = await prisma.userBookReadingState.findUnique({
+        where: {
+            userId_bookId: {
+                bookId: isbn,
+                userId
+            }
+        }
+    })
+    return userBookReadingState?.state ?? null
 }
