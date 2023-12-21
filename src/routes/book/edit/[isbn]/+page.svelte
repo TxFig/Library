@@ -2,10 +2,10 @@
     import type { PageData } from "./$types"
     import { enhance } from "$app/forms"
 
-    import { Autocomplete, InputChip, FileDropzone, getToastStore, ListBox, ListBoxItem } from '@skeletonlabs/skeleton'
-    import type { AutocompleteOption, ToastSettings } from '@skeletonlabs/skeleton'
-    import Icon from "@iconify/svelte"
     import PublishDate from "$lib/components/book-form/PublishDate.svelte"
+    import AutocompleteInputChip from "$lib/components/book-form/AutocompleteInputChip.svelte"
+    import ImageInput from "$lib/components/book-form/ImageInput.svelte"
+    import ListBoxInput from "$lib/components/book-form/ListBoxInput.svelte"
 
 
     export let data: PageData
@@ -14,145 +14,6 @@
         allAuthors, allPublishers, allSubjects, allLocations, allLanguages
     } = data
 
-    const toastStore = getToastStore()
-
-
-    //#region --------------------------------------------------- Authors Input
-    let authorInputValue = ""
-    let authorsList: string[] = [...book.authors.map(author => author.name)]
-    const authors: AutocompleteOption[] = [
-        ...allAuthors.map(author => ({
-            label: author.name,
-            value: author.name
-        }))
-    ]
-
-    function onAuthorSelect(event: CustomEvent<AutocompleteOption>) {
-        if (authorsList.includes(event.detail.value as string) === false) {
-            authorsList = [...authorsList, event.detail.value as string]
-			authorInputValue = ""
-		}
-    }
-
-    //#endregion
-    //#region ------------------------------------------------ Publishers Input
-    let publisherInputValue = ""
-    let publisherList: string[] = [...book.publishers.map(publisher => publisher.name)]
-    const publishers: AutocompleteOption[] = [
-        ...allPublishers.map(publisher => ({
-            label: publisher.name,
-            value: publisher.name
-        }))
-    ]
-
-    function onPublisherSelect(event: CustomEvent<AutocompleteOption>) {
-        if (publisherList.includes(event.detail.value as string) === false) {
-            publisherList = [...publisherList, event.detail.value as string]
-			publisherInputValue = ""
-		}
-    }
-
-    //#endregion
-    //#region -------------------------------------------------- Subjects Input
-    let subjectInputValue = ""
-    let subjectsList: string[] = [...book.subjects.map(subject => subject.value)]
-    const subjects: AutocompleteOption[] = [
-        ...allSubjects.map(subject => ({
-            label: subject.value,
-            value: subject.value
-        }))
-    ]
-
-    function onSubjectSelect(event: CustomEvent<AutocompleteOption>): void {
-        if (subjectsList.includes(event.detail.value as string) === false) {
-            subjectsList = [...subjectsList, event.detail.value as string]
-			subjectInputValue = ""
-		}
-	}
-
-    //#endregion
-    //#region ---------------------------------------------------- Images Input
-    const fileSizeLimit = 16 // MB
-    const fileSizeTooBig: ToastSettings = {
-        message: `File size can not exceeded ${fileSizeLimit} MB`
-    }
-
-    function MB2Bytes(mb: number): number {
-        return mb * 1000000
-    }
-
-    let frontImageSrc: string = book.front_image ? `/images/${book.front_image}` : ""
-    let backImageSrc: string = book.back_image ? `/images/${book.back_image}` : ""
-
-    async function getDataURLImage(image: File): Promise<string | null> {
-        if (!image) return null
-        if (image.size > MB2Bytes(fileSizeLimit)) {
-            toastStore.trigger(fileSizeTooBig)
-            return null
-        }
-
-        return new Promise((resolve) => {
-            const reader = new FileReader()
-            reader.onloadend = () => resolve(reader.result as string)
-            reader.readAsDataURL(image)
-        })
-    }
-
-    async function onFrontImageChange(ev: any) {
-        const image: File = ev.target.files[0]
-        const url = await getDataURLImage(image)
-        frontImageSrc = url ?? ""
-    }
-
-    async function onBackImageChange(ev: any) {
-        const image: File = ev.target.files[0]
-        const url = await getDataURLImage(image)
-        backImageSrc = url ?? ""
-    }
-
-    //#endregion
-    //#region -------------------------------------------------- Location Input
-    let locationSelected: string = book.location?.value ?? ""
-    let addLocationValue: string
-    let locations = allLocations.map(loc => loc.value)
-
-    function addBookLocation() {
-        if (!addLocationValue || locations.includes(addLocationValue))
-            return
-        locations = [...locations, addLocationValue]
-        locationSelected = addLocationValue
-        addLocationValue = ""
-    }
-
-    function addLocationKeyDown(ev: KeyboardEvent) {
-        if (ev.key == "Enter") {
-            ev.preventDefault()
-            addBookLocation()
-        }
-    }
-
-    //#endregion
-    //#region -------------------------------------------------- Language Input
-    let languageSelected: string = book.language?.value ?? ""
-    let addLanguageValue: string
-    let languages = allLanguages.map(lang => lang.value)
-
-    function addBookLanguage() {
-        if (!addLanguageValue || languages.includes(addLanguageValue))
-            return
-        languages = [...languages, addLanguageValue]
-        languageSelected = addLanguageValue
-        addLanguageValue = ""
-    }
-
-    function addLanguageKeyDown(ev: KeyboardEvent) {
-        if (ev.key == "Enter") {
-            ev.preventDefault()
-            addBookLanguage()
-        }
-    }
-
-    //#endregion
 
     function onFormData(ev: FormDataEvent) {
         const formData = ev.formData
@@ -199,105 +60,50 @@
         year={book.publish_date?.getFullYear()}
     />
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span>Authors</span>
-        <InputChip bind:input={authorInputValue} bind:value={authorsList} name="author" placeholder="Enter Author..." allowUpperCase />
-        <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
-            <Autocomplete
-                bind:input={authorInputValue}
-                options={authors}
-                denylist={authorsList}
-                on:selection={onAuthorSelect}
-            />
-        </div>
-    </label>
+    <AutocompleteInputChip
+        options={allAuthors.map(author => author.name)}
+        selectedOptions={book.authors.map(author => author.name)}
+        title="Authors"
+        name="author"
+        placeholder="Enter authors..."
+    />
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span>Publishers</span>
-        <InputChip bind:input={publisherInputValue} bind:value={publisherList} name="publisher" placeholder="Enter Publisher..." allowUpperCase />
-        <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
-            <Autocomplete
-                bind:input={publisherInputValue}
-                options={publishers}
-                denylist={publisherList}
-                on:selection={onPublisherSelect}
-            />
-        </div>
-    </label>
+    <AutocompleteInputChip
+        options={allPublishers.map(publisher => publisher.name)}
+        selectedOptions={book.publishers.map(publisher => publisher.name)}
+        title="Publishers"
+        name="publisher"
+        placeholder="Enter publishers..."
+    />
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">
-        <span>Subjects</span>
-        <InputChip bind:input={subjectInputValue} bind:value={subjectsList} name="subject" allowUpperCase />
-        <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
-            <Autocomplete
-                bind:input={subjectInputValue}
-                options={subjects}
-                denylist={subjectsList}
-                on:selection={onSubjectSelect}
-            />
-        </div>
-    </label>
+    <AutocompleteInputChip
+        options={allSubjects.map(subject => subject.value)}
+        selectedOptions={book.subjects.map(subject => subject.value)}
+        title="Subjects"
+        name="subject"
+        placeholder="Enter subjects..."
+    />
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <div class="grid grid-cols-2 grid-rows-[.5fr,3fr,10fr] gap-x-6 gap-y-2">
-        <label class="label">Front Image</label>
-        <label class="label">Back Image</label>
-        <FileDropzone name="front_image" accept="image/*" on:change={onFrontImageChange}>
-            <svelte:fragment slot="lead">
-                <div class="flex justify-center">
-                    <Icon icon="uil:image-upload" color="white" width="32" height="32" />
-                </div>
-            </svelte:fragment>
-        </FileDropzone>
-        <FileDropzone name="back_image" accept="image/*" on:change={onBackImageChange}>
-            <svelte:fragment slot="lead">
-                <div class="flex justify-center">
-                    <Icon icon="uil:image-upload" color="white" width="32" height="32" />
-                </div>
-            </svelte:fragment>
-        </FileDropzone>
-        <div class="flex justify-center">
-            {#if frontImageSrc}
-                <img src={frontImageSrc} alt="Book Front" class="object-contain">
-            {/if}
-        </div>
-        <div class="flex justify-center">
-            {#if backImageSrc}
-                <img src={backImageSrc} alt="Book Back" class="object-contain">
-            {/if}
-        </div>
+    <div class="flex gap-6">
+        <ImageInput title="Front Image" name="front_image" src={book.front_image ? `/images/${book.front_image}` : ""} />
+        <ImageInput title="Back Image" name="back_image" src={book.back_image ? `/images/${book.back_image}` : ""} />
     </div>
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label flex flex-col gap-2">
-        <span>Book Location</span>
-        <ListBox class="border border-dashed border-surface-600-300-token">
-            {#each locations as loc}
-                <ListBoxItem bind:group={locationSelected} name="location" value={loc}>{loc}</ListBoxItem>
-            {/each}
-        </ListBox>
-        <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-            <input placeholder="Add Location..." bind:value={addLocationValue} on:keydown={addLocationKeyDown}/>
-            <button type="button" class="variant-filled-secondary !px-10" on:click={addBookLocation}>Add</button>
-        </div>
-    </label>
+    <ListBoxInput
+        title="Book Location"
+        name="location"
+        options={allLocations.map(loc => loc.value)}
+        selected={book.location?.value}
+        placeholder="Enter location..."
+    />
 
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label flex flex-col gap-2">
-        <span>Book Language</span>
-        <ListBox class="border border-dashed border-surface-600-300-token">
-            {#each languages as lang}
-                <ListBoxItem bind:group={languageSelected} name="language" value={lang}>{lang}</ListBoxItem>
-            {/each}
-        </ListBox>
-        <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-            <input placeholder="Add Language..." bind:value={addLanguageValue} on:keydown={addLanguageKeyDown}/>
-            <button type="button" class="variant-filled-secondary !px-10" on:click={addBookLanguage}>Add</button>
-        </div>
-    </label>
+    <ListBoxInput
+        title="Book Language"
+        name="language"
+        options={allLanguages.map(lang => lang.value)}
+        selected={book.language?.value}
+        placeholder="Enter language..."
+    />
 
     <div class="flex justify-center gap-4 !mt-16">
         <a href={`/book/${book.isbn}`} class="btn variant-ghost-error px-10 py-3">Cancel</a>
