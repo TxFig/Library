@@ -1,11 +1,15 @@
 <script lang="ts">
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types"
-    import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton"
+    import { getModalStore, RadioGroup, type ModalSettings, RadioItem } from "@skeletonlabs/skeleton"
     import ImageDisplayer from "$lib/components/ImageDisplayer.svelte"
+    import { page } from "$app/stores";
+    import { goto } from "$app/navigation";
+    import type { AllReadingState } from "$lib/server/database/auth";
+    import type { UpdateUserBookReadingStateData } from "../../api/reading-state/+server";
 
     export let data: PageData
-    const { book } = data
+    const { book, readingState } = data
 
     const images = [
         book.front_image ? `/images/${book.front_image}` : null,
@@ -34,10 +38,26 @@
     }
 
     function redirectToEditPage() {
-        window.location.href = `/book/edit/${book.isbn}`
+        goto(`/book/edit/${book.isbn}`)
+    }
+
+    async function setReadingState(state: AllReadingState) {
+        const updateData: UpdateUserBookReadingStateData = {
+            state,
+            isbn: book.isbn
+        }
+
+        await fetch(`/api/reading-state/`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updateData),
+        })
     }
 
     let subjectLimit = 10
+    let userState: AllReadingState = readingState ?? "NOT READ"
 </script>
 
 <div class="flex flex-col sm:flex-row justify-center items-center h-full pb-20 sm:gap-4">
@@ -111,17 +131,57 @@
             <Icon icon="material-symbols:barcode" width="16" />
             <p>ISBN: {book.isbn}</p>
         </div>
+        {#if $page.data.user}
+            <div>
+                <p>Reading State:</p>
+                <RadioGroup class="flex flex-col">
+                    <RadioItem
+                        bind:group={userState}
+                        name="userState"
+                        value={"NOT READ"}
+                        on:click={() => setReadingState("NOT READ")}
+                        class="flex pl-5 items-center gap-2 pr-8"
+                    >
+                        <Icon icon="fa6-regular:eye-slash" width="16" height="16"/>
+                        <span>Not Read</span>
+                    </RadioItem>
+                    <RadioItem
+                        bind:group={userState}
+                        name="userState"
+                        value={"READING"}
+                         on:click={() => setReadingState("READING")}
+                         class="flex items-center gap-2 pr-8"
+                        >
+                        <Icon icon="fa6-regular:bookmark" width="16" height="16"/>
+                        <span>Currently Reading</span>
+                    </RadioItem>
+                    <RadioItem
+                        bind:group={userState}
+                        name="userState"
+                        value={"READ"}
+                        on:click={() => setReadingState("READ")}
+                        class="flex items-center gap-2 pr-8"
+                    >
+                        <Icon icon="fa6-regular:circle-check" width="16" height="16"/>
+                        <span>Already Read</span>
+                    </RadioItem>
+                </RadioGroup>
+            </div>
+        {/if}
     </div>
 </div>
-<div class="fixed left-0 bottom-0 w-screen h-20 px-6 bg-surface-900 border-t-2 border-surface-500-400-token bg-opacity-95">
-    <div class="flex flex-row-reverse items-center h-full gap-4">
-        <button class="btn variant-ringed-error rounded-lg" on:click={showPopupDeleteBook}>
-            <span>Delete</span>
-            <Icon icon="ic:baseline-delete" width="24" />
-        </button>
-        <button class="btn variant-ringed-primary rounded-lg" on:click={redirectToEditPage}>
-            <span>Edit</span>
-            <Icon icon="material-symbols:edit" width="24" />
-        </button>
+
+{#if $page.data.user}
+    <div class="fixed left-0 bottom-0 w-screen h-20 px-6 bg-surface-900 border-t-2 border-surface-500-400-token bg-opacity-95">
+        <div class="flex flex-row-reverse items-center h-full gap-4">
+            <button class="btn variant-ringed-error rounded-lg" on:click={showPopupDeleteBook}>
+                <span>Delete</span>
+                <Icon icon="ic:baseline-delete" width="24" />
+            </button>
+            <button class="btn variant-ringed-primary rounded-lg" on:click={redirectToEditPage}>
+                <span>Edit</span>
+                <Icon icon="material-symbols:edit" width="24" />
+            </button>
+        </div>
     </div>
-</div>
+{/if}

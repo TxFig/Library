@@ -1,4 +1,4 @@
-import type { InsertBookData } from "$lib/server/database"
+import type { InsertBookData } from "$lib/server/database/book"
 
 
 export interface OpenLibraryBookData {

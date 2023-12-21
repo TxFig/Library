@@ -1,0 +1,63 @@
+import { UserBookReadingState } from "auth"
+
+
+model Book {
+    isbn Int @id @unique
+
+    title           String
+    subtitle        String?
+    number_of_pages Int?
+    publish_date    DateTime?
+
+    isbn10 Int? @unique
+    isbn13 Int? @unique
+
+    front_image String?
+    back_image  String?
+
+    location   Location? @relation(fields: [locationId], references: [id])
+    locationId Int?
+
+    language   Language? @relation(fields: [languageId], references: [id])
+    languageId Int?
+
+    authors              Author[]
+    publishers           Publisher[]
+    subjects             Subject[]
+    userBookReadingState UserBookReadingState[]
+}
+
+model Location {
+    id    Int    @id @default(autoincrement())
+    value String @unique
+
+    books Book[]
+}
+
+model Language {
+    id    Int    @id @default(autoincrement())
+    value String @unique
+
+    books Book[]
+}
+
+model Author {
+    id   Int    @id @default(autoincrement())
+    name String @unique
+
+    books Book[]
+}
+
+model Publisher {
+    id   Int    @id @default(autoincrement())
+    name String @unique
+
+    books Book[]
+}
+
+model Subject {
+    id    Int    @id @default(autoincrement())
+    value String @unique
+
+    books Book[]
+}

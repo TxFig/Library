@@ -1,9 +1,15 @@
-import { json } from "@sveltejs/kit"
+import { error, json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
-import db from "$lib/server/database/"
+import db from "$lib/server/database/book"
 
 
-export const DELETE: RequestHandler = async ({ params }) => {
+export const DELETE: RequestHandler = async ({ params, locals }) => {
+    if (!locals.user) {
+        throw error(401, {
+            message: "Need to be logged in"
+        })
+    }
+
     const { isbn: isbnString } = params
 
     const isbn = Number(isbnString) // TODO: isbn validation

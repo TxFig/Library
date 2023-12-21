@@ -7,6 +7,7 @@
 
     import { getToastStore } from "@skeletonlabs/skeleton"
 
+    import NotLoggedIn from "$lib/components/NotLoggedIn.svelte"
     import PublishDate from "$lib/components/book-form/PublishDate.svelte"
     import AutocompleteInputChip from "$lib/components/book-form/AutocompleteInputChip.svelte"
     import ImageInput from "$lib/components/book-form/ImageInput.svelte"
@@ -57,76 +58,80 @@
     }
 </script>
 
-<form
-    class="space-y-6"
-    method="post"
-    enctype="multipart/form-data"
-    use:enhance={enhanceHandler}
->
-    <h2 class="h2">Book Creation</h2>
+{#if $page.data.user}
+    <form
+        class="space-y-6"
+        method="post"
+        enctype="multipart/form-data"
+        use:enhance={enhanceHandler}
+    >
+        <h2 class="h2">Book Creation</h2>
 
-    <label class="label">
-        <span>ISBN<sup class="text-red-500">*</sup></span>
-        <input class="input" type="number" name="isbn" bind:value={isbn} required/>
-    </label>
+        <label class="label">
+            <span>ISBN<sup class="text-red-500">*</sup></span>
+            <input class="input" type="number" name="isbn" bind:value={isbn} required/>
+        </label>
 
-    <label class="label">
-        <span>Title<sup class="text-red-500">*</sup></span>
-        <input class="input" type="text" name="title" required />
-    </label>
+        <label class="label">
+            <span>Title<sup class="text-red-500">*</sup></span>
+            <input class="input" type="text" name="title" required />
+        </label>
 
-    <label class="label">
-        <span>Subtitle</span>
-        <input class="input" type="text" name="subtitle" />
-    </label>
+        <label class="label">
+            <span>Subtitle</span>
+            <input class="input" type="text" name="subtitle" />
+        </label>
 
-    <label class="label">
-        <span>Number of pages</span>
-        <input class="input" type="number" name="number_of_pages" />
-    </label>
+        <label class="label">
+            <span>Number of pages</span>
+            <input class="input" type="number" name="number_of_pages" />
+        </label>
 
-    <PublishDate/>
+        <PublishDate/>
 
-    <AutocompleteInputChip
-        options={dbAuthors.map(author => author.name)}
-        title="Authors"
-        name="author"
-        placeholder="Enter authors..."
-    />
+        <AutocompleteInputChip
+            options={dbAuthors.map(author => author.name)}
+            title="Authors"
+            name="author"
+            placeholder="Enter authors..."
+        />
 
-    <AutocompleteInputChip
-        options={dbPublishers.map(publisher => publisher.name)}
-        title="Publishers"
-        name="publisher"
-        placeholder="Enter publishers..."
-    />
+        <AutocompleteInputChip
+            options={dbPublishers.map(publisher => publisher.name)}
+            title="Publishers"
+            name="publisher"
+            placeholder="Enter publishers..."
+        />
 
-    <AutocompleteInputChip
-        options={dbSubjects.map(subject => subject.value)}
-        title="Subjects"
-        name="subject"
-        placeholder="Enter subjects..."
-    />
+        <AutocompleteInputChip
+            options={dbSubjects.map(subject => subject.value)}
+            title="Subjects"
+            name="subject"
+            placeholder="Enter subjects..."
+        />
 
-    <div class="flex gap-6">
-        <ImageInput title="Front Image" name="front_image" />
-        <ImageInput title="Back Image" name="back_image" />
-    </div>
+        <div class="flex gap-6">
+            <ImageInput title="Front Image" name="front_image" />
+            <ImageInput title="Back Image" name="back_image" />
+        </div>
 
-    <ListBoxInput
-        title="Book Location"
-        name="location"
-        options={dbLocations.map(loc => loc.value)}
-        placeholder="Enter location..."
-    />
-    <ListBoxInput
-        title="Book Language"
-        name="language"
-        options={dbLanguages.map(lang => lang.value)}
-        placeholder="Enter language..."
-    />
+        <ListBoxInput
+            title="Book Location"
+            name="location"
+            options={dbLocations.map(loc => loc.value)}
+            placeholder="Enter location..."
+        />
+        <ListBoxInput
+            title="Book Language"
+            name="language"
+            options={dbLanguages.map(lang => lang.value)}
+            placeholder="Enter language..."
+        />
 
-    <div class="flex justify-center !mt-16">
-        <button type="submit" class="btn bg-primary-500 px-10 py-3">Submit</button>
-    </div>
-</form>
+        <div class="flex justify-center !mt-16">
+            <button type="submit" class="btn bg-primary-500 px-10 py-3">Submit</button>
+        </div>
+    </form>
+{:else}
+    <NotLoggedIn/>
+{/if}
