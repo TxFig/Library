@@ -31,15 +31,14 @@ model Session {
 
 model UserBookReadingState {
     userId Int
-    user   User @relation(fields: [userId], references: [id])
-    bookId Int
-    book   Book @relation(fields: [bookId], references: [isbn])
+    user   User   @relation(fields: [userId], references: [id])
+    bookId BigInt
+    book   Book   @relation(fields: [bookId], references: [isbn])
 
     state ReadingState
 
     @@id([userId, bookId])
 }
-
 
 enum ReadingState {
     READING

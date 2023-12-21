@@ -2,15 +2,15 @@ import { UserBookReadingState } from "auth"
 
 
 model Book {
-    isbn Int @id @unique
+    isbn BigInt @id @unique
 
     title           String
     subtitle        String?
     number_of_pages Int?
     publish_date    DateTime?
 
-    isbn10 Int? @unique
-    isbn13 Int? @unique
+    isbn10 Int?    @unique
+    isbn13 BigInt? @unique
 
     front_image String?
     back_image  String?
