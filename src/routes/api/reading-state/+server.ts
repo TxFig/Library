@@ -5,7 +5,7 @@ import { updateUserReadingState, type AllReadingState } from "$lib/server/databa
 
 export type UpdateUserBookReadingStateData = {
     state: AllReadingState,
-    isbn: number
+    isbn: bigint
 }
 
 //* Update User-Book Reading State

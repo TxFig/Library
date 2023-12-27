@@ -11,7 +11,7 @@ export async function saveFile(
         fs.writeFile(filepath, content, "utf-8")
 }
 
-export function formatImageFilename(isbn: number, side: "front" | "back", originalName: string): string {
+export function formatImageFilename(isbn: bigint, side: "front" | "back", originalName: string): string {
     const extension = path.extname(originalName)
     return `${isbn}-${side}${extension}`
 }

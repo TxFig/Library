@@ -7,9 +7,11 @@ model Book {
     title           String
     subtitle        String?
     number_of_pages Int?
-    publish_date    DateTime?
 
-    isbn10 Int?    @unique
+    publish_date  PublishDate? @relation(fields: [publishDateId], references: [id])
+    publishDateId Int?
+
+    isbn10 BigInt?    @unique
     isbn13 BigInt? @unique
 
     front_image String?
@@ -25,6 +27,14 @@ model Book {
     publishers           Publisher[]
     subjects             Subject[]
     userBookReadingState UserBookReadingState[]
+}
+
+model PublishDate {
+    id    Int    @id
+    year  Int
+    month Int?
+    day   Int?
+    Book  Book[]
 }
 
 model Location {

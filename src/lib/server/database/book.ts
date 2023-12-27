@@ -1,14 +1,15 @@
 import saveImage, { deleteImage, formatImageFilename } from "$lib/utils/images"
-import type { Book, Location, Language, Author, Publisher, Subject } from "@prisma/client"
+import type { Book, Location, Language, Author, Publisher, Subject, PublishDate } from "@prisma/client"
 import prisma from "."
 
 
-type InsertBook = Omit<Book, "locationId" | "languageId" | "front_image" | "back_image"> & {
+type InsertBook = Omit<Book, "publishDateId" | "locationId" | "languageId" | "front_image" | "back_image"> & {
     front_image: File | null
     back_image: File | null
 }
 export type InsertBookData = {
     book: InsertBook
+    publish_date: Omit<PublishDate, "id"> | null
     location: string | null
     language: string | null
     authors: string[]
@@ -16,7 +17,7 @@ export type InsertBookData = {
     subjects: string[]
 }
 
-export async function createBook({ book, location, language, authors, publishers, subjects }: InsertBookData): Promise<Error | void> {
+export async function createBook({ book, publish_date, location, language, authors, publishers, subjects }: InsertBookData): Promise<Error | void> {
     console.log("Creating book", book.isbn, book.title)
 
     let frontImageFilename: string | null = null
@@ -71,6 +72,7 @@ export async function createBook({ book, location, language, authors, publishers
                 }
             },
             include: {
+                publish_date: Boolean(publish_date),
                 location: Boolean(location),
                 language: Boolean(language),
                 authors: true,
@@ -159,7 +161,7 @@ export async function updateBook({ book, location, language, authors, publishers
     }
 }
 
-export async function deleteBook(isbn: number): Promise<Error | void> {
+export async function deleteBook(isbn: bigint): Promise<Error | void> {
     console.log("Deleting book", isbn)
 
     const book = await prisma.book.findUnique({
@@ -239,7 +241,7 @@ export async function deleteBook(isbn: number): Promise<Error | void> {
 }
 
 
-export async function doesBookExist(isbn: number): Promise<boolean> {
+export async function doesBookExist(isbn: bigint): Promise<boolean> {
     const book = await prisma.book.findUnique({
         where: { isbn }
     })
@@ -255,7 +257,7 @@ type EntireBook = Book & {
     language: Language | null
 }
 
-export function getEntireBookByISBN(isbn: number): Promise<EntireBook | null> {
+export function getEntireBookByISBN(isbn: bigint): Promise<EntireBook | null> {
     return prisma.book.findUnique({
         where: { isbn },
         include: {
