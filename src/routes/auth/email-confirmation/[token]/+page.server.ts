@@ -1,32 +1,29 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { validate } from "uuid"
-import {
-    createSession,
-    deleteEmailConfirmationRequestByToken,
-    getEmailConfirmationRequestByToken,
-    validateExpireTime
-} from "$lib/server/database/auth";
+import db from "$lib/server/database/";
+import HttpErrors from "$lib/utils/http-errors";
+
 
 export const load: PageServerLoad = async ({ params, cookies }) => {
     const { token } = params
 
     if (!validate(token)) {
-        throw redirect(303, "/auth/login/")
+        throw redirect(HttpErrors.SeeOther, "/auth/login/")
     }
 
-    const emailConfirmationRequest = await getEmailConfirmationRequestByToken(token)
+    const emailConfirmationRequest = await db.auth.getEmailConfirmationRequestByToken(token)
     if (!emailConfirmationRequest) {
-        throw redirect(303, "/auth/login/")
+        throw redirect(HttpErrors.SeeOther, "/auth/login/")
     }
-    else if (emailConfirmationRequest && !validateExpireTime(emailConfirmationRequest.expireDate)) {
-        await deleteEmailConfirmationRequestByToken(token)
-        throw redirect(303, "/auth/login/")
+    else if (emailConfirmationRequest && !db.auth.validateExpireTime(emailConfirmationRequest.expireDate)) {
+        await db.auth.deleteEmailConfirmationRequestByToken(token)
+        throw redirect(HttpErrors.SeeOther, "/auth/login/")
     }
 
-    await deleteEmailConfirmationRequestByToken(token)
+    await db.auth.deleteEmailConfirmationRequestByToken(token)
 
-    const sessionToken = await createSession(emailConfirmationRequest.userId)
+    const sessionToken = await db.auth.createSession(emailConfirmationRequest.userId)
     cookies.set("sessionToken", sessionToken, {
         path: "/"
     })

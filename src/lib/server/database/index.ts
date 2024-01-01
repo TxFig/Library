@@ -22,4 +22,10 @@ export async function close() {
 }
 
 
-export default prisma
+import book from "./book"
+import auth from "./auth"
+
+export default {
+    book,
+    auth
+}

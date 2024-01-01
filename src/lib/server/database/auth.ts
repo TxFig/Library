@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid"
-import prisma from "."
+import { prisma } from "."
 import nodemailer from "nodemailer"
 import {
     EMAIL_CONFIRMATION_EXPIRATION_TIME,
@@ -189,4 +189,19 @@ export async function getBookReadingState(isbn: bigint, userId: number): Promise
         }
     })
     return userBookReadingState?.state ?? null
+}
+
+export default {
+    getUserByEmail,
+    sendConfirmationEmail,
+    getEmailConfirmationRequestByToken,
+    deleteEmailConfirmationRequestByToken,
+    validateExpireTime,
+    createSession,
+    deleteSession,
+    getUserBySessionToken,
+    getAllUsers,
+    createUser,
+    updateUserReadingState,
+    getBookReadingState
 }

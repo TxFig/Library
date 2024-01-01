@@ -1,7 +1,10 @@
-import saveImage, { deleteImage, formatImageFilename } from "$lib/utils/images"
+import { saveImage, deleteImage, formatImageFilename } from "$lib/utils/images"
 import type { Book, Location, Language, Author, Publisher, Subject, PublishDate } from "@prisma/client"
-import prisma from "."
+import { prisma } from "."
 
+import type { Prisma } from "@prisma/client"
+
+type A = Prisma.BookCreateInput
 
 type InsertBook = Omit<Book, "publishDateId" | "locationId" | "languageId" | "front_image" | "back_image"> & {
     front_image: File | null

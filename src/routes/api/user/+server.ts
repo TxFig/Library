@@ -1,12 +1,13 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { createUser } from "$lib/server/database/auth";
+import db from "$lib/server/database/";
+import HttpErrors from "$lib/utils/http-errors";
 
 
 //* Create User
 export const POST: RequestHandler = async ({ request, locals }) => {
     if (!locals.user) {
-        throw error(401, {
+        throw error(HttpErrors.Unauthorized, {
             message: "Need to be logged in to create users"
         })
     }
@@ -14,13 +15,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const data = await request.json()
 
     if (!(data.email && data.username)) {
-        throw error(400, {
+        throw error(HttpErrors.BadRequest, {
             message: "Invalid Request"
         })
     }
 
     try {
-        const user = await createUser({
+        const user = await db.auth.createUser({
             email: data.email,
             username: data.username
         })

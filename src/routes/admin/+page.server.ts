@@ -1,6 +1,6 @@
 import { validate } from "uuid";
 import type { PageServerLoad } from "./$types";
-import { getAllUsers } from "$lib/server/database/auth";
+import db from "$lib/server/database/";
 
 
 export const load: PageServerLoad = async ({ cookies }) => {
@@ -8,6 +8,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
     const loggedIn = sessionToken && validate(sessionToken)
 
     return {
-        users: loggedIn ? getAllUsers() : []
+        users: loggedIn ? db.auth.getAllUsers() : []
     }
 }

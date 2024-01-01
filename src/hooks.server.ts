@@ -1,11 +1,11 @@
 import { close } from "$lib/server/database/"
-import { getUserBySessionToken } from "$lib/server/database/auth"
+import db from "$lib/server/database/"
 import type { Handle } from "@sveltejs/kit"
 
 
 export const handle: Handle = async ({ event, resolve }) => {
     const sessionToken = event.cookies.get("sessionToken")
-    event.locals.user = sessionToken ? await getUserBySessionToken(sessionToken) : null
+    event.locals.user = sessionToken ? await db.auth.getUserBySessionToken(sessionToken) : null
 
     return await resolve(event)
 }
@@ -13,3 +13,5 @@ export const handle: Handle = async ({ event, resolve }) => {
 process.on("exit", () => {
     close()
 })
+
+import "$lib/utils/images"

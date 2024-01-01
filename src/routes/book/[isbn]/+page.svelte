@@ -6,7 +6,7 @@
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
     import type { AllReadingState } from "$lib/server/database/auth";
-    import type { UpdateUserBookReadingStateData } from "../../api/reading-state/+server";
+    import type { UpdateUserBookReadingStateData } from "@api/reading-state/+server";
 
     export let data: PageData
     const { book, readingState } = data
@@ -17,7 +17,7 @@
     ].filter(Boolean) as string[]
 
     async function deleteBook() {
-        await fetch(`/api/book/${book.isbn}`, { method: "DELETE" })
+        await fetch(`/api/book/${book.isbn}`, { method: "DELETE" }) // TODO: FIX according to new delete book api route
         window.location.href = "/"
     }
 

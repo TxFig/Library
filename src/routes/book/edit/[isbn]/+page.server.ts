@@ -2,6 +2,7 @@ import type { Actions, PageServerLoad } from "./$types"
 import { error, fail, redirect } from "@sveltejs/kit"
 
 import db, { type InsertBookData } from "$lib/server/database/book"
+import HttpErrors from "$lib/utils/http-errors"
 
 
 
@@ -12,7 +13,7 @@ export const load: PageServerLoad = async ({ params }) => {
     const book = await db.getEntireBookByISBN(isbn)
 
     if (!book) {
-        throw error(404, {
+        throw error(HttpErrors.NotFound, {
             message: "Book Not Available"
         })
     }
@@ -30,7 +31,7 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions: Actions = {
     default: async ({ request, locals }) => {
         if (!locals.user) {
-            throw error(401, {
+            throw error(HttpErrors.Unauthorized, {
                 message: "Need to be logged in"
             })
         }
@@ -40,7 +41,7 @@ export const actions: Actions = {
         const isbn = formData.get("isbn") as string | null
 
         if (!isbn) {
-            return fail(400, {
+            return fail(HttpErrors.BadRequest, {
                 message: "Missing ISBN Parameter"
             })
         }
@@ -73,6 +74,6 @@ export const actions: Actions = {
         const language: InsertBookData["language"] = formData.get("language") as string | undefined ?? null
 
         await db.updateBook({ book, authors, publishers, subjects, location, language })
-        throw redirect(303, `/book/${book.isbn}`)
+        throw redirect(HttpErrors.SeeOther, `/book/${book.isbn}`)
     }
 }

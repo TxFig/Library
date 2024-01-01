@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { isNotNullish } from "./book-form"
+
 
 export function validateISBN(isbn: string): boolean {
     if (isbn.length != 10 && isbn.length != 13) return false
@@ -36,27 +36,7 @@ export function validateISBN(isbn: string): boolean {
 
 export const ISBNSchema = z
     .string()
-    .nullish()
-    .refine((value): value is string => isNotNullish(value), "ISBN Required")
     .refine(validateISBN, "Invalid ISBN")
     .transform(value => BigInt(value))
 
-export const ISBNOptionalSchema = z
-    .string()
-    .nullable()
-    .transform((value, ctx) => {
-        if (!isNotNullish(value)) {
-            return value
-        }
-
-        if (!validateISBN(value)) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Invalid ISBN"
-            })
-        }
-
-        return BigInt(value)
-    })
-
-type out = z.output<typeof ISBNOptionalSchema>
+export const ISBNOptionalSchema = ISBNSchema.optional()

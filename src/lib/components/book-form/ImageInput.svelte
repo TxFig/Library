@@ -1,19 +1,16 @@
 <script lang="ts">
+    import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from "$lib/utils/book-form";
     import Icon from "@iconify/svelte"
     import { FileDropzone, getToastStore } from "@skeletonlabs/skeleton"
 
-    const toastStore = getToastStore()
-    const fileSizeLimit = 16 // MB
 
-    function MB2Bytes(mb: number): number {
-        return mb * 1000000
-    }
+    const toastStore = getToastStore()
 
     async function getDataURLImage(image: File): Promise<string | null> {
         if (!image) return null
-        if (image.size > MB2Bytes(fileSizeLimit)) {
+        if (image.size > MAX_IMAGE_SIZE_BYTES) {
             toastStore.trigger({
-                message: `Image size can not exceeded ${fileSizeLimit} MB`,
+                message: `Image size can not exceeded ${MAX_IMAGE_SIZE_MB} MB`,
                 background: "variant-filled-error"
             })
             return null

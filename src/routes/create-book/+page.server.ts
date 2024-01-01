@@ -1,10 +1,11 @@
 import type { Actions, PageServerLoad } from "./$types"
-import { fail, redirect, error, ActionFailure } from "@sveltejs/kit"
+import { error, fail, redirect } from "@sveltejs/kit"
 
 import db, { type InsertBookData } from "$lib/server/database/book"
 
 import { ISBNSchema } from "$lib/utils/isbn"
-import { bookDataSchema, publishDateSchema } from "$lib/utils/book-form"
+import { bookFormSchema } from "$lib/utils/book-form"
+import HttpErrors from "$lib/utils/http-errors"
 
 
 export const load: PageServerLoad = async () => ({
@@ -18,7 +19,7 @@ export const load: PageServerLoad = async () => ({
 export const actions: Actions = {
     default: async ({ request, locals }) => {
         if (!locals.user) {
-            throw error(401, {
+            throw error(HttpErrors.Unauthorized, {
                 message: "Need to be logged in"
             })
         }
@@ -28,7 +29,7 @@ export const actions: Actions = {
         const isbnInput = formData.get("isbn")
         const isbnParsingResult = ISBNSchema.safeParse(isbnInput)
         if (!isbnParsingResult.success) {
-            return fail(400, {
+            return fail(HttpErrors.BadRequest, {
                 message: isbnParsingResult.error.issues[0].message
             })
         }
@@ -36,58 +37,57 @@ export const actions: Actions = {
 
         const bookAlreadyExists = await db.doesBookExist(isbn)
         if (bookAlreadyExists) {
-            return fail(409, {
+            return fail(HttpErrors.Conflict, {
                 message: "Book already exists in database.",
             })
         }
-
-        const bookData = {
-            title: formData.get("title"),
-            subtitle: formData.get("subtitle"),
-            number_of_pages: formData.get("number_of_pages"),
-            front_image: formData.get("front_image"),
-            back_image: formData.get("back_image")
-        }
-
-        const bookDataParsingResult = bookDataSchema.safeParse(bookData)
-        if (!bookDataParsingResult.success) {
-            return fail(400, {
-                message: bookDataParsingResult.error.issues[0].message // TODO: give detailed error message
-            })
-        }
-        const book: InsertBookData["book"] = bookDataParsingResult.data
 
         const publishDateData = {
             day: formData.get("publish_date:day"),
             month: formData.get("publish_date:month"),
             year: formData.get("publish_date:year"),
         }
+        const anyPublishDateData = !(publishDateData.day && publishDateData.month && publishDateData.year)
 
-        let publish_date: InsertBookData["publish_date"]
-        if (!(publishDateData.day && publishDateData.month && publishDateData.year))
-            publish_date = null
 
-        const publishDateParsingResult = publishDateSchema.safeParse(publishDateData)
-        if (!publishDateParsingResult.success) {
-            return fail(400, {
-                message: "Publish Date incorrectly formatted" // TODO: give detailed error message
+        const bookFormData = {
+            book: {
+                isbn: formData.get("isbn"),
+
+                title: formData.get("title"),
+                subtitle: formData.get("subtitle"),
+                number_of_pages: formData.get("number_of_pages"),
+
+                isbn10: formData.get("isbn10"), // TODO: create ui input for isbn 10 & 13
+                isbn13: formData.get("isbn13"),
+
+                front_image: formData.get("front_image"),
+                back_image: formData.get("back_image")
+            },
+            publish_date: anyPublishDateData ? publishDateData : null,
+            location: formData.get("location"),
+            language: formData.get("language"),
+            authors: formData.getAll("author"),
+            publishers: formData.getAll("publisher"),
+            subjects: formData.getAll("subject")
+        }
+
+        const bookFormParsingResult = bookFormSchema.safeParse(bookFormData)
+        if (!bookFormParsingResult.success) {
+            return fail(HttpErrors.BadRequest, {
+                message: bookFormParsingResult.error.issues[0].message // TODO: give detailed error message
             })
         }
-        publish_date = publishDateParsingResult.data
+        const bookFormParsedData: InsertBookData = bookFormParsingResult.data
 
-        const authors: InsertBookData["authors"] = formData.getAll("author") as string[]
-        const publishers: InsertBookData["publishers"] = formData.getAll("publisher") as string[]
-        const subjects: InsertBookData["subjects"] = formData.getAll("subject") as string[]
-        const location: InsertBookData["location"] = formData.get("location") as string | undefined ?? null
-        const language: InsertBookData["language"] = formData.get("language") as string | undefined ?? null
 
-        const createBookError = await db.createBook({ book, publish_date, authors, publishers, subjects, location, language })
+        const createBookError = await db.createBook(bookFormParsedData)
         if (createBookError) {
-            return fail(400, {
+            return fail(HttpErrors.BadRequest, {
                 message: createBookError.message
             })
         }
 
-        throw redirect(303, `/book/${book.isbn}`)
+        throw redirect(HttpErrors.SeeOther, `/book/${bookFormParsedData.book.isbn}`)
     }
 }
