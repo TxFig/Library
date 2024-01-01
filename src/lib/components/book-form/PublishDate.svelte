@@ -2,6 +2,8 @@
     export let day: number | undefined = undefined
     export let month: number | undefined = undefined
     export let year: number | undefined = undefined
+
+    const currentYear = new Date().getFullYear()
 </script>
 
 <label class="label">
@@ -17,7 +19,7 @@
         </div>
         <div class="w-full space-y-1">
             <p>Year</p>
-            <input class="input" type="number" name="publish_date:year" value={year ?? ""} min={1970} max={2023}/>
+            <input class="input" type="number" name="publish_date:year" value={year ?? ""} min={1970} max={currentYear}/>
         </div>
     </div>
 </label>
