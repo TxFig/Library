@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
 import db from "$lib/server/database/"
-import HttpErrors from "$lib/utils/http-errors"
+import HttpCodes from "$lib/utils/http-codes"
 import { bookFormSchema, getFormattedError } from "$lib/validation/book-form"
 import { generateResizedImages } from "$lib/utils/images"
 import type { InsertBookData } from "$lib/server/database/book"
@@ -39,14 +39,14 @@ export const POST: RequestHandler = async ({ request }) => {
         const formData = await request.formData()
         data = convertFormDataToObject(formData)
     } catch {
-        throw error(HttpErrors.BadRequest, {
+        throw error(HttpCodes.BadRequest, {
             message: "No Data Provided"
         })
     }
 
     const parsingResult = bookFormSchema.safeParse(data)
     if (!parsingResult.success) {
-        throw error(HttpErrors.BadRequest, {
+        throw error(HttpCodes.BadRequest, {
             message: "Invalid Book Data",
             error: getFormattedError(parsingResult.error)
         })
@@ -66,10 +66,10 @@ export const POST: RequestHandler = async ({ request }) => {
             await generateResizedImages(parsedData.isbn, "front", parsedData.front_image)
         } catch (err) {
             if (err instanceof BadRequestError) {
-                throw error(HttpErrors.BadRequest, { message: err.message })
+                throw error(HttpCodes.BadRequest, { message: err.message })
             }
             else if (err instanceof InternalServerError) {
-                throw error(HttpErrors.InternalServerError, { message: err.message })
+                throw error(HttpCodes.InternalServerError, { message: err.message })
             }
         }
         createBookData.front_image = true
@@ -79,10 +79,10 @@ export const POST: RequestHandler = async ({ request }) => {
             await generateResizedImages(parsedData.isbn, "back", parsedData.back_image)
         } catch (err) {
             if (err instanceof BadRequestError) {
-                throw error(HttpErrors.BadRequest, { message: err.message })
+                throw error(HttpCodes.BadRequest, { message: err.message })
             }
             else if (err instanceof InternalServerError) {
-                throw error(HttpErrors.InternalServerError, { message: err.message })
+                throw error(HttpCodes.InternalServerError, { message: err.message })
             }
         }
         createBookData.back_image = true
@@ -107,7 +107,7 @@ export const PATCH: RequestHandler = async ({}) => {
 // Delete Book
 export const DELETE: RequestHandler = async ({ params, locals }) => {
     if (!locals.user) {
-        throw error(HttpErrors.Unauthorized, {
+        throw error(HttpCodes.Unauthorized, {
             message: "Need to be logged in"
         })
     }

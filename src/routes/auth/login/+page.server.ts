@@ -1,6 +1,6 @@
 import db from "$lib/server/database/";
 import { fail, type Actions } from "@sveltejs/kit";
-import HttpErrors from "$lib/utils/http-errors"
+import HttpCodes from "$lib/utils/http-codes"
 
 
 export const actions: Actions = {
@@ -9,14 +9,14 @@ export const actions: Actions = {
 
         const email = formData.get("email")
         if (typeof email !== "string") {
-            return fail(HttpErrors.BadRequest, {
+            return fail(HttpCodes.BadRequest, {
                 message: "Invalid Email"
             })
         }
 
         const user = await db.auth.getUserByEmail(email)
         if (!user) {
-            return fail(HttpErrors.BadRequest, {
+            return fail(HttpCodes.BadRequest, {
                 message: "User doesn't exist"
             })
         }
@@ -25,14 +25,14 @@ export const actions: Actions = {
             user.emailConfirmationRequest &&
             !db.auth.validateExpireTime(user.emailConfirmationRequest.expireDate)
         ) {
-            return fail(HttpErrors.BadRequest, {
+            return fail(HttpCodes.BadRequest, {
                 message: "A email confirmation request already was sent"
             })
         }
 
         const error = await db.auth.sendConfirmationEmail(user)
         if (error) {
-            return fail(HttpErrors.InternalServerError, {
+            return fail(HttpCodes.InternalServerError, {
                 message: "Error sending email"
             })
         }

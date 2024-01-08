@@ -3,12 +3,12 @@ import type { RequestHandler } from "./$types"
 
 import { getOpenLibraryBook } from "$lib/utils/open-library"
 import db from "$lib/server/database/"
-import HttpErrors from "$lib/utils/http-errors"
+import HttpCodes from "$lib/utils/http-codes"
 
 
 export const POST: RequestHandler = async ({ request, locals }) => {
     if (!locals.user) {
-        throw error(HttpErrors.Unauthorized, {
+        throw error(HttpCodes.Unauthorized, {
             message: "Need to be logged in"
         })
     }
@@ -19,14 +19,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     const bookAlreadyExists = await db.book.doesBookExist(isbn)
     if (bookAlreadyExists) {
-        throw error(HttpErrors.Conflict, {
+        throw error(HttpCodes.Conflict, {
             message: "Book already exists in database.",
         })
     }
 
     const insertData = await getOpenLibraryBook(isbnString)
     if (!insertData) {
-        throw error(HttpErrors.NotFound, {
+        throw error(HttpCodes.NotFound, {
             message: "Book not available in OpenLibrary.",
         })
     }

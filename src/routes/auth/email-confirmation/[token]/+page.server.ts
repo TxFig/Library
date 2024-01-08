@@ -2,23 +2,23 @@ import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { validate } from "uuid"
 import db from "$lib/server/database/";
-import HttpErrors from "$lib/utils/http-errors";
+import HttpCodes from "$lib/utils/http-codes";
 
 
 export const load: PageServerLoad = async ({ params, cookies }) => {
     const { token } = params
 
     if (!validate(token)) {
-        throw redirect(HttpErrors.SeeOther, "/auth/login/")
+        throw redirect(HttpCodes.SeeOther, "/auth/login/")
     }
 
     const emailConfirmationRequest = await db.auth.getEmailConfirmationRequestByToken(token)
     if (!emailConfirmationRequest) {
-        throw redirect(HttpErrors.SeeOther, "/auth/login/")
+        throw redirect(HttpCodes.SeeOther, "/auth/login/")
     }
     else if (emailConfirmationRequest && !db.auth.validateExpireTime(emailConfirmationRequest.expireDate)) {
         await db.auth.deleteEmailConfirmationRequestByToken(token)
-        throw redirect(HttpErrors.SeeOther, "/auth/login/")
+        throw redirect(HttpCodes.SeeOther, "/auth/login/")
     }
 
     await db.auth.deleteEmailConfirmationRequestByToken(token)

@@ -2,7 +2,7 @@ import type { PageServerLoad } from "./$types"
 import { error } from "@sveltejs/kit"
 
 import db from "$lib/server/database/"
-import HttpErrors from "$lib/utils/http-errors"
+import HttpCodes from "$lib/utils/http-codes"
 
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     const book = await db.book.getEntireBookByISBN(isbn)
 
     if (!book) {
-        throw error(HttpErrors.NotFound, "Book Not Available")
+        throw error(HttpCodes.NotFound, "Book Not Available")
     }
 
     const readingState = locals.user ? await db.auth.getBookReadingState(isbn, locals.user.id) : null

@@ -1,7 +1,7 @@
 import { redirect } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import db from "$lib/server/database/";
-import HttpErrors from "$lib/utils/http-errors"
+import HttpCodes from "$lib/utils/http-codes"
 
 
 export const GET: RequestHandler = async ({ cookies, url }) => {
@@ -14,5 +14,5 @@ export const GET: RequestHandler = async ({ cookies, url }) => {
     }
 
     const path = url.searchParams.get("path")
-    throw redirect(HttpErrors.SeeOther, path ?? "/")
+    throw redirect(HttpCodes.SeeOther, path ?? "/")
 }

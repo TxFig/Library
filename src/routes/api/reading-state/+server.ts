@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
 import db from "$lib/server/database/"
-import HttpErrors from "$lib/utils/http-errors"
+import HttpCodes from "$lib/utils/http-codes"
 import type { AllReadingState } from "$lib/server/database/auth"
 
 
@@ -13,7 +13,7 @@ export type UpdateUserBookReadingStateData = {
 //* Update User-Book Reading State
 export const PATCH: RequestHandler = async ({ request, locals }) => {
     if (!locals.user) {
-        throw error(HttpErrors.Unauthorized, {
+        throw error(HttpCodes.Unauthorized, {
             message: "Need to be logged in"
         })
     }

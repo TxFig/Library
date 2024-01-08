@@ -5,7 +5,7 @@ import db, { type InsertBookData } from "$lib/server/database/book"
 
 import { ISBNSchema } from "$lib/validation/isbn"
 import { bookFormSchema } from "$lib/validation/book-form"
-import HttpErrors from "$lib/utils/http-errors"
+import HttpCodes from "$lib/utils/http-codes"
 
 
 export const load: PageServerLoad = async () => ({
@@ -19,7 +19,7 @@ export const load: PageServerLoad = async () => ({
 export const actions: Actions = {
     default: async ({ request, locals }) => {
         if (!locals.user) {
-            throw error(HttpErrors.Unauthorized, {
+            throw error(HttpCodes.Unauthorized, {
                 message: "Need to be logged in"
             })
         }
@@ -29,7 +29,7 @@ export const actions: Actions = {
         const isbnInput = formData.get("isbn")
         const isbnParsingResult = ISBNSchema.safeParse(isbnInput)
         if (!isbnParsingResult.success) {
-            return fail(HttpErrors.BadRequest, {
+            return fail(HttpCodes.BadRequest, {
                 message: isbnParsingResult.error.issues[0].message
             })
         }
@@ -37,7 +37,7 @@ export const actions: Actions = {
 
         const bookAlreadyExists = await db.doesBookExist(isbn)
         if (bookAlreadyExists) {
-            return fail(HttpErrors.Conflict, {
+            return fail(HttpCodes.Conflict, {
                 message: "Book already exists in database.",
             })
         }
@@ -74,7 +74,7 @@ export const actions: Actions = {
 
         const bookFormParsingResult = bookFormSchema.safeParse(bookFormData)
         if (!bookFormParsingResult.success) {
-            return fail(HttpErrors.BadRequest, {
+            return fail(HttpCodes.BadRequest, {
                 message: bookFormParsingResult.error.issues[0].message // TODO: give detailed error message
             })
         }
@@ -83,11 +83,11 @@ export const actions: Actions = {
 
         const createBookError = await db.createBook(bookFormParsedData)
         if (createBookError) {
-            return fail(HttpErrors.BadRequest, {
+            return fail(HttpCodes.BadRequest, {
                 message: createBookError.message
             })
         }
 
-        throw redirect(HttpErrors.SeeOther, `/book/${bookFormParsedData.book.isbn}`)
+        throw redirect(HttpCodes.SeeOther, `/book/${bookFormParsedData.book.isbn}`)
     }
 }

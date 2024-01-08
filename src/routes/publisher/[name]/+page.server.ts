@@ -2,7 +2,7 @@ import type { PageServerLoad } from "./$types"
 import { error } from "@sveltejs/kit"
 
 import db from "$lib/server/database/"
-import HttpErrors from "$lib/utils/http-errors"
+import HttpCodes from "$lib/utils/http-codes"
 
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params }) => {
     const publisher = await db.book.getPublisherWithBooksByName(name)
 
     if (!publisher) {
-        throw error(HttpErrors.NotFound, "Publisher Doesn't Exists")
+        throw error(HttpCodes.NotFound, "Publisher Doesn't Exists")
     }
 
     return { publisher }

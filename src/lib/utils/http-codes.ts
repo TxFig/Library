@@ -1,4 +1,7 @@
 export default {
+    // Successful
+    Success: 200,
+
     // Redirection
     SeeOther: 303,
 
