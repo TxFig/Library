@@ -1,48 +1,40 @@
-import { saveImage, deleteImage, formatImageFilename } from "$lib/utils/images"
+import { deleteImage } from "$lib/utils/images"
 import type { Book, Location, Language, Author, Publisher, Subject, PublishDate } from "@prisma/client"
 import { prisma } from "."
 
-import type { Prisma } from "@prisma/client"
 
-type A = Prisma.BookCreateInput
-
-type InsertBook = Omit<Book, "publishDateId" | "locationId" | "languageId" | "front_image" | "back_image"> & {
-    front_image: File | null
-    back_image: File | null
+type InsertBook = {
+    isbn: bigint
+    title: string
+    subtitle: string | null
+    number_of_pages: number | null
+    isbn10: bigint | null
+    isbn13: bigint | null
+    front_image: boolean
+    back_image: boolean
 }
-export type InsertBookData = {
-    book: InsertBook
+
+export type InsertBookData = InsertBook & {
     publish_date: Omit<PublishDate, "id"> | null
     location: string | null
     language: string | null
-    authors: string[]
-    publishers: string[]
-    subjects: string[]
+    authors: string[] | null
+    publishers: string[] | null
+    subjects: string[] | null
 }
 
-export async function createBook({ book, publish_date, location, language, authors, publishers, subjects }: InsertBookData): Promise<Error | void> {
+export async function createBook({ publish_date, location, language, authors, publishers, subjects, ...book }: InsertBookData): Promise<Error | void> {
     console.log("Creating book", book.isbn, book.title)
-
-    let frontImageFilename: string | null = null
-    if (book.front_image) {
-        frontImageFilename = formatImageFilename(book.isbn, "front", book.front_image.name)
-        const error = await saveImage(frontImageFilename, await book.front_image.arrayBuffer())
-        if (error) return error
-    }
-
-    let backImageFilename: string | null = null
-    if (book.back_image) {
-        backImageFilename = formatImageFilename(book.isbn, "back", book.back_image.name)
-        const error = await saveImage(backImageFilename, await book.back_image.arrayBuffer())
-        if (error) return error
-    }
 
     try {
         await prisma.book.create({
             data: {
                 ...book,
-                front_image: frontImageFilename,
-                back_image: backImageFilename,
+                publish_date: publish_date ? {
+                    create: {
+                        ...publish_date
+                    }
+                } : undefined,
                 location: location ? {
                     connectOrCreate: {
                         where: { value: location },
@@ -55,29 +47,29 @@ export async function createBook({ book, publish_date, location, language, autho
                         create: { value: language }
                     }
                 } : undefined,
-                authors: {
+                authors: authors ? {
                     connectOrCreate: authors.map(author => ({
                         where: { name: author },
                         create: { name: author }
                     }))
-                },
-                publishers: {
+                } : undefined,
+                publishers: publishers ? {
                     connectOrCreate: publishers.map(publisher => ({
                         where: { name: publisher },
                         create: { name: publisher }
                     }))
-                },
-                subjects: {
+                } : undefined,
+                subjects: subjects ? {
                     connectOrCreate: subjects.map(subject => ({
                         where: { value: subject },
                         create: { value: subject }
                     }))
-                }
+                } : undefined
             },
             include: {
-                publish_date: Boolean(publish_date),
-                location: Boolean(location),
-                language: Boolean(language),
+                publish_date: true,
+                location: true,
+                language: true,
                 authors: true,
                 publishers: true,
                 subjects: true
@@ -89,36 +81,19 @@ export async function createBook({ book, publish_date, location, language, autho
     }
 }
 
-export async function updateBook({ book, location, language, authors, publishers, subjects }: InsertBookData): Promise<Error | void> {
+export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: InsertBookData): Promise<Error | void> {
     console.log("Updating book", book.isbn, book.title)
-
-    let frontImageFilename: string | null = null
-    if (book.front_image) {
-        frontImageFilename = formatImageFilename(book.isbn, "front", book.front_image.name)
-
-        const deleteError = await deleteImage(frontImageFilename)
-        if (deleteError) return deleteError
-        const saveError = await saveImage(frontImageFilename, await book.front_image.arrayBuffer())
-        if (saveError) return deleteError
-    }
-
-    let backImageFilename: string | null = null
-    if (book.back_image) {
-        backImageFilename = formatImageFilename(book.isbn, "back", book.back_image.name)
-
-        const deleteError = await deleteImage(backImageFilename)
-        if (deleteError) return deleteError
-        const saveError = await saveImage(backImageFilename, await book.back_image.arrayBuffer())
-        if (saveError) return saveError
-    }
 
     try {
         await prisma.book.update({
             where: { isbn: book.isbn },
             data: {
                 ...book,
-                front_image: frontImageFilename,
-                back_image: backImageFilename,
+                publish_date: publish_date ? {
+                    create: {
+                        ...publish_date
+                    }
+                } : undefined,
                 location: location ? {
                     connectOrCreate: {
                         where: { value: location },
@@ -131,28 +106,29 @@ export async function updateBook({ book, location, language, authors, publishers
                         create: { value: language }
                     }
                 } : undefined,
-                authors: {
+                authors: authors ? {
                     connectOrCreate: authors.map(author => ({
                         where: { name: author },
                         create: { name: author }
                     }))
-                },
-                publishers: {
+                } : undefined,
+                publishers: publishers ? {
                     connectOrCreate: publishers.map(publisher => ({
                         where: { name: publisher },
                         create: { name: publisher }
                     }))
-                },
-                subjects: {
+                } : undefined,
+                subjects: subjects ? {
                     connectOrCreate: subjects.map(subject => ({
                         where: { value: subject },
                         create: { value: subject }
                     }))
-                }
+                } : undefined
             },
             include: {
-                location: Boolean(location),
-                language: Boolean(language),
+                publish_date: true,
+                location: true,
+                language: true,
                 authors: true,
                 publishers: true,
                 subjects: true
@@ -253,6 +229,7 @@ export async function doesBookExist(isbn: bigint): Promise<boolean> {
 
 
 type EntireBook = Book & {
+    publish_date: PublishDate | null
     authors: Author[]
     publishers: Publisher[]
     subjects: Subject[]
@@ -264,6 +241,7 @@ export function getEntireBookByISBN(isbn: bigint): Promise<EntireBook | null> {
     return prisma.book.findUnique({
         where: { isbn },
         include: {
+            publish_date: true,
             authors: true,
             publishers: true,
             subjects: true,

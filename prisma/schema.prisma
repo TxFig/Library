@@ -81,8 +81,8 @@ model Book {
   isbn10 BigInt? @unique
   isbn13 BigInt? @unique
 
-  front_image String?
-  back_image  String?
+  front_image Boolean @default(false)
+  back_image  Boolean @default(false)
 
   location   Location? @relation(fields: [locationId], references: [id])
   locationId Int?
@@ -97,7 +97,7 @@ model Book {
 }
 
 model PublishDate {
-  id    Int    @id
+  id    Int    @id @default(autoincrement())
   year  Int
   month Int?
   day   Int?

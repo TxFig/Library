@@ -4,7 +4,7 @@
     import Quagga from "@ericblade/quagga2"
     import { page } from "$app/stores";
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
-    import { validateISBN } from "$lib/utils/isbn";
+    import { validateISBN } from "$lib/validation/isbn";
 
     const modalStore = getModalStore()
 

@@ -3,8 +3,8 @@ import { error, fail, redirect } from "@sveltejs/kit"
 
 import db, { type InsertBookData } from "$lib/server/database/book"
 
-import { ISBNSchema } from "$lib/utils/isbn"
-import { bookFormSchema } from "$lib/utils/book-form"
+import { ISBNSchema } from "$lib/validation/isbn"
+import { bookFormSchema } from "$lib/validation/book-form"
 import HttpErrors from "$lib/utils/http-errors"
 
 

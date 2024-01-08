@@ -1,3 +1,4 @@
+import { convertToNullIfUndefined } from "$lib/validation/utils"
 import { z } from "zod"
 
 
@@ -39,4 +40,5 @@ export const ISBNSchema = z
     .refine(validateISBN, "Invalid ISBN")
     .transform(value => BigInt(value))
 
-export const ISBNOptionalSchema = ISBNSchema.optional()
+export const ISBNOptionalSchema = ISBNSchema
+    .optional().transform(convertToNullIfUndefined)

@@ -1,14 +1,16 @@
 import { IMAGES_PATH } from "$env/static/private"
-import fs from "fs/promises"
+import fs from "fs"
+import fsPromises from "fs/promises"
 import path from "path"
 import sharp from "sharp"
+import { BadRequestError, InternalServerError } from "./custom-errors"
 
 
 export async function saveFile(
     filepath: string,
-    content: Parameters<typeof fs.writeFile>[1]
+    content: Parameters<typeof fsPromises.writeFile>[1]
 ): Promise<void> {
-        fs.writeFile(filepath, content, "utf-8")
+    fsPromises.writeFile(filepath, content, "utf-8")
 }
 
 export function formatImageFilename(isbn: bigint, side: "front" | "back", originalName: string): string {
@@ -30,15 +32,14 @@ export async function saveImage(filename: string, content: ArrayBuffer): Promise
 export async function deleteImage(filename: string): Promise<Error | void> {
     try {
         const filepath = path.join(IMAGES_PATH, filename)
-        await fs.unlink(filepath)
+        await fsPromises.unlink(filepath)
     } catch (error) {
         return new Error(`Error deleting image: ${filename}`)
     }
 }
 
-const resizeHeights = [1080, 720, 480, 360]
-export async function generateResizedImages(isbn: bigint, side: "front" | "back", file: File): Promise<string[]> {
-    const images: string[] = []
+const resizeHeights = [1080, 720, 480, 320]
+export async function generateResizedImages(isbn: bigint, side: "front" | "back", file: File): Promise<void> {
     const arrayBuffer = await file.arrayBuffer()
     const image = sharp(arrayBuffer)
 
@@ -46,7 +47,7 @@ export async function generateResizedImages(isbn: bigint, side: "front" | "back"
 
 
     if (!metadata.width || !metadata.height) {
-        throw new Error(`Image File of (isbn: ${isbn}, size: ${side}) doesn't contain width or height`)
+        throw new BadRequestError(`Image File of (isbn: ${isbn}, size: ${side}) doesn't contain width or height`)
     }
     const size = {
         width: metadata.width,
@@ -55,21 +56,22 @@ export async function generateResizedImages(isbn: bigint, side: "front" | "back"
     const heights = resizeHeights.filter(height => height < size.height)
 
     for (const height of heights) {
-        const filename = `${isbn}-${side}-${height}p.webp`
-        const filepath = path.join(IMAGES_PATH, filename)
-        images.push(filename)
+        const folder = path.join(IMAGES_PATH, isbn.toString(), side)
+        const filename = `${height.toString()}.webp`
+        const filepath = path.join(folder, filename)
+
+        if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true })
+        }
 
         try {
-            const outputInfo = await image
+            await image
                 .resize(null, height)
                 .webp({ lossless: true })
                 .toFile(filepath)
-        } catch (error) {
-            console.log("sharp error", error)
+        } catch {
+            // TODO log information
+            throw new InternalServerError()
         }
-
     }
-
-
-    return images
 }

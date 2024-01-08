@@ -13,5 +13,3 @@ export const handle: Handle = async ({ event, resolve }) => {
 process.on("exit", () => {
     close()
 })
-
-import "$lib/utils/images"

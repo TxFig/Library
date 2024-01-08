@@ -1,10 +1,8 @@
 import { z } from "zod"
-import { ISBNOptionalSchema, ISBNSchema } from "./isbn"
+import { ISBNOptionalSchema, ISBNSchema,  } from "./isbn"
+import type { Entries } from "../utils/types"
+import { convertToNullIfUndefined, isNullish } from "./utils"
 
-
-export function isNullish<T>(value: T | null | undefined): value is null | undefined {
-    return value == null || value == undefined
-}
 
 const daysInMonth = (month: number, year: number) =>
     new Date(year, month, 0).getDate()
@@ -18,16 +16,16 @@ export const publishDateSchema = z
             .refine(year => !Number.isNaN(year) && year >= 1970 && year <= currentYear),
         month: z
             .string()
-            .optional()
+            .optional().transform(convertToNullIfUndefined)
             .transform(month => isNullish(month) ? month : Number(month))
             .refine(month => isNullish(month) || (!Number.isNaN(month) && month >= 1 && month <= 12)),
         day: z
             .string()
-            .optional()
+            .optional().transform(convertToNullIfUndefined)
             .transform(day => isNullish(day) ? day : Number(day))
             .refine(day => isNullish(day) || (!Number.isNaN(day) && day >= 1)),
     })
-    .optional()
+    .optional().transform(convertToNullIfUndefined)
     .refine(date =>
         isNullish(date) ||
 
@@ -58,18 +56,29 @@ const fileOptionalSchema = z.instanceof(File)
         (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
         "Only .jpg, .jpeg, .png and .webp formats are supported."
     )
-    .optional()
+    .optional().transform(convertToNullIfUndefined)
+
 
 
 const MAX_INT32BIT = 2 ** 31 - 1
+
+const OptionalStringSchema = z.string().optional().transform(convertToNullIfUndefined)
+const OptionalStringArraySchema = z.array(z.string()).optional().transform(convertToNullIfUndefined)
+
+
 
 export const bookFormSchema = z.object({
     isbn: ISBNSchema,
 
     title: z.string(),
 
-    subtitle: z.string().optional(),
-    number_of_pages: z.number().int().positive().lte(MAX_INT32BIT).optional(),
+    subtitle: OptionalStringSchema,
+    number_of_pages: z
+        .number()
+        .int()
+        .positive()
+        .lte(MAX_INT32BIT)
+        .optional().transform(convertToNullIfUndefined),
 
     isbn10: ISBNOptionalSchema,
     isbn13: ISBNOptionalSchema,
@@ -78,19 +87,15 @@ export const bookFormSchema = z.object({
     back_image: fileOptionalSchema,
 
     publish_date: publishDateSchema,
-    location: z.string().optional(),
-    language: z.string().optional(),
-    authors: z.array(z.string()).optional(),
-    publishers: z.array(z.string()).optional(),
-    subjects: z.array(z.string()).optional()
+    location: OptionalStringSchema,
+    language: OptionalStringSchema,
+    authors: OptionalStringArraySchema,
+    publishers: OptionalStringArraySchema,
+    subjects: OptionalStringArraySchema
 }, {
     required_error: "Book Data Required",
 })
 
-
-type Entries<T> = {
-    [K in keyof T]: [K, T[K]];
-}[keyof T][];
 
 type ZodFormattedError = {
     _errors: string[]
