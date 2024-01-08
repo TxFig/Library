@@ -8,54 +8,6 @@ import type { InsertBookData } from "$lib/server/database/book"
 import { BadRequestError, InternalServerError } from "$lib/utils/custom-errors"
 
 
-
-// Create Book
-// export const POST: RequestHandler = async ({ request }) => {
-//     const data = await request.json()
-//     const parsingResult = bookFormSchema.safeParse(data)
-
-//     if (!parsingResult.success) {
-//         const error = getFormattedError(parsingResult.error)
-//         return json(error, {
-//             status: HttpErrors.BadRequest
-//         })
-//     }
-//     const parsedData = parsingResult.data
-
-//     let frontImageFilename: string | null = null
-//     if (parsedData.front_image) {
-//         frontImageFilename = formatImageFilename(parsedData.isbn, "front", parsedData.front_image.name)
-//         const error = await saveImage(frontImageFilename, await parsedData.front_image.arrayBuffer())
-//         if (error) return json(error, {
-//             status: HttpErrors.InternalServerError
-//         })
-//     }
-
-//     let backImageFilename: string | null = null
-//     if (parsedData.back_image) {
-//         backImageFilename = formatImageFilename(parsedData.isbn, "back", parsedData.back_image.name)
-//         const error = await saveImage(backImageFilename, await parsedData.back_image.arrayBuffer())
-//         if (error) return json(error, {
-//             status: HttpErrors.InternalServerError
-//         })
-//     }
-
-//     const insertData = {
-//         ...parsedData,
-//         "front_image": frontImageFilename,
-//         "back_image": backImageFilename,
-//     }
-
-//     try {
-//         db.book.createBook(insertData)
-//     }
-//     catch (error) {
-
-//     }
-
-//     return new Response()
-// }
-
 type FormDataObject = {
     [key: string]: FormDataEntryValue | FormDataEntryValue[]
 }
