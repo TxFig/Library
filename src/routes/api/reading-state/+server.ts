@@ -13,7 +13,7 @@ export type UpdateUserBookReadingStateData = {
 //* Update User-Book Reading State
 export const PATCH: RequestHandler = async ({ request, locals }) => {
     if (!locals.user) {
-        throw error(HttpCodes.Unauthorized, {
+        error(HttpCodes.Unauthorized, {
             message: "Need to be logged in"
         })
     }

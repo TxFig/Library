@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     const book = await db.book.getEntireBookByISBN(isbn)
 
     if (!book) {
-        throw error(HttpCodes.NotFound, "Book Not Available")
+        error(HttpCodes.NotFound, "Book Not Available")
     }
 
     const readingState = locals.user ? await db.auth.getBookReadingState(isbn, locals.user.id) : null

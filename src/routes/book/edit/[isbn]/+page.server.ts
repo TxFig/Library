@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ params }) => {
     const book = await db.getEntireBookByISBN(isbn)
 
     if (!book) {
-        throw error(HttpCodes.NotFound, {
+        error(HttpCodes.NotFound, {
             message: "Book Not Available"
         })
     }
@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions: Actions = {
     default: async ({ request, locals }) => {
         if (!locals.user) {
-            throw error(HttpCodes.Unauthorized, {
+            error(HttpCodes.Unauthorized, {
                 message: "Need to be logged in"
             })
         }

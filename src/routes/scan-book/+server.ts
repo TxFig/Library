@@ -8,7 +8,7 @@ import HttpCodes from "$lib/utils/http-codes"
 
 export const POST: RequestHandler = async ({ request, locals }) => {
     if (!locals.user) {
-        throw error(HttpCodes.Unauthorized, {
+        error(HttpCodes.Unauthorized, {
             message: "Need to be logged in"
         })
     }
@@ -19,14 +19,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     const bookAlreadyExists = await db.book.doesBookExist(isbn)
     if (bookAlreadyExists) {
-        throw error(HttpCodes.Conflict, {
+        error(HttpCodes.Conflict, {
             message: "Book already exists in database.",
         })
     }
 
     const insertData = await getOpenLibraryBook(isbnString)
     if (!insertData) {
-        throw error(HttpCodes.NotFound, {
+        error(HttpCodes.NotFound, {
             message: "Book not available in OpenLibrary.",
         })
     }

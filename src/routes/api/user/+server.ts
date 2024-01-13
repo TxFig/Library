@@ -7,7 +7,7 @@ import HttpCodes from "$lib/utils/http-codes";
 //* Create User
 export const POST: RequestHandler = async ({ request, locals }) => {
     if (!locals.user) {
-        throw error(HttpCodes.Unauthorized, {
+        error(HttpCodes.Unauthorized, {
             message: "Need to be logged in to create users"
         })
     }
@@ -15,7 +15,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const data = await request.json()
 
     if (!(data.email && data.username)) {
-        throw error(HttpCodes.BadRequest, {
+        error(HttpCodes.BadRequest, {
             message: "Invalid Request"
         })
     }

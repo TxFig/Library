@@ -1,5 +1,5 @@
 import type { Actions, PageServerLoad } from "./$types"
-import { ActionFailure, error, redirect } from "@sveltejs/kit"
+import { error, redirect } from "@sveltejs/kit"
 
 import db from "$lib/server/database/book"
 import HttpCodes from "$lib/utils/http-codes"
@@ -17,20 +17,16 @@ export const load: PageServerLoad = async () => ({
 export const actions: Actions = {
     default: async ({ request, locals }) => {
         if (!locals.user) {
-            throw error(HttpCodes.Unauthorized, {
+            error(HttpCodes.Unauthorized, {
                 message: "Need to be logged in"
             })
         }
 
         const formData = await request.formData()
 
-        const result = await API.book.POST(formData)
+        const { book, formError } = await API.book.POST(formData)
+        if (formError) return formError
 
-        if (result instanceof ActionFailure) {
-            return result
-        }
-        const book = result
-
-        throw redirect(HttpCodes.SeeOther, `/book/${book.isbn}`)
+        redirect(HttpCodes.SeeOther, `/book/${book.isbn}`)
     }
 }

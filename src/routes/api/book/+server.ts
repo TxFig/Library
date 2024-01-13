@@ -1,4 +1,4 @@
-import { ActionFailure, error, json } from "@sveltejs/kit"
+import { error, json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
@@ -13,14 +13,14 @@ export const POST: RequestHandler = async ({ request }) => {
     try {
         formData = await request.formData()
     } catch {
-        throw error(HttpCodes.BadRequest, {
+        error(HttpCodes.BadRequest, {
             message: "No Data Provided"
         })
     }
 
-    const formError = await methods.POST(formData)
-    if (formError instanceof ActionFailure) {
-        throw error(formError.status, formError.data)
+    const { book, formError } = await methods.POST(formData)
+    if (formError) {
+        error(formError.status, formError.data)
     }
 
     return json({
@@ -44,7 +44,7 @@ export const PATCH: RequestHandler = async ({}) => {
 // Delete Book
 export const DELETE: RequestHandler = async ({ params, locals }) => {
     if (!locals.user) {
-        throw error(HttpCodes.Unauthorized, {
+        error(HttpCodes.Unauthorized, {
             message: "Need to be logged in"
         })
     }
