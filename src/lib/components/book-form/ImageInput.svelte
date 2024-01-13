@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from "$lib/utils/book-form";
+    import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from "$lib/validation/book-form";
     import Icon from "@iconify/svelte"
     import { FileDropzone, getToastStore } from "@skeletonlabs/skeleton"
 

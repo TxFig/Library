@@ -10,6 +10,13 @@ declare global {
             error?: any
         }
 
+        interface FormError {
+            message: string
+            error?: any
+
+            [key: string]: any
+        }
+
         interface Locals {
             user: User | null
         }
