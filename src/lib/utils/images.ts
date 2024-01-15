@@ -2,7 +2,8 @@ import { IMAGES_PATH } from "$env/static/private"
 import fs from "fs"
 import path from "path"
 import sharp from "sharp"
-import { BadRequestError, InternalServerError } from "./custom-errors"
+import { HttpError } from "./custom-errors"
+import HttpCodes from "$lib/utils/http-codes"
 
 
 const resizeHeights = [1080, 720, 480, 320]
@@ -14,7 +15,7 @@ export async function generateResizedImages(isbn: bigint, side: "front" | "back"
 
 
     if (!metadata.width || !metadata.height) {
-        throw new BadRequestError(`Image File of (isbn: ${isbn}, size: ${side}) doesn't contain width or height`)
+        throw new HttpError(HttpCodes.ClientError.BadRequest, `Image File of (isbn: ${isbn}, size: ${side}) doesn't contain width or height`)
     }
     const size = {
         width: metadata.width,
@@ -38,7 +39,7 @@ export async function generateResizedImages(isbn: bigint, side: "front" | "back"
                 .toFile(filepath)
         } catch {
             // TODO log information
-            throw new InternalServerError()
+            throw new HttpError(HttpCodes.ServerError.InternalServerError)
         }
     }
 }

@@ -2,6 +2,7 @@ import { error, json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
+import { HttpError } from "$lib/utils/custom-errors"
 
 import methods from "."
 
@@ -13,14 +14,18 @@ export const POST: RequestHandler = async ({ request }) => {
     try {
         formData = await request.formData()
     } catch {
-        error(HttpCodes.BadRequest, {
+        error(HttpCodes.ClientError.BadRequest, {
             message: "No Data Provided"
         })
     }
 
-    const { book, formError } = await methods.POST(formData)
-    if (formError) {
-        error(formError.status, formError.data)
+    try {
+        await methods.POST(formData)
+    }
+    catch (err) {
+        if (err instanceof HttpError) {
+            error(err.httpCode, err.message)
+        }
     }
 
     return json({
