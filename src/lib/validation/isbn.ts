@@ -1,4 +1,3 @@
-import { convertToNullIfUndefined } from "$lib/validation/utils"
 import { z } from "zod"
 
 
@@ -41,4 +40,4 @@ export const ISBNSchema = z
     .transform(value => BigInt(value))
 
 export const ISBNOptionalSchema = ISBNSchema
-    .optional().transform(convertToNullIfUndefined)
+    .nullish()

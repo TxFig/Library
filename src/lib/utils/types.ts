@@ -3,3 +3,8 @@ export type Entries<T> = {
 }[keyof T][]
 
 export type Values<Obj> = Obj[keyof Obj]
+
+export type ReplaceFields<
+    Obj,
+    Fields extends { [key in keyof Obj]?: any }
+> = Omit<Obj, keyof Fields> & Fields

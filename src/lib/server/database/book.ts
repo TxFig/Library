@@ -3,29 +3,10 @@ import type { Book, Location, Language, Author, Publisher, Subject, PublishDate 
 import { prisma } from "."
 import path from "path"
 import { IMAGES_PATH } from "$env/static/private"
+import type { BookCreateData, BookUpdateData } from "$lib/validation/book-form"
 
 
-type InsertBook = {
-    isbn: bigint
-    title: string
-    subtitle: string | null
-    number_of_pages: number | null
-    isbn10: bigint | null
-    isbn13: bigint | null
-    front_image: boolean
-    back_image: boolean
-}
-
-export type InsertBookData = InsertBook & {
-    publish_date: Omit<PublishDate, "id"> | null
-    location: string | null
-    language: string | null
-    authors: string[] | null
-    publishers: string[] | null
-    subjects: string[] | null
-}
-
-export async function createBook({ publish_date, location, language, authors, publishers, subjects, ...book }: InsertBookData): Promise<Error | void> {
+export async function createBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookCreateData): Promise<Error | void> {
     await prisma.book.create({
         data: {
             ...book,
@@ -76,63 +57,56 @@ export async function createBook({ publish_date, location, language, authors, pu
     })
 }
 
-export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: InsertBookData): Promise<Error | void> {
-    console.log("Updating book", book.isbn, book.title)
-
-    try {
-        await prisma.book.update({
-            where: { isbn: book.isbn },
-            data: {
-                ...book,
-                publish_date: publish_date ? {
-                    create: {
-                        ...publish_date
-                    }
-                } : undefined,
-                location: location ? {
-                    connectOrCreate: {
-                        where: { value: location },
-                        create: { value: location }
-                    }
-                } : undefined,
-                language: language ? {
-                    connectOrCreate: {
-                        where: { value: language },
-                        create: { value: language }
-                    }
-                } : undefined,
-                authors: authors ? {
-                    connectOrCreate: authors.map(author => ({
-                        where: { name: author },
-                        create: { name: author }
-                    }))
-                } : undefined,
-                publishers: publishers ? {
-                    connectOrCreate: publishers.map(publisher => ({
-                        where: { name: publisher },
-                        create: { name: publisher }
-                    }))
-                } : undefined,
-                subjects: subjects ? {
-                    connectOrCreate: subjects.map(subject => ({
-                        where: { value: subject },
-                        create: { value: subject }
-                    }))
-                } : undefined
-            },
-            include: {
-                publish_date: true,
-                location: true,
-                language: true,
-                authors: true,
-                publishers: true,
-                subjects: true
-            }
-        })
-    } catch (error) {
-        console.log("Error updating book")
-        console.log(error)
-    }
+export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookUpdateData): Promise<Error | void> {
+    await prisma.book.update({
+        where: { isbn: book.isbn },
+        data: {
+            ...book,
+            publish_date: publish_date ? {
+                create: {
+                    ...publish_date
+                }
+            } : undefined,
+            location: location ? {
+                connectOrCreate: {
+                    where: { value: location },
+                    create: { value: location }
+                }
+            } : undefined,
+            language: language ? {
+                connectOrCreate: {
+                    where: { value: language },
+                    create: { value: language }
+                }
+            } : undefined,
+            authors: authors ? {
+                connectOrCreate: authors.map(author => ({
+                    where: { name: author },
+                    create: { name: author }
+                }))
+            } : undefined,
+            publishers: publishers ? {
+                connectOrCreate: publishers.map(publisher => ({
+                    where: { name: publisher },
+                    create: { name: publisher }
+                }))
+            } : undefined,
+            subjects: subjects ? {
+                connectOrCreate: subjects.map(subject => ({
+                    where: { value: subject },
+                    create: { value: subject }
+                }))
+            } : undefined
+        },
+        include: {
+            publish_date: true,
+            location: true,
+            language: true,
+            authors: true,
+            publishers: true,
+            subjects: true
+        }
+    })
 }
 
 export async function deleteBook(isbn: bigint): Promise<Error | void> {

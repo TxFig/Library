@@ -42,8 +42,31 @@ export const GET: RequestHandler = async ({}) => {
 }
 
 // Update Book
-export const PATCH: RequestHandler = async ({}) => {
-    return new Response()
+export const PATCH: RequestHandler = async ({ request }) => {
+    let formData: FormData
+
+    try {
+        formData = await request.formData()
+    } catch {
+        error(HttpCodes.ClientError.BadRequest, {
+            message: "No Data Provided"
+        })
+    }
+
+    try {
+        await methods.PATCH(formData)
+    }
+    catch (err) {
+        if (err instanceof HttpError) {
+            error(err.httpCode, err.message)
+        }
+    }
+
+    return json({
+        message: "Successfully Updated Book"
+    }, {
+        status: HttpCodes.Success
+    })
 }
 
 // Delete Book
