@@ -20,7 +20,7 @@ export const bookCreateSchema = z.object({
         .int()
         .positive()
         .lte(MAX_INT32BIT)
-        .nullable(),
+        .nullish(),
 
     isbn10: ISBNOptionalSchema,
     isbn13: ISBNOptionalSchema,

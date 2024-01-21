@@ -5,6 +5,9 @@ import HttpCodes from "$lib/utils/http-codes"
 import { HttpError } from "$lib/utils/custom-errors"
 
 import methods from "."
+import { ISBNOptionalSchema, ISBNSchema, parseOptionalISBN } from "$lib/validation/isbn"
+import { getFormattedError } from "$lib/validation/format-errors"
+import type { SafeParseError, SafeParseSuccess } from "zod"
 
 
 // Create Book
@@ -35,10 +38,29 @@ export const POST: RequestHandler = async ({ request }) => {
     })
 }
 
-
 // Retrieve Book
-export const GET: RequestHandler = async ({}) => {
-    return new Response()
+export const GET: RequestHandler = async ({ url }) => {
+    const isbnString = url.searchParams.get("isbn")
+    let isbn: bigint | null | undefined
+
+    try {
+        isbn = parseOptionalISBN(isbnString)
+    } catch (err) {
+        if (err instanceof HttpError) {
+            error(err.httpCode, err.message)
+        }
+    }
+
+    if (isbn) {
+        const book = await db.book.getEntireBookByISBN(isbn)
+        if (!book) {
+            error(HttpCodes.ClientError.NotFound, { message: "Book Not Found" })
+        }
+        return json(book)
+    }
+
+    const allBooks = await db.book.getAllBooks()
+    return json(allBooks)
 }
 
 // Update Book

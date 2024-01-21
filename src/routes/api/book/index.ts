@@ -54,12 +54,6 @@ export async function PATCH(formData: FormData): Promise<void> {
     }
 
     const parsedData: BookUpdateDataWithImageFiles = parsingResult.data
-
-    const bookAlreadyExists = await db.book.doesBookExist(parsedData.isbn)
-    if (bookAlreadyExists) {
-        throw new HttpError(HttpCodes.ClientError.Conflict, "Book Already Exists")
-    }
-
     const updateBookData: BookUpdateData = {
         ...parsedData,
         front_image: false,

@@ -1,4 +1,7 @@
 import { z } from "zod"
+import { HttpError } from "$lib/utils/custom-errors"
+import HttpCodes from "$lib/utils/http-codes"
+import { getFormattedError } from "./format-errors"
 
 
 export function validateISBN(isbn: string): boolean {
@@ -41,3 +44,21 @@ export const ISBNSchema = z
 
 export const ISBNOptionalSchema = ISBNSchema
     .nullish()
+
+export function parseISBN(isbn: unknown): bigint {
+    const parsingResult = ISBNSchema.safeParse(isbn)
+    if (!parsingResult.success) {
+        throw new HttpError(HttpCodes.ClientError.BadRequest, getFormattedError(parsingResult.error))
+    }
+
+    return parsingResult.data
+}
+
+export function parseOptionalISBN(isbn: unknown): bigint | null | undefined {
+    const parsingResult = ISBNOptionalSchema.safeParse(isbn)
+    if (!parsingResult.success) {
+        throw new HttpError(HttpCodes.ClientError.BadRequest, getFormattedError(parsingResult.error))
+    }
+
+    return parsingResult.data
+}
