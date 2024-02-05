@@ -56,8 +56,17 @@ export async function PATCH(formData: FormData): Promise<void> {
     const parsedData: BookUpdateDataWithImageFiles = parsingResult.data
     const updateBookData: BookUpdateData = {
         ...parsedData,
-        front_image: false,
-        back_image: false
+        front_image: undefined,
+        back_image: undefined
+    }
+
+    if (parsedData.front_image) {
+        await generateResizedImages(parsedData.isbn, "front", parsedData.front_image)
+        updateBookData.front_image = true
+    }
+    if (parsedData.back_image) {
+        await generateResizedImages(parsedData.isbn, "back", parsedData.back_image)
+        updateBookData.back_image = true
     }
 
     try {

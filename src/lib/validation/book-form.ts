@@ -51,6 +51,6 @@ export const bookUpdateSchema = bookCreateSchema.partial().required({
 
 export type BookUpdateDataWithImageFiles = z.output<typeof bookUpdateSchema>
 export type BookUpdateData = ReplaceFields<BookUpdateDataWithImageFiles, {
-    front_image: boolean,
-    back_image: boolean
+    front_image: boolean | undefined,
+    back_image: boolean | undefined
 }>

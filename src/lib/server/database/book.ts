@@ -4,6 +4,7 @@ import { prisma } from "."
 import path from "path"
 import { IMAGES_PATH } from "$env/static/private"
 import type { BookCreateData, BookUpdateData } from "$lib/validation/book-form"
+import { deleteImagesFolder } from "$lib/utils/images"
 
 
 export async function createBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookCreateData): Promise<Error | void> {
@@ -47,12 +48,12 @@ export async function createBook({ publish_date, location, language, authors, pu
             } : undefined
         },
         include: {
-            publish_date: true,
-            location: true,
-            language: true,
-            authors: true,
-            publishers: true,
-            subjects: true
+            publish_date: Boolean(publish_date),
+            location: Boolean(location),
+            language: Boolean(language),
+            authors: Boolean(authors),
+            publishers: Boolean(publishers),
+            subjects: Boolean(subjects)
         }
     })
 }
@@ -99,12 +100,12 @@ export async function updateBook({ publish_date, location, language, authors, pu
             } : undefined
         },
         include: {
-            publish_date: true,
-            location: true,
-            language: true,
-            authors: true,
-            publishers: true,
-            subjects: true
+            publish_date: Boolean(publish_date),
+            location: Boolean(location),
+            language: Boolean(language),
+            authors: Boolean(authors),
+            publishers: Boolean(publishers),
+            subjects: Boolean(subjects)
         }
     })
 }
@@ -178,8 +179,7 @@ export async function deleteBook(isbn: bigint): Promise<Error | void> {
     })
 
     if (book.front_image || book.back_image) {
-        const folder = path.join(IMAGES_PATH, book.isbn.toString())
-        fs.rmSync(folder, { recursive: true, force: true })
+        deleteImagesFolder(book.isbn)
     }
 }
 

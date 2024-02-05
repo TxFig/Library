@@ -43,3 +43,8 @@ export async function generateResizedImages(isbn: bigint, side: "front" | "back"
         }
     }
 }
+
+export async function deleteImagesFolder(isbn: bigint) {
+    const folder = path.join(IMAGES_PATH, isbn.toString())
+    fs.rmSync(folder, { recursive: true, force: true })
+}
