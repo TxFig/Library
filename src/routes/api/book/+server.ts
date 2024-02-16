@@ -5,7 +5,7 @@ import HttpCodes from "$lib/utils/http-codes"
 import { HttpError } from "$lib/utils/custom-errors"
 
 import methods from "."
-import { ISBNOptionalSchema, ISBNSchema, parseOptionalISBN } from "$lib/validation/isbn"
+import { ISBNOptionalSchema, ISBNSchema, parseISBN, parseOptionalISBN } from "$lib/validation/isbn"
 import { getFormattedError } from "$lib/validation/format-errors"
 import type { SafeParseError, SafeParseSuccess } from "zod"
 
@@ -52,14 +52,14 @@ export const GET: RequestHandler = async ({ url }) => {
     }
 
     if (isbn) {
-        const book = await db.book.getEntireBookByISBN(isbn)
+        const book = await db.book.getEntireBookByISBN(isbn) // todo try/catch
         if (!book) {
             error(HttpCodes.ClientError.NotFound, { message: "Book Not Found" })
         }
         return json(book)
     }
 
-    const allBooks = await db.book.getAllBooks()
+    const allBooks = await db.book.getAllBooks() // todo try/catch
     return json(allBooks)
 }
 
@@ -92,18 +92,31 @@ export const PATCH: RequestHandler = async ({ request }) => {
 }
 
 // Delete Book
-export const DELETE: RequestHandler = async ({ params, locals }) => {
+export const DELETE: RequestHandler = async ({ url, locals }) => {
     if (!locals.user) {
-        error(HttpCodes.Unauthorized, {
+        error(HttpCodes.ClientError.Unauthorized, {
             message: "Need to be logged in"
         })
     }
 
-    const { isbn: isbnString } = params // TODO: get isbn from request body + fix code that uses this route to delete books to include the isbn in the request
+    const isbnString = url.searchParams.get("isbn")
+    let isbn: bigint
 
-    const isbn = Number(isbnString) // TODO: isbn validation
+    try {
+        isbn = parseISBN(isbnString)
+    } catch (err) {
+        if (err instanceof HttpError) {
+            error(err.httpCode, err.message)
+        }
+    }
 
-    await db.book.deleteBook(isbn)
+    try {
+        await db.book.deleteBook(isbn!)
+    } catch (err) {
+        error(HttpCodes.ServerError.InternalServerError, {
+            message: "Error deleting book in database"
+        })
+    }
 
     return json({ message: `Successfully deleted book, isbn ${isbnString}` })
 }

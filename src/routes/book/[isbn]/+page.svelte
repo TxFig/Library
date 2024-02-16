@@ -1,7 +1,7 @@
 <script lang="ts">
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types"
-    import { getModalStore, RadioGroup, type ModalSettings, RadioItem } from "@skeletonlabs/skeleton"
+    import { getModalStore, RadioGroup, type ModalSettings, RadioItem, getToastStore } from "@skeletonlabs/skeleton"
     import ImageDisplayer from "$lib/components/ImageDisplayer.svelte"
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
@@ -16,9 +16,26 @@
         book.back_image ? `/images/${book.back_image}` : null
     ].filter(Boolean) as string[]
 
+    const toastStore = getToastStore()
+    const triggerDeleteBookError = () => toastStore.trigger({
+        message: "Error Deleting Book",
+        background: "variant-filled-error"
+    })
+
     async function deleteBook() {
-        await fetch(`/api/book/${book.isbn}`, { method: "DELETE" }) // TODO: FIX according to new delete book api route
-        window.location.href = "/"
+        try {
+            const res = await fetch(`/api/book?isbn=${book.isbn}`, { method: "DELETE" })
+
+            if (!(res.status == 200)) triggerDeleteBookError()
+
+            toastStore.trigger({
+                message: "Book Successfully Deleted",
+                background: "variant-filled-success"
+            })
+            window.location.href = "/"
+        } catch (err) {
+            triggerDeleteBookError()
+        }
     }
 
     const modalStore = getModalStore()
