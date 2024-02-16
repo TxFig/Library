@@ -192,7 +192,7 @@ export async function doesBookExist(isbn: bigint): Promise<boolean> {
 }
 
 
-type EntireBook = Book & {
+export type EntireBook = Book & {
     publish_date: PublishDate | null
     authors: Author[]
     publishers: Publisher[]

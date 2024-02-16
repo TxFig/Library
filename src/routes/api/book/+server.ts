@@ -8,6 +8,8 @@ import methods from "."
 import { ISBNOptionalSchema, ISBNSchema, parseISBN, parseOptionalISBN } from "$lib/validation/isbn"
 import { getFormattedError } from "$lib/validation/format-errors"
 import type { SafeParseError, SafeParseSuccess } from "zod"
+import type { EntireBook } from "$lib/server/database/book"
+import type { Book } from "@prisma/client"
 
 
 // Create Book
@@ -52,14 +54,30 @@ export const GET: RequestHandler = async ({ url }) => {
     }
 
     if (isbn) {
-        const book = await db.book.getEntireBookByISBN(isbn) // todo try/catch
+        let book: EntireBook | null
+        try {
+            book = await db.book.getEntireBookByISBN(isbn)
+        } catch (err) {
+            error(HttpCodes.ServerError.InternalServerError, {
+                message: `Error retrieving book (isbn = ${isbn}) from database`
+            })
+        }
         if (!book) {
-            error(HttpCodes.ClientError.NotFound, { message: "Book Not Found" })
+            error(HttpCodes.ClientError.NotFound, {
+                message: "Book Not Found"
+            })
         }
         return json(book)
     }
 
-    const allBooks = await db.book.getAllBooks() // todo try/catch
+    let allBooks: Book[]
+    try {
+        allBooks = await db.book.getAllBooks()
+    } catch (err) {
+        error(HttpCodes.ServerError.InternalServerError, {
+            message: "Error retrieving all books from database"
+        })
+    }
     return json(allBooks)
 }
 
