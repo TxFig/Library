@@ -7,7 +7,7 @@ import type { BookCreateData, BookUpdateData } from "$lib/validation/book-form"
 import { deleteImagesFolder } from "$lib/utils/images"
 
 
-export async function createBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookCreateData): Promise<Error | void> {
+export async function createBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookCreateData): Promise<void> {
     await prisma.book.create({
         data: {
             ...book,
@@ -58,7 +58,7 @@ export async function createBook({ publish_date, location, language, authors, pu
     })
 }
 
-export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookUpdateData): Promise<Error | void> {
+export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookUpdateData): Promise<void> {
     await prisma.book.update({
         where: { isbn: book.isbn },
         data: {
@@ -110,7 +110,7 @@ export async function updateBook({ publish_date, location, language, authors, pu
     })
 }
 
-export async function deleteBook(isbn: bigint): Promise<Error | void> {
+export async function deleteBook(isbn: bigint): Promise<void> {
     console.log("Deleting book", isbn)
 
     const book = await prisma.book.findUnique({
