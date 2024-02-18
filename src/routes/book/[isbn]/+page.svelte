@@ -24,9 +24,12 @@
 
     async function deleteBook() {
         try {
-            const res = await fetch(`/api/book?isbn=${book.isbn}`, { method: "DELETE" })
+            const response = await fetch(`/api/book?isbn=${book.isbn}`, { method: "DELETE" })
 
-            if (!(res.status == 200)) triggerDeleteBookError()
+            if (!(response.status == 200)) {
+                triggerDeleteBookError()
+                return
+            }
 
             toastStore.trigger({
                 message: "Book Successfully Deleted",
