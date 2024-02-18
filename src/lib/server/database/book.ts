@@ -1,8 +1,5 @@
-import fs from "fs"
 import type { Book, Location, Language, Author, Publisher, Subject, PublishDate } from "@prisma/client"
 import { prisma } from "."
-import path from "path"
-import { IMAGES_PATH } from "$env/static/private"
 import type { BookCreateData, BookUpdateData } from "$lib/validation/book-form"
 import { deleteImagesFolder } from "$lib/utils/images"
 

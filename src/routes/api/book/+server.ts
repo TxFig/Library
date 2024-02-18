@@ -5,9 +5,7 @@ import HttpCodes from "$lib/utils/http-codes"
 import { HttpError } from "$lib/utils/custom-errors"
 
 import methods from "."
-import { ISBNOptionalSchema, ISBNSchema, parseISBN, parseOptionalISBN } from "$lib/validation/isbn"
-import { getFormattedError } from "$lib/validation/format-errors"
-import type { SafeParseError, SafeParseSuccess } from "zod"
+import { parseISBN, parseOptionalISBN } from "$lib/validation/isbn"
 import type { EntireBook } from "$lib/server/database/book"
 import type { Book } from "@prisma/client"
 
