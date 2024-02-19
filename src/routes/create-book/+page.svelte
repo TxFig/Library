@@ -12,6 +12,8 @@
     import AutocompleteInputChip from "$lib/components/book-form/AutocompleteInputChip.svelte"
     import ImageInput from "$lib/components/book-form/ImageInput.svelte"
     import ListBoxInput from "$lib/components/book-form/ListBoxInput.svelte"
+    import InputField from "./InputField.svelte"
+    import NumberInput from "$lib/components/NumberInput.svelte"
 
 
     export let data: PageData
@@ -23,7 +25,7 @@
         languages: dbLanguages
     } = data
 
-    let isbn = $page.url.searchParams.get("isbn")
+    let isbn = $page.url.searchParams.get("isbn") ?? ""
 
     const toastStore = getToastStore()
 
@@ -67,25 +69,10 @@
     >
         <h2 class="h2">Book Creation</h2>
 
-        <label class="label">
-            <span>ISBN<sup class="text-red-500">*</sup></span>
-            <input class="input" type="number" name="isbn" bind:value={isbn} required/>
-        </label>
-
-        <label class="label">
-            <span>Title<sup class="text-red-500">*</sup></span>
-            <input class="input" type="text" name="title" required />
-        </label>
-
-        <label class="label">
-            <span>Subtitle</span>
-            <input class="input" type="text" name="subtitle" />
-        </label>
-
-        <label class="label">
-            <span>Number of pages</span>
-            <input class="input" type="number" name="number_of_pages" />
-        </label>
+        <InputField text="ISBN" name="isbn" type="number" bind:value={isbn} required />
+        <InputField text="Title" name="title" required />
+        <InputField text="Subtitle" name="subtitle" />
+        <InputField text="Number of Pages" name="number_of_pages" />
 
         <PublishDate/>
 
