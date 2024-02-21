@@ -1,34 +1,47 @@
-import type { Entries } from "$lib/utils/types"
 import type { z } from "zod"
 
 
-type ZodFormattedError = {
-    _errors: string[]
-} & {
-    [key: string]: ZodFormattedError
-}
+// TODO: comment everything
 
-type FormattedError = {
-    [key: string]: string | FormattedError
-}
 
-export function getFormattedError<T>(error: z.ZodError<T>): string | FormattedError {
-    const errorFormatted = error.format()
+type isErrorObject<Type> =
+    Type extends (object | null | undefined) ?
+        Type extends any[] ?
+            false
+        : Type extends File ?
+            false
+        : true
+    : false
 
-    const formatFormattedError = (errorFormatted: ZodFormattedError): string | FormattedError => {
-        const obj: FormattedError = {}
-        for (const [key, value] of Object.entries(errorFormatted) as Entries<ZodFormattedError>) {
-            if (key == "_errors" && Array.isArray(value)) {
-                if (value.length != 0) {
-                    return (value as string[])[0]
-                }
-                else continue
-            } else {
-                obj[key] = formatFormattedError(value)
+type FormattedError<Input> = string | (Input extends null ? never : {
+    [key in keyof Input]?: isErrorObject<Input[key]> extends true ?
+        FormattedError<Input[key]>
+    : string
+}) & { [key: string]: string | undefined }
+
+
+function formatZodFormattedError<T>(zodFormattedError: z.ZodFormattedError<T>): FormattedError<T> {
+    let formatterError: FormattedError<T> = {} as FormattedError<T>
+    for (const key in zodFormattedError) {
+        if (key == "_errors") {
+            const errorMessages = zodFormattedError[key]
+
+            if (errorMessages.length != 0) {
+                return errorMessages[0]
             }
+            else continue
         }
-        return obj
+        else {
+            // @ts-ignore
+            formatterError[key] = formatZodFormattedError(zodFormattedError[key])
+        }
+
     }
 
-    return formatFormattedError(errorFormatted)
+    return formatterError
+}
+
+export function getFormattedError<T>(error: z.ZodError<T>): FormattedError<T> {
+    const zodFormattedError = error.format()
+    return formatZodFormattedError(zodFormattedError)
 }

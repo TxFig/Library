@@ -13,7 +13,10 @@
     import ImageInput from "$lib/components/book-form/ImageInput.svelte"
     import ListBoxInput from "$lib/components/book-form/ListBoxInput.svelte"
     import InputField from "./InputField.svelte"
-    import NumberInput from "$lib/components/NumberInput.svelte"
+
+    import { bookCreateSchema } from "$lib/validation/book-form"
+    import { convertFormDataToObject } from "$lib/utils/formData-to-object"
+    import { getFormattedError } from "$lib/validation/format-errors"
 
 
     export let data: PageData
@@ -29,10 +32,16 @@
 
     const toastStore = getToastStore()
 
+    const formElements: {
+        isbn?: InputField,
+        title?: InputField
+    } = {}
+
+
     const enhanceHandler: SubmitFunction<
         Record<string, any>,
-        { message: string }
-    > = function({ formData }) {
+        { message: string } //? should be an object
+    > = function({ formData, cancel }) {
 
         for (const [key, value] of Array.from(formData.entries())) {
             if ((typeof value == "string" && value == "") ||
@@ -41,6 +50,34 @@
                 formData.delete(key)
             }
         }
+
+        //* https://kit.svelte.dev/docs/form-actions
+        // TODO: validate data client-size
+            // on error focus first invalid element
+            // and show error messages on all invalid elements
+
+        const data = convertFormDataToObject(formData)
+        const parsingResult = bookCreateSchema.safeParse(data)
+
+        if (!parsingResult.success) {
+            const errorMessages = getFormattedError(parsingResult.error)
+
+            // Will never happen because a FormData object is always provided
+            if (typeof errorMessages === "string") return
+
+            // TODO: Refactor + add rest
+            if (errorMessages.isbn) {
+                formElements.isbn?.setError(errorMessages.isbn)
+                formElements.isbn?.focus()
+            } else formElements.isbn?.clearError()
+            if (errorMessages.title) {
+                formElements.title?.setError(errorMessages.title)
+                formElements.title?.focus()
+            } else formElements.title?.clearError()
+
+        }
+
+        cancel()
 
         return ({ result }) => {
             if (result.type == "failure" && result.data?.message) {
@@ -69,8 +106,8 @@
     >
         <h2 class="h2">Book Creation</h2>
 
-        <InputField text="ISBN" name="isbn" type="number" bind:value={isbn} required />
-        <InputField text="Title" name="title" required />
+        <InputField text="ISBN" name="isbn" type="number" bind:value={isbn} required bind:this={formElements.isbn} />
+        <InputField text="Title" name="title" required bind:this={formElements.title} />
         <InputField text="Subtitle" name="subtitle" />
         <InputField text="Number of Pages" name="number_of_pages" />
 

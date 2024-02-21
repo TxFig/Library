@@ -13,6 +13,8 @@
         value = value.replace(nonDigitsRegex, "")
     }
 
+    // for external use
+    export let inputElement: HTMLInputElement
 </script>
 
 <input
@@ -21,4 +23,7 @@
     {name} {min} {max}
     bind:value
     on:input={handleInput}
+
+    bind:this={inputElement}
+    autocomplete="off"
 />
