@@ -2,7 +2,8 @@ type FormDataObject = {
     [key: string]: FormDataEntryValue | FormDataEntryValue[]
 }
 
-export function convertFormDataToObject(formData: FormData): FormDataObject {
+/** @deprecated */
+export default function(formData: FormData): FormDataObject {
     const entries = [...formData.entries()]
     const object: FormDataObject = {}
 

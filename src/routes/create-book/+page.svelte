@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PageData } from "./$types"
+    import type { ActionData, PageData } from "./$types"
     import { page } from "$app/stores"
     import { enhance } from "$app/forms"
     import type { SubmitFunction } from "@sveltejs/kit"
@@ -13,10 +13,12 @@
     import ImageInput from "$lib/components/book-form/ImageInput.svelte"
     import ListBoxInput from "$lib/components/book-form/ListBoxInput.svelte"
     import InputField from "./InputField.svelte"
+    import ErrorMessage from "$lib/components/book-form/ErrorMessage.svelte"
 
     import { bookCreateSchema } from "$lib/validation/book-form"
-    import { convertFormDataToObject } from "$lib/utils/formData-to-object"
-    import { getFormattedError } from "$lib/validation/format-errors"
+    import { decode as decodeFormData } from "decode-formdata"
+    import type { z } from "zod"
+
 
 
     export let data: PageData
@@ -28,58 +30,35 @@
         languages: dbLanguages
     } = data
 
+    // export let form: ActionData
+
     let isbn = $page.url.searchParams.get("isbn") ?? ""
 
     const toastStore = getToastStore()
 
-    const formElements: {
-        isbn?: InputField,
-        title?: InputField
-    } = {}
+    type FormatterError = z.inferFormattedError<typeof bookCreateSchema>
+    let errors: FormatterError = {} as FormatterError
 
-
-    const enhanceHandler: SubmitFunction<
-        Record<string, any>,
-        { message: string } //? should be an object
-    > = function({ formData, cancel }) {
-
-        for (const [key, value] of Array.from(formData.entries())) {
-            if ((typeof value == "string" && value == "") ||
-            (typeof value == "object" && (value as File).name == "")
-            ) {
-                formData.delete(key)
-            }
-        }
+    const enhanceHandler: SubmitFunction = function({ formData, cancel }) {
 
         //* https://kit.svelte.dev/docs/form-actions
-        // TODO: validate data client-size
+        // TODO: validate data client-side
             // on error focus first invalid element
             // and show error messages on all invalid elements
 
-        const data = convertFormDataToObject(formData)
+        const data = decodeFormData(formData, {
+            arrays: ["author", "publisher", "subject"],
+            files: ["front_image", "back_image"],
+            numbers: ["isbn", "number_of_pages", "publish_date.day", "publish_date.month", "publish_date.year"]
+        })
         const parsingResult = bookCreateSchema.safeParse(data)
 
         if (!parsingResult.success) {
-            const errorMessages = getFormattedError(parsingResult.error)
-
-            // Will never happen because a FormData object is always provided
-            if (typeof errorMessages === "string") return
-
-            // TODO: Refactor + add rest
-            if (errorMessages.isbn) {
-                formElements.isbn?.setError(errorMessages.isbn)
-                formElements.isbn?.focus()
-            } else formElements.isbn?.clearError()
-            if (errorMessages.title) {
-                formElements.title?.setError(errorMessages.title)
-                formElements.title?.focus()
-            } else formElements.title?.clearError()
-
+            errors = parsingResult.error.format()
+            cancel()
         }
 
-        cancel()
-
-        return ({ result }) => {
+        return async ({ result, update }) => {
             if (result.type == "failure" && result.data?.message) {
                 toastStore.trigger({
                     message: result.data.message,
@@ -92,9 +71,13 @@
                     background: "variant-filled-success"
                 })
                 goto(result.location)
+            } else {
+                await update()
             }
         }
     }
+
+
 </script>
 
 {#if $page.data.user}
@@ -106,12 +89,24 @@
     >
         <h2 class="h2">Book Creation</h2>
 
-        <InputField text="ISBN" name="isbn" type="number" bind:value={isbn} required bind:this={formElements.isbn} />
-        <InputField text="Title" name="title" required bind:this={formElements.title} />
-        <InputField text="Subtitle" name="subtitle" />
-        <InputField text="Number of Pages" name="number_of_pages" />
+        <div>
+            <InputField text="ISBN" name="isbn" type="number" bind:value={isbn} required />
+            <ErrorMessage bind:errors={errors.isbn}/>
+        </div>
+        <div>
+            <InputField text="Title" name="title" required />
+            <ErrorMessage bind:errors={errors.title}/>
+        </div>
+        <div>
+            <InputField text="Subtitle" name="subtitle" />
+            <ErrorMessage bind:errors={errors.subtitle}/>
+        </div>
+        <div>
+            <InputField text="Number of Pages" name="number_of_pages" />
+            <ErrorMessage bind:errors={errors.number_of_pages}/>
+        </div>
 
-        <PublishDate/>
+        <PublishDate />
 
         <AutocompleteInputChip
             options={dbAuthors.map(author => author.name)}

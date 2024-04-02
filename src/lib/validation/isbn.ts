@@ -48,7 +48,10 @@ export const ISBNOptionalSchema = ISBNSchema
 export function parseISBN(isbn: unknown): bigint {
     const parsingResult = ISBNSchema.safeParse(isbn)
     if (!parsingResult.success) {
-        throw new HttpError(HttpCodes.ClientError.BadRequest, getFormattedError(parsingResult.error))
+        throw new HttpError(
+            HttpCodes.ClientError.BadRequest,
+            getFormattedError(parsingResult.error) //? Why use this?
+        )
     }
 
     return parsingResult.data
@@ -57,7 +60,10 @@ export function parseISBN(isbn: unknown): bigint {
 export function parseOptionalISBN(isbn: unknown): bigint | null | undefined {
     const parsingResult = ISBNOptionalSchema.safeParse(isbn)
     if (!parsingResult.success) {
-        throw new HttpError(HttpCodes.ClientError.BadRequest, getFormattedError(parsingResult.error))
+        throw new HttpError(
+            HttpCodes.ClientError.BadRequest,
+            getFormattedError(parsingResult.error) //? Why use this?
+        )
     }
 
     return parsingResult.data

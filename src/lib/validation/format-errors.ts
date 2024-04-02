@@ -19,7 +19,7 @@ type FormattedError<Input> = string | (Input extends null ? never : {
     : string
 }) & { [key: string]: string | undefined }
 
-
+/** @deprecated */
 function formatZodFormattedError<T>(zodFormattedError: z.ZodFormattedError<T>): FormattedError<T> {
     let formatterError: FormattedError<T> = {} as FormattedError<T>
     for (const key in zodFormattedError) {
@@ -41,6 +41,7 @@ function formatZodFormattedError<T>(zodFormattedError: z.ZodFormattedError<T>): 
     return formatterError
 }
 
+/** @deprecated */
 export function getFormattedError<T>(error: z.ZodError<T>): FormattedError<T> {
     const zodFormattedError = error.format()
     return formatZodFormattedError(zodFormattedError)

@@ -11,15 +11,15 @@
     <div class="flex gap-8">
         <div class="w-full space-y-1">
             <p>Day</p>
-            <input class="input" type="number" name="publish_date:day" value={day ?? ""} min={1} max={31}/>
+            <input class="input" type="number" name="publish_date.day" value={day ?? ""} min={1} max={31}/>
         </div>
         <div class="w-full space-y-1">
             <p>Month</p>
-            <input class="input" type="number" name="publish_date:month" value={month ?? ""} min={1} max={12}/>
+            <input class="input" type="number" name="publish_date.month" value={month ?? ""} min={1} max={12}/>
         </div>
         <div class="w-full space-y-1">
             <p>Year</p>
-            <input class="input" type="number" name="publish_date:year" value={year ?? ""} min={1970} max={currentYear}/>
+            <input class="input" type="number" name="publish_date.year" value={year ?? ""} min={1970} max={currentYear}/>
         </div>
     </div>
 </label>

@@ -4,7 +4,7 @@ import { bookCreateSchema, bookUpdateSchema, type BookUpdateDataWithImageFiles, 
 import { generateResizedImages } from "$lib/utils/images"
 import HttpCodes from "$lib/utils/http-codes"
 import { HttpError } from "$lib/utils/custom-errors"
-import { convertFormDataToObject } from "$lib/utils/formData-to-object"
+import convertFormDataToObject from "$lib/utils/formData-to-object"
 import { getFormattedError } from "$lib/validation/format-errors"
 
 

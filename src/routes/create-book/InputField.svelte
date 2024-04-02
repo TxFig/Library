@@ -8,18 +8,6 @@
     export let value: string | undefined = undefined
     export let required: boolean = false
 
-    let errorMessage: string = ""
-    $: hasAnError = errorMessage != ""
-
-    export function setError(message: string): void {
-        errorMessage = message
-    }
-
-    export function clearError(): void {
-        errorMessage = ""
-    }
-
-
     let inputElement: HTMLInputElement
     export function focus(): void {
         inputElement.focus()
@@ -39,5 +27,4 @@
     {:else}
         <NumberInput name={name} value={value} bind:inputElement={inputElement} />
     {/if}
-    <p class="text-red-500" hidden={!hasAnError}>Error: {errorMessage}</p>
 </label>
