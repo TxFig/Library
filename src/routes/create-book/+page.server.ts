@@ -5,7 +5,6 @@ import db from "$lib/server/database/book"
 import HttpCodes from "$lib/utils/http-codes"
 import API from "@api"
 import { HttpError } from "$lib/utils/custom-errors"
-import type { BookCreateData } from "$lib/validation/book-form"
 
 
 export const load: PageServerLoad = async () => ({
@@ -18,6 +17,7 @@ export const load: PageServerLoad = async () => ({
 
 export const actions: Actions = {
     default: async ({ request, locals }) => {
+        console.log("C")
         if (!locals.user) {
             error(HttpCodes.ClientError.Unauthorized, {
                 message: "Need to be logged in"
@@ -26,16 +26,20 @@ export const actions: Actions = {
 
         const formData = await request.formData()
 
-        let book: BookCreateData
         try {
-            book = await API.book.POST(formData)
+            const info = await API.book.POST(formData)
+            console.log(info)
+
+            if (info.success) {
+                redirect(HttpCodes.SeeOther, `/book/${info.book.isbn}`)
+            }
+
+            return fail(info.code, info)
         }
         catch (err) {
             if (err instanceof HttpError) {
-                return fail(err.httpCode, err.message)
-            } else return
+                error(err.httpCode, err.message)
+            }
         }
-
-        redirect(HttpCodes.SeeOther, `/book/${book.isbn}`)
     }
 }

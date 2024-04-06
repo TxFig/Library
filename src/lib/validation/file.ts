@@ -12,7 +12,7 @@ const ACCEPTED_IMAGE_TYPES = [
     "image/webp",
 ]
 
-const fileOptionalSchema = z.instanceof(File)
+const FileOptionalSchema = z.instanceof(File)
     .refine(
         (file) => file.size <= MAX_IMAGE_SIZE_BYTES,
         `Image size can not exceeded ${MAX_IMAGE_SIZE_MB} MB`
@@ -24,4 +24,4 @@ const fileOptionalSchema = z.instanceof(File)
     .nullish()
 
 
-export default fileOptionalSchema
+export default FileOptionalSchema

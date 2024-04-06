@@ -1,9 +1,8 @@
 <script lang="ts">
     import type { ActionData, PageData } from "./$types"
     import { page } from "$app/stores"
-    import { enhance } from "$app/forms"
+    import { applyAction, enhance } from "$app/forms"
     import type { SubmitFunction } from "@sveltejs/kit"
-    import { goto } from "$app/navigation"
 
     import { getToastStore } from "@skeletonlabs/skeleton"
 
@@ -15,10 +14,11 @@
     import InputField from "./InputField.svelte"
     import ErrorMessage from "$lib/components/book-form/ErrorMessage.svelte"
 
-    import { bookCreateSchema } from "$lib/validation/book-form"
+    import { BookCreateSchema, BookCreateSchemaDecodeInfo } from "$lib/validation/book-form"
     import { decode as decodeFormData } from "decode-formdata"
+    import clearEmptyFields from "$lib/utils/clear-empty-fields"
     import type { z } from "zod"
-
+    import type { PostMethodReturn } from "@api/book"
 
 
     export let data: PageData
@@ -30,35 +30,32 @@
         languages: dbLanguages
     } = data
 
-    // export let form: ActionData
+    type FormattedError = z.inferFormattedError<typeof BookCreateSchema>
+    let errors: FormattedError | undefined = undefined
+    export let form: ActionData
+    $: errors = form?.errors
 
     let isbn = $page.url.searchParams.get("isbn") ?? ""
 
     const toastStore = getToastStore()
 
-    type FormatterError = z.inferFormattedError<typeof bookCreateSchema>
-    let errors: FormatterError = {} as FormatterError
 
-    const enhanceHandler: SubmitFunction = function({ formData, cancel }) {
+    const enhanceHandler: SubmitFunction<
+        {}, Extract<PostMethodReturn, { success: false }>
+    > = function({ formData, cancel }) {
+        const decodedFormData = decodeFormData(formData, BookCreateSchemaDecodeInfo)
+        const data = clearEmptyFields(decodedFormData)
 
-        //* https://kit.svelte.dev/docs/form-actions
-        // TODO: validate data client-side
-            // on error focus first invalid element
-            // and show error messages on all invalid elements
-
-        const data = decodeFormData(formData, {
-            arrays: ["author", "publisher", "subject"],
-            files: ["front_image", "back_image"],
-            numbers: ["isbn", "number_of_pages", "publish_date.day", "publish_date.month", "publish_date.year"]
-        })
-        const parsingResult = bookCreateSchema.safeParse(data)
-
+        const parsingResult = BookCreateSchema.safeParse(data)
         if (!parsingResult.success) {
+            console.log("A")
             errors = parsingResult.error.format()
             cancel()
         }
 
-        return async ({ result, update }) => {
+        console.log("B")
+
+        return async ({ result }) => {
             if (result.type == "failure" && result.data?.message) {
                 toastStore.trigger({
                     message: result.data.message,
@@ -67,17 +64,13 @@
             }
             else if (result.type == "redirect") {
                 toastStore.trigger({
-                    message: "Book Creating Successful",
+                    message: "Book Created Successfully",
                     background: "variant-filled-success"
                 })
-                goto(result.location)
-            } else {
-                await update()
+                applyAction(result)
             }
         }
     }
-
-
 </script>
 
 {#if $page.data.user}
@@ -90,42 +83,42 @@
         <h2 class="h2">Book Creation</h2>
 
         <div>
-            <InputField text="ISBN" name="isbn" type="number" bind:value={isbn} required />
-            <ErrorMessage bind:errors={errors.isbn}/>
+            <InputField text="ISBN" name="isbn" type="number" value={isbn} required />
+            <ErrorMessage errors={errors?.isbn}/>
         </div>
         <div>
             <InputField text="Title" name="title" required />
-            <ErrorMessage bind:errors={errors.title}/>
+            <ErrorMessage errors={errors?.title}/>
         </div>
         <div>
             <InputField text="Subtitle" name="subtitle" />
-            <ErrorMessage bind:errors={errors.subtitle}/>
+            <ErrorMessage errors={errors?.subtitle}/>
         </div>
         <div>
             <InputField text="Number of Pages" name="number_of_pages" />
-            <ErrorMessage bind:errors={errors.number_of_pages}/>
+            <ErrorMessage errors={errors?.number_of_pages}/>
         </div>
 
-        <PublishDate />
+        <PublishDate errors={errors?.publish_date}/>
 
         <AutocompleteInputChip
             options={dbAuthors.map(author => author.name)}
             title="Authors"
-            name="author"
+            name="authors"
             placeholder="Enter authors..."
         />
 
         <AutocompleteInputChip
             options={dbPublishers.map(publisher => publisher.name)}
             title="Publishers"
-            name="publisher"
+            name="publishers"
             placeholder="Enter publishers..."
         />
 
         <AutocompleteInputChip
             options={dbSubjects.map(subject => subject.value)}
             title="Subjects"
-            name="subject"
+            name="subjects"
             placeholder="Enter subjects..."
         />
 

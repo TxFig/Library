@@ -55,8 +55,8 @@ export async function createBook({ publish_date, location, language, authors, pu
     })
 }
 
-export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookUpdateData): Promise<void> {
-    await prisma.book.update({
+export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookUpdateData): Promise<Book> {
+    return await prisma.book.update({
         where: { isbn: book.isbn },
         data: {
             ...book,

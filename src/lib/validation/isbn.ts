@@ -39,6 +39,7 @@ export function validateISBN(isbn: string): boolean {
 
 export const ISBNSchema = z
     .string()
+    .min(1)
     .refine(validateISBN, "Invalid ISBN")
     .transform(value => BigInt(value))
 

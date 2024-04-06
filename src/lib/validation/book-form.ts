@@ -1,20 +1,19 @@
 import { z } from "zod"
-import { ISBNOptionalSchema, ISBNSchema,  } from "./isbn"
+import { ISBNOptionalSchema, ISBNSchema } from "./isbn"
 import { MAX_INT32BIT } from "./utils"
-import publishDateSchema from "./publish-date"
-import fileOptionalSchema from "./file"
+import PublishDateSchema from "./publish-date"
+import FileOptionalSchema from "./file"
 import type { ReplaceFields } from "$lib/utils/types"
+import type { FormDataInfo } from "decode-formdata"
 
 
-const OptionalStringSchema = z.string().min(1).nullish()
-const OptionalStringArraySchema = z.array(z.string().min(1)).nullish()
-
-export const bookCreateSchema = z.object({
+//* Create Schema
+export const BookCreateSchema = z.object({
     isbn: ISBNSchema,
 
-    title: z.string().min(1),
+    title: z.string(),
 
-    subtitle: OptionalStringSchema,
+    subtitle: z.string().nullish(),
     number_of_pages: z
         .number()
         .int()
@@ -25,31 +24,49 @@ export const bookCreateSchema = z.object({
     isbn10: ISBNOptionalSchema,
     isbn13: ISBNOptionalSchema,
 
-    front_image: fileOptionalSchema,
-    back_image: fileOptionalSchema,
+    front_image: FileOptionalSchema,
+    back_image: FileOptionalSchema,
 
-    publish_date: publishDateSchema,
-    location: OptionalStringSchema,
-    language: OptionalStringSchema,
-    authors: OptionalStringArraySchema,
-    publishers: OptionalStringArraySchema,
-    subjects: OptionalStringArraySchema
+    publish_date: PublishDateSchema,
+    location: z.string().nullish(),
+    language: z.string().nullish(),
+    authors: z.array(z.string()).nullish(),
+    publishers: z.array(z.string()).nullish(),
+    subjects: z.array(z.string()).nullish()
 }, {
     required_error: "Book Data Required",
 }).strict()
 
-export type BookCreateDataWithImageFiles = z.output<typeof bookCreateSchema>
+export const BookCreateSchemaDecodeInfo: FormDataInfo = {
+    arrays: ["authors", "publishers", "subjects"],
+    files: ["front_image", "back_image"],
+    numbers: [
+        "number_of_pages", "publish_date.day",
+        "publish_date.month", "publish_date.year"
+    ]
+}
+
+export type BookCreateDataWithImageFiles = z.output<typeof BookCreateSchema>
 export type BookCreateData = ReplaceFields<BookCreateDataWithImageFiles, {
     front_image: boolean,
     back_image: boolean
 }>
 
-
-export const bookUpdateSchema = bookCreateSchema.partial().required({
+//* Update Schema
+export const BookUpdateSchema = BookCreateSchema.partial().required({
     isbn: true
 })
 
-export type BookUpdateDataWithImageFiles = z.output<typeof bookUpdateSchema>
+export const BookUpdateSchemaDecodeInfo: FormDataInfo = {
+    arrays: ["authors", "publishers", "subjects"],
+    files: ["front_image", "back_image"],
+    numbers: [
+        "number_of_pages", "publish_date.day",
+        "publish_date.month", "publish_date.year"
+    ]
+}
+
+export type BookUpdateDataWithImageFiles = z.output<typeof BookUpdateSchema>
 export type BookUpdateData = ReplaceFields<BookUpdateDataWithImageFiles, {
     front_image: boolean | undefined,
     back_image: boolean | undefined

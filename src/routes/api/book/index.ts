@@ -1,25 +1,59 @@
 import db from "$lib/server/database/"
 
-import { bookCreateSchema, bookUpdateSchema, type BookUpdateDataWithImageFiles, type BookUpdateData, type BookCreateData, type BookCreateDataWithImageFiles } from "$lib/validation/book-form"
+import { BookCreateSchema, BookUpdateSchema, BookCreateSchemaDecodeInfo, BookUpdateSchemaDecodeInfo } from "$lib/validation/book-form"
+import type {
+    BookCreateData,
+    BookCreateDataWithImageFiles,
+    BookUpdateData,
+    BookUpdateDataWithImageFiles
+} from "$lib/validation/book-form"
 import { generateResizedImages } from "$lib/utils/images"
-import HttpCodes from "$lib/utils/http-codes"
+import HttpCodes, { type HttpErrorCodes } from "$lib/utils/http-codes"
 import { HttpError } from "$lib/utils/custom-errors"
-import convertFormDataToObject from "$lib/utils/formData-to-object"
-import { getFormattedError } from "$lib/validation/format-errors"
+import { decode as decodeFormData } from "decode-formdata"
+import clearEmptyFields from "$lib/utils/clear-empty-fields"
+import type { z } from "zod"
+import type { Book } from "@prisma/client"
+
+// import convertFormDataToObject from "$lib/utils/formData-to-object"
+// import { getFormattedError } from "$lib/validation/format-errors"
 
 
-export async function POST(formData: FormData): Promise<BookCreateData> {
-    const data = convertFormDataToObject(formData)
-    const parsingResult = bookCreateSchema.safeParse(data)
+export type PostMethodReturn = {
+    data: Partial<BookCreateDataWithImageFiles>,
+    book: BookCreateData,
+    success: true
+} | {
+    data: Partial<BookCreateDataWithImageFiles>,
+    code: HttpErrorCodes
+    errors?: z.inferFormattedError<typeof BookCreateSchema>,
+    message?: string
+    success: false
+}
+export async function POST(formData: FormData): Promise<PostMethodReturn> {
+    const decodedFormData = decodeFormData<BookCreateDataWithImageFiles>(formData, BookCreateSchemaDecodeInfo)
+    const data = clearEmptyFields(decodedFormData)
+
+    const parsingResult = BookCreateSchema.safeParse(data)
     if (!parsingResult.success) {
-        throw new HttpError(HttpCodes.ClientError.BadRequest, getFormattedError(parsingResult.error))
+        return {
+            data,
+            code: HttpCodes.ClientError.BadRequest,
+            errors: parsingResult.error.format(),
+            success: false
+        }
     }
 
     const parsedData: BookCreateDataWithImageFiles = parsingResult.data
 
     const bookAlreadyExists = await db.book.doesBookExist(parsedData.isbn)
     if (bookAlreadyExists) {
-        throw new HttpError(HttpCodes.ClientError.Conflict, "Book Already Exists")
+        return {
+            data,
+            code: HttpCodes.ClientError.Conflict,
+            message: "Book Already Exists",
+            success: false
+        }
     }
 
     const createBookData: BookCreateData = {
@@ -43,14 +77,29 @@ export async function POST(formData: FormData): Promise<BookCreateData> {
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error creating book in database")
     }
 
-    return createBookData
+    return {
+        data,
+        book: createBookData,
+        success: true
+    }
 }
 
-export async function PATCH(formData: FormData): Promise<void> {
-    const data = convertFormDataToObject(formData)
-    const parsingResult = bookUpdateSchema.safeParse(data)
+export type PatchMethodReturn = {
+    data: Partial<BookUpdateDataWithImageFiles>,
+    errors?: z.inferFormattedError<typeof BookUpdateSchema>,
+    book?: BookUpdateData,
+    message?: string
+}
+export async function PATCH(formData: FormData): Promise<PatchMethodReturn> {
+    const decodedFormData = decodeFormData<BookCreateDataWithImageFiles>(formData, BookUpdateSchemaDecodeInfo)
+    const data = clearEmptyFields(decodedFormData)
+
+    const parsingResult = BookUpdateSchema.safeParse(data)
     if (!parsingResult.success) {
-        throw new HttpError(HttpCodes.ClientError.BadRequest, getFormattedError(parsingResult.error))
+        return {
+            data,
+            errors: parsingResult.error.format()
+        }
     }
 
     const parsedData: BookUpdateDataWithImageFiles = parsingResult.data
@@ -69,11 +118,14 @@ export async function PATCH(formData: FormData): Promise<void> {
         updateBookData.back_image = true
     }
 
+    let book: Book
     try {
-        await db.book.updateBook(updateBookData)
+        book = await db.book.updateBook(updateBookData)
     } catch {
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error updating book in database")
     }
+
+    return { data, book }
 }
 
 
