@@ -15,9 +15,6 @@ import clearEmptyFields from "$lib/utils/clear-empty-fields"
 import type { z } from "zod"
 import type { Book } from "@prisma/client"
 
-// import convertFormDataToObject from "$lib/utils/formData-to-object"
-// import { getFormattedError } from "$lib/validation/format-errors"
-
 
 export type PostMethodReturn = {
     data: Partial<BookCreateDataWithImageFiles>,

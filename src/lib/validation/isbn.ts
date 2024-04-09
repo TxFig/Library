@@ -1,7 +1,6 @@
 import { z } from "zod"
 import { HttpError } from "$lib/utils/custom-errors"
 import HttpCodes from "$lib/utils/http-codes"
-import { getFormattedError } from "./format-errors"
 
 
 const allSpacesAndHyphensRegex = /[-\s]/g
