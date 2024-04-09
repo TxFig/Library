@@ -17,7 +17,6 @@ export const load: PageServerLoad = async () => ({
 
 export const actions: Actions = {
     default: async ({ request, locals }) => {
-        console.log("C")
         if (!locals.user) {
             error(HttpCodes.ClientError.Unauthorized, {
                 message: "Need to be logged in"
@@ -28,7 +27,6 @@ export const actions: Actions = {
 
         try {
             const info = await API.book.POST(formData)
-            console.log(info)
 
             if (info.success) {
                 redirect(HttpCodes.SeeOther, `/book/${info.book.isbn}`)

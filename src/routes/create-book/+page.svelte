@@ -48,12 +48,10 @@
 
         const parsingResult = BookCreateSchema.safeParse(data)
         if (!parsingResult.success) {
-            console.log("A")
             errors = parsingResult.error.format()
             cancel()
         }
 
-        console.log("B")
 
         return async ({ result }) => {
             if (result.type == "failure" && result.data?.message) {

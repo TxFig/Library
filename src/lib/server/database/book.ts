@@ -108,8 +108,6 @@ export async function updateBook({ publish_date, location, language, authors, pu
 }
 
 export async function deleteBook(isbn: bigint): Promise<void> {
-    console.log("Deleting book", isbn)
-
     const book = await prisma.book.findUnique({
         where: { isbn },
         include: {
