@@ -1,8 +1,7 @@
 <script lang="ts">
-    import type { ActionData, PageData } from "./$types"
+    import type { ActionData, PageData, SubmitFunction } from "./$types"
     import { page } from "$app/stores"
     import { applyAction, enhance } from "$app/forms"
-    import type { SubmitFunction } from "@sveltejs/kit"
 
     import { getToastStore } from "@skeletonlabs/skeleton"
 
@@ -11,14 +10,13 @@
     import AutocompleteInputChip from "$lib/components/book-form/AutocompleteInputChip.svelte"
     import ImageInput from "$lib/components/book-form/ImageInput.svelte"
     import ListBoxInput from "$lib/components/book-form/ListBoxInput.svelte"
-    import InputField from "./InputField.svelte"
+    import InputField from "$lib/components/book-form/InputField.svelte"
     import ErrorMessage from "$lib/components/book-form/ErrorMessage.svelte"
 
     import { BookCreateSchema, BookCreateSchemaDecodeInfo } from "$lib/validation/book-form"
     import { decode as decodeFormData } from "decode-formdata"
     import clearEmptyFields from "$lib/utils/clear-empty-fields"
     import type { z } from "zod"
-    import type { PostMethodReturn } from "@api/book"
 
 
     export let data: PageData
@@ -40,9 +38,7 @@
     const toastStore = getToastStore()
 
 
-    const enhanceHandler: SubmitFunction<
-        {}, Extract<PostMethodReturn, { success: false }>
-    > = function({ formData, cancel }) {
+    const enhanceHandler: SubmitFunction = function({ formData, cancel }) {
         const decodedFormData = decodeFormData(formData, BookCreateSchemaDecodeInfo)
         const data = clearEmptyFields(decodedFormData)
 
@@ -65,7 +61,7 @@
                     message: "Book Created Successfully",
                     background: "variant-filled-success"
                 })
-                applyAction(result)
+                await applyAction(result)
             }
         }
     }

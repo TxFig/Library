@@ -2,9 +2,9 @@
     import type PublishDateSchema from "$lib/validation/publish-date";
     import type { z } from "zod";
 
-    export let day: number | undefined = undefined
-    export let month: number | undefined = undefined
-    export let year: number | undefined = undefined
+    export let day: number | undefined | null = undefined
+    export let month: number | undefined | null = undefined
+    export let year: number | undefined | null = undefined
 
     type FormattedError = z.inferFormattedError<typeof PublishDateSchema>
     export let errors: FormattedError | undefined = undefined

@@ -1,14 +1,22 @@
 <script lang="ts">
-    import type { PageData } from "./$types"
-    import { enhance } from "$app/forms"
+    import type { ActionData, PageData, SubmitFunction } from "./$types"
+    import { applyAction, enhance } from "$app/forms"
 
     import { page } from "$app/stores"
-    import NotLoggedIn from "$lib/components/NotLoggedIn.svelte"
+    import { getToastStore } from "@skeletonlabs/skeleton"
 
+    import NotLoggedIn from "$lib/components/NotLoggedIn.svelte"
     import PublishDate from "$lib/components/book-form/PublishDate.svelte"
     import AutocompleteInputChip from "$lib/components/book-form/AutocompleteInputChip.svelte"
     import ImageInput from "$lib/components/book-form/ImageInput.svelte"
     import ListBoxInput from "$lib/components/book-form/ListBoxInput.svelte"
+    import InputField from "$lib/components/book-form/InputField.svelte"
+    import ErrorMessage from "$lib/components/book-form/ErrorMessage.svelte"
+
+    import { BookUpdateSchemaDecodeInfo, BookUpdateSchema } from "$lib/validation/book-form"
+    import type { z } from "zod";
+    import { decode as decodeFormData } from "decode-formdata"
+    import clearEmptyFields from "$lib/utils/clear-empty-fields"
 
 
     export let data: PageData
@@ -17,58 +25,81 @@
         allAuthors, allPublishers, allSubjects, allLocations, allLanguages
     } = data
 
+    type FormattedError = z.inferFormattedError<typeof BookUpdateSchema>
+    let errors: FormattedError | undefined = undefined
+    export let form: ActionData
+    $: errors = form?.errors
 
-    function onFormData(ev: FormDataEvent) {
-        const formData = ev.formData
+    const toastStore = getToastStore()
 
-        for (const [key, value] of [...formData.entries()]) {
-            if ((typeof value == "string" && value == "") ||
-                (typeof value == "object" && (value as File).name == "")
-            ) {
-                formData.delete(key)
-            }
+    const enhanceHandler: SubmitFunction = function({ formData, cancel }) {
+        const decodedFormData = decodeFormData(formData, BookUpdateSchemaDecodeInfo)
+        const data = clearEmptyFields(decodedFormData)
+
+        const parsingResult = BookUpdateSchema.safeParse(data)
+        if (!parsingResult.success) {
+            errors = parsingResult.error.format()
+            cancel()
         }
 
-        formData.set("isbn", book.isbn.toString())
+
+        return async ({ result }) => {
+            if (result.type == "failure" && result.data?.message) {
+                toastStore.trigger({
+                    message: result.data.message,
+                    background: "variant-filled-error"
+                })
+            }
+            else if (result.type == "redirect") {
+                toastStore.trigger({
+                    message: "Book Updated Successfully",
+                    background: "variant-filled-success"
+                })
+                await applyAction(result)
+            }
+        }
     }
 
 </script>
 
 {#if $page.data.user}
-    <form class="space-y-6" method="post" use:enhance enctype="multipart/form-data" on:formdata={onFormData}>
+    <form
+        class="space-y-6"
+        method="post"
+        enctype="multipart/form-data"
+        use:enhance={enhanceHandler}
+    >
         <h2 class="h2">Book Editing</h2>
 
-        <label class="label">
-            <span>ISBN</span>
-            <input class="input" type="number" name="isbn" value={book.isbn} required disabled/>
-        </label>
-
-        <label class="label">
-            <span>Title<sup class="text-red-500">*</sup></span>
-            <input class="input" type="text" name="title" required value={book.title} />
-        </label>
-
-        <label class="label">
-            <span>Subtitle</span>
-            <input class="input" type="text" name="subtitle" value={book.subtitle} />
-        </label>
-
-        <label class="label">
-            <span>Number of pages</span>
-            <input class="input" type="number" name="number_of_pages" value={book.number_of_pages}/>
-        </label>
+        <div>
+            <InputField text="ISBN" name="isbn" type="number" value={book.isbn.toString()} required />
+            <ErrorMessage errors={errors?.isbn}/>
+        </div>
+        <div>
+            <InputField text="Title" name="title" required value={book.title}/>
+            <ErrorMessage errors={errors?.title}/>
+        </div>
+        <div>
+            <InputField text="Subtitle" name="subtitle" value={book.subtitle ?? ""}/>
+            <ErrorMessage errors={errors?.subtitle}/>
+        </div>
+        <div>
+            <InputField text="Number of Pages" name="number_of_pages" value={book.number_of_pages?.toString() ?? ""}/>
+            <ErrorMessage errors={errors?.number_of_pages}/>
+        </div>
 
         <PublishDate
-            day={book.publish_date?.getDay()}
-            month={book.publish_date?.getMonth()}
-            year={book.publish_date?.getFullYear()}
+            day={book.publish_date?.day}
+            month={book.publish_date?.month}
+            year={book.publish_date?.year}
+            errors={errors?.publish_date}
         />
 
         <AutocompleteInputChip
             options={allAuthors.map(author => author.name)}
             selectedOptions={book.authors.map(author => author.name)}
             title="Authors"
-            name="author"
+            name="authors"
             placeholder="Enter authors..."
         />
 
@@ -76,7 +107,7 @@
             options={allPublishers.map(publisher => publisher.name)}
             selectedOptions={book.publishers.map(publisher => publisher.name)}
             title="Publishers"
-            name="publisher"
+            name="publishers"
             placeholder="Enter publishers..."
         />
 
@@ -84,7 +115,7 @@
             options={allSubjects.map(subject => subject.value)}
             selectedOptions={book.subjects.map(subject => subject.value)}
             title="Subjects"
-            name="subject"
+            name="subjects"
             placeholder="Enter subjects..."
         />
 

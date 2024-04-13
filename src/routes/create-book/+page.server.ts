@@ -5,6 +5,7 @@ import db from "$lib/server/database/book"
 import HttpCodes from "$lib/utils/http-codes"
 import API from "@api"
 import { HttpError } from "$lib/utils/custom-errors"
+import type { PostMethodReturn } from "@api/book"
 
 
 export const load: PageServerLoad = async () => ({
@@ -25,19 +26,20 @@ export const actions: Actions = {
 
         const formData = await request.formData()
 
+        let info: PostMethodReturn
         try {
-            const info = await API.book.POST(formData)
+            info = await API.book.POST(formData)
 
-            if (info.success) {
-                redirect(HttpCodes.SeeOther, `/book/${info.book.isbn}`)
-            }
-
-            return fail(info.code, info)
+            if (!info.success)
+                return fail(info.code, info)
         }
         catch (err) {
-            if (err instanceof HttpError) {
-                error(err.httpCode, err.message)
-            }
+            if (err instanceof HttpError) error(err.httpCode, err.message)
+            else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
+        }
+
+        if (info.success) {
+            redirect(HttpCodes.SeeOther, `/book/${info.book.isbn}`)
         }
     }
 }

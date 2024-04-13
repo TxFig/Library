@@ -83,9 +83,14 @@ export async function POST(formData: FormData): Promise<PostMethodReturn> {
 
 export type PatchMethodReturn = {
     data: Partial<BookUpdateDataWithImageFiles>,
+    book: BookUpdateData,
+    success: true
+} | {
+    data: Partial<BookUpdateDataWithImageFiles>,
+    code: HttpErrorCodes
     errors?: z.inferFormattedError<typeof BookUpdateSchema>,
-    book?: BookUpdateData,
     message?: string
+    success: false
 }
 export async function PATCH(formData: FormData): Promise<PatchMethodReturn> {
     const decodedFormData = decodeFormData<BookCreateDataWithImageFiles>(formData, BookUpdateSchemaDecodeInfo)
@@ -95,7 +100,9 @@ export async function PATCH(formData: FormData): Promise<PatchMethodReturn> {
     if (!parsingResult.success) {
         return {
             data,
-            errors: parsingResult.error.format()
+            code: HttpCodes.ClientError.BadRequest,
+            errors: parsingResult.error.format(),
+            success: false
         }
     }
 
@@ -122,7 +129,7 @@ export async function PATCH(formData: FormData): Promise<PatchMethodReturn> {
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error updating book in database")
     }
 
-    return { data, book }
+    return { data, book, success: true }
 }
 
 
