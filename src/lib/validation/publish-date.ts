@@ -7,8 +7,8 @@ const daysInMonth = (month: number, year: number) =>
 const minYear = 1970
 const maxYear = new Date().getFullYear()
 
-type DateObject = { year?: number | null, month?: number | null, day?: number | null }
-type DateObjectWithYear = { year: number, month?: number | null, day?: number | null }
+export type DateObject = { year?: number | null, month?: number | null, day?: number | null }
+export type DateObjectWithYear = { year: number, month?: number | null, day?: number | null }
 function isValidDate (date: DateObject): date is DateObjectWithYear {
     const {year, month, day} = date
 
@@ -22,7 +22,7 @@ function isValidDate (date: DateObject): date is DateObjectWithYear {
     return true
 }
 
-const PublishDateSchema = z
+export const PublishDateSchema = z
     .object({
         year: z.number().nullish(),
         month: z.number().nullish(),

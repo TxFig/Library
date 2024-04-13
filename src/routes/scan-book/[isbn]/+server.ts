@@ -6,6 +6,8 @@ import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
 import { parseISBN } from "$lib/validation/isbn"
 import { HttpError } from "$lib/utils/custom-errors"
+import type { BookCreateData } from "$lib/validation/book-form"
+import { generateResizedImages } from "$lib/utils/images"
 
 
 export const POST: RequestHandler = async ({ params, locals }) => {
@@ -30,15 +32,31 @@ export const POST: RequestHandler = async ({ params, locals }) => {
         })
     }
 
-    const insertData = await getOpenLibraryBook(isbnString)
-    if (!insertData) {
+    const data = await getOpenLibraryBook(isbnString)
+
+    if (!data) {
         error(HttpCodes.ClientError.NotFound, {
             message: "Book not available in OpenLibrary.",
         })
     }
 
+    const createBookData: BookCreateData = {
+        ...data,
+        front_image: false,
+        back_image: false
+    }
+
+    if (data.front_image) {
+        await generateResizedImages(data.isbn, "front", data.front_image)
+        createBookData.front_image = true
+    }
+    if (data.back_image) {
+        await generateResizedImages(data.isbn, "back", data.back_image)
+        createBookData.back_image = true
+    }
+
     try {
-        await db.book.createBook(insertData)
+        await db.book.createBook(createBookData)
         return json({
             status: 200,
             message: "Successfully added Book"

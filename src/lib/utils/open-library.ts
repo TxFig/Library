@@ -1,4 +1,5 @@
-import type { InsertBookData } from "$lib/server/database/book"
+import type { BookCreateDataWithImageFiles } from "$lib/validation/book-form"
+import type { DateObjectWithYear } from "$lib/validation/publish-date"
 
 
 export interface OpenLibraryBookData {
@@ -33,7 +34,7 @@ export interface OpenLibraryBookData {
 }
 
 const openLibraryISBN_URL = "https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:"
-export async function getOpenLibraryBook(isbn: string): Promise<InsertBookData | null> {
+export async function getOpenLibraryBook(isbn: string): Promise<BookCreateDataWithImageFiles | null> {
     const url = openLibraryISBN_URL + isbn
     const response = await fetch(url)
     const json = await response.json()
@@ -54,59 +55,64 @@ async function fetchImageContent(url: string): Promise<File> {
     return new File([arrayBuffer], "")
 }
 
+function openLibraryDateToDateObject(date: string): DateObjectWithYear {
+    const dateJsObject = new Date(date)
+    return {
+        year: dateJsObject.getFullYear(),
+        month: dateJsObject.getMonth(),
+        day: dateJsObject.getDate()
+    }
+}
+
 async function parseOpenLibraryData(
     isbn: string,
     json: { [isbnTag: string]: OpenLibraryBookData }
-): Promise<InsertBookData> {
+): Promise<BookCreateDataWithImageFiles> {
     const data = Object.values(json)[0]
 
-    const authors: InsertBookData["authors"] = data.authors?.map(author => author.name) ?? []
-    const publishers: InsertBookData["publishers"] = data.publishers?.map(publisher => publisher.name) ?? []
+    const authors = data.authors?.map(author => author.name) ?? []
+    const publishers = data.publishers?.map(publisher => publisher.name) ?? []
 
-    const subjects: InsertBookData["publishers"] = data.subjects
+    const subjects = data.subjects
         ?.filter(subject => !subject.name.includes(":"))
         .map(subject => capitalizeFirstLetter(subject.name))
         ?? []
 
     const isbn13 = data.identifiers
         ? data.identifiers["isbn_13"]
-            ? +data.identifiers["isbn_13"][0]
+            ? BigInt(data.identifiers["isbn_13"][0])
             : null
         : null
 
     const isbn10 = data.identifiers
         ? data.identifiers["isbn_10"]
-            ? +data.identifiers["isbn_10"][0]
+            ? BigInt(data.identifiers["isbn_10"][0])
             : null
         : null
 
     const imageURL = data.cover?.large ?? data.cover?.medium ?? data.cover?.small ?? null
     const imageFile = imageURL ? await fetchImageContent(imageURL) : null
 
-    // Convert from year-month-day to day-month-year
-    // TODO: extract and document how and why it works this way
-    let publishDate = data.publish_date ?? null
-    if (publishDate) {
-        const parts = publishDate.split("-")
-        publishDate = parts.reverse().join("-")
-    }
+    const publishDate = data.publish_date ?
+        openLibraryDateToDateObject(data.publish_date)
+    : null
 
-    const book: InsertBookData["book"] = {
+    return {
         title: data.title,
         subtitle: data.subtitle ?? null,
         number_of_pages: data.number_of_pages ?? null,
-        publish_date: publishDate ? new Date(publishDate) : null,
+        publish_date: publishDate,
 
-        isbn: +isbn,
+        isbn: BigInt(isbn),
         isbn13: isbn13,
         isbn10: isbn10,
 
         front_image: imageFile,
-        back_image: null
-    }
+        back_image: null,
 
-    return {
-        book, authors, publishers, subjects,
+        authors,
+        publishers,
+        subjects,
         location: null,
         language: null
     }
