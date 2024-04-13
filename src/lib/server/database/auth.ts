@@ -10,7 +10,7 @@ import {
     EMAIL_USER,
     ORIGIN
 } from "$env/static/private"
-import type { User, EmailConfirmationRequest, ReadingState } from "@prisma/client"
+import { type User, type EmailConfirmationRequest, ReadingState } from "@prisma/client"
 
 
 const transport = nodemailer.createTransport({
@@ -153,6 +153,7 @@ export async function createUser(user: Omit<User, "id">): Promise<User> {
 }
 
 export type AllReadingState = "NOT READ" | ReadingState
+export const AllReadingStates = ["NOT READ", "READING", "READ"] as const //! Hardcoded
 export async function updateUserReadingState(bookId: bigint, userId: number, state: AllReadingState): Promise<void> {
     if (state == "NOT READ") {
         try {

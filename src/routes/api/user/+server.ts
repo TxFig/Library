@@ -27,14 +27,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const parsedData = parsingResult.data
 
     try {
-        const user = await db.auth.createUser({
+        await db.auth.createUser({
             email: parsedData.email,
             username: parsedData.username
         })
         return json({
             status: 200,
-            message: "Successfully Created User",
-            user
+            message: "Successfully Created User"
         })
     } catch (error) {
         return json({
