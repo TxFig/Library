@@ -7,3 +7,5 @@ export const ReadingStateUpdateSchema = z.object({
     state: z.enum(AllReadingStates),
     isbn: ISBNSchema
 })
+
+export type ReadingStateUpdateSchema = z.infer<typeof ReadingStateUpdateSchema>

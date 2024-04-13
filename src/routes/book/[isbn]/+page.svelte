@@ -6,7 +6,7 @@
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
     import type { AllReadingState } from "$lib/server/database/auth";
-    import type { UpdateUserBookReadingStateData } from "@api/reading-state/+server";
+    import type { ReadingStateUpdateSchema } from "$lib/validation/reading-state";
 
     export let data: PageData
     const { book, readingState } = data
@@ -62,7 +62,7 @@
     }
 
     async function setReadingState(state: AllReadingState) {
-        const updateData: UpdateUserBookReadingStateData = {
+        const updateData: ReadingStateUpdateSchema = {
             state,
             isbn: book.isbn
         }

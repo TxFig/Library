@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params }) => {
     const author = await db.book.getAuthorWithBooksByName(name)
 
     if (!author) {
-        error(HttpCodes.NotFound, "Author Doesn't Exists")
+        error(HttpCodes.ClientError.NotFound, "Author Doesn't Exists")
     }
 
     return { author }

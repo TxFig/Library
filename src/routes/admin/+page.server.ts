@@ -5,9 +5,9 @@ import db from "$lib/server/database/";
 
 export const load: PageServerLoad = async ({ cookies }) => {
     const sessionToken = cookies.get("sessionToken")
-    const loggedIn = sessionToken && validate(sessionToken)
+    const loggedIn = Boolean(sessionToken && validate(sessionToken))
 
     return {
-        users: loggedIn ? db.auth.getAllUsers() : []
+        users: loggedIn ? await db.auth.getAllUsers() : []
     }
 }
