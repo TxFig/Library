@@ -2,9 +2,10 @@
     import { onMount } from "svelte"
     import { SlideToggle, getModalStore, type ModalSettings } from "@skeletonlabs/skeleton"
     import Quagga from "@ericblade/quagga2"
-    import { page } from "$app/stores";
-    import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
-    import { validateISBN } from "$lib/validation/isbn";
+    import { page } from "$app/stores"
+    import NotLoggedIn from "$lib/components/NotLoggedIn.svelte"
+    import { validateISBN } from "$lib/validation/isbn"
+    import HttpCodes from "$lib/utils/http-codes"
 
     const modalStore = getModalStore()
 
@@ -90,21 +91,15 @@
     })
 
     async function onISBNConfirmation() {
-        const response = await fetch("/scan-book", {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ isbn: displayISBN }),
-        })
+        const response = await fetch(`/scan-book/${displayISBN}`, { method: "post" })
 
-        if (response.status == 409) {
+        if (response.status == HttpCodes.ClientError.Conflict) {
             // Sometime popup gets remove (weird bug)
             setTimeout(() => {
                 modalStore.trigger(bookAlreadyExistsAlert)
             }, 200)
         }
-        else if (response.status == 404) {
+        else if (response.status == HttpCodes.ClientError.NotFound) {
             // Not available in OpenLibrary
             modalStore.trigger(bookNotAvailableInOpenLibraryAlert)
         }
