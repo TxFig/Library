@@ -2,15 +2,13 @@
     import { enhance } from "$app/forms"
     import { page } from "$app/stores"
     import { getToastStore } from "@skeletonlabs/skeleton";
-    import type { SubmitFunction } from "@sveltejs/kit";
+    import type { SubmitFunction } from "./$types";
 
 
     const toastStore = getToastStore()
 
-    const enhanceHandler: SubmitFunction<
-        Record<string, any>,
-        { message: string }
-    > = function({ formData }) {
+    const enhanceHandler: SubmitFunction = function({ formData }) {
+        // TODO
 
         return ({ result }) => {
             if (result.type == "success" && result.data?.message) {
