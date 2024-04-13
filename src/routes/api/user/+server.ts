@@ -1,29 +1,35 @@
-import { error, json } from "@sveltejs/kit";
-import type { RequestHandler } from "./$types";
-import db from "$lib/server/database/";
-import HttpCodes from "$lib/utils/http-codes";
+import { error, json } from "@sveltejs/kit"
+import type { RequestHandler } from "./$types"
+import db from "$lib/server/database/"
+import HttpCodes from "$lib/utils/http-codes"
+import clearEmptyFields from "$lib/utils/clear-empty-fields"
+import { UserCreateSchema } from "$lib/validation/auth/user"
 
 
 //* Create User
 export const POST: RequestHandler = async ({ request, locals }) => {
     if (!locals.user) {
-        error(HttpCodes.Unauthorized, {
+        error(HttpCodes.ClientError.Unauthorized, {
             message: "Need to be logged in to create users"
         })
     }
 
     const data = await request.json()
+    const clearedData = clearEmptyFields(data)
+    const parsingResult = UserCreateSchema.safeParse(clearedData)
 
-    if (!(data.email && data.username)) {
-        error(HttpCodes.BadRequest, {
+    if (!parsingResult.success) {
+        error(HttpCodes.ClientError.BadRequest, {
             message: "Invalid Request"
         })
+
     }
+    const parsedData = parsingResult.data
 
     try {
         const user = await db.auth.createUser({
-            email: data.email,
-            username: data.username
+            email: parsedData.email,
+            username: parsedData.username
         })
         return json({
             status: 200,
