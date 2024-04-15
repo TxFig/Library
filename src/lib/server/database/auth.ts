@@ -10,7 +10,7 @@ import {
     EMAIL_USER,
     ORIGIN
 } from "$env/static/private"
-import { type User, type EmailConfirmationRequest, ReadingState } from "@prisma/client"
+import { type User, type EmailConfirmationRequest, ReadingState, type Session } from "@prisma/client"
 
 
 const transport = nodemailer.createTransport({
@@ -95,6 +95,10 @@ export function validateExpireTime(time: Date): boolean {
     return time.getTime() > Date.now()
 }
 
+export function isSessionValid(session: Session): boolean {
+    return session.expireDate.getTime() > Date.now()
+}
+
 export async function createSession(userId: number): Promise<string> {
     const token = uuidv4()
 
@@ -108,26 +112,29 @@ export async function createSession(userId: number): Promise<string> {
     return token
 }
 
-//* Delete all user sessions from one session token
-export async function deleteSession(sessionToken: string): Promise<void> {
-    const user = await prisma.user.findFirst({
-        where: {
-            session: {
-                some: {
-                    token: sessionToken
-                }
-            }
-        }
+export async function deleteSessionByToken(token: string): Promise<void> {
+    await prisma.session.delete({
+        where: { token }
     })
-    if (!user) return
+}
 
-    await prisma.session.deleteMany({
+export async function getUserAndSessionBySessionToken(sessionToken: string): Promise<
+    { user: User, session: Session } |
+    { user: null, session: null }
+> {
+    const result = await prisma.session.findUnique({
         where: {
-            user: {
-                id: user.id
-            }
-        }
+            token: sessionToken
+        },
+        include: { user: true }
     })
+
+    if (result) {
+        const { user, ...session } = result
+        return { user, session }
+    }
+
+    return { user: null, session: null }
 }
 
 export async function getUserBySessionToken(sessionToken: string): Promise<User | null> {
@@ -199,10 +206,11 @@ export default {
     deleteEmailConfirmationRequestByToken,
     validateExpireTime,
     createSession,
-    deleteSession,
+    deleteSessionByToken,
     getUserBySessionToken,
     getAllUsers,
     createUser,
     updateUserReadingState,
-    getBookReadingState
+    getBookReadingState,
+    getUserAndSessionBySessionToken
 }

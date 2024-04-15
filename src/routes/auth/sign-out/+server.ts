@@ -9,7 +9,7 @@ export const GET: RequestHandler = async ({ cookies, url }) => {
     const sessionToken = cookies.get("sessionToken")
 
     if (sessionToken && validate(sessionToken)) {
-        await db.auth.deleteSession(sessionToken)
+        await db.auth.deleteSessionByToken(sessionToken)
         cookies.delete("sessionToken", {
             path: "/"
         })

@@ -27,5 +27,6 @@ import auth from "./auth"
 
 export default {
     book,
-    auth
+    auth,
+    close
 }
