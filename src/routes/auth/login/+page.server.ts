@@ -2,18 +2,18 @@ import db from "$lib/server/database/";
 import { fail, type Actions } from "@sveltejs/kit";
 import HttpCodes from "$lib/utils/http-codes"
 import { EmailSchema } from "$lib/validation/auth/user";
-import { decode as decodeFormData } from "decode-formdata";
 
 
 export const actions: Actions = {
     default: async ({ request }) => {
         const formData = await request.formData()
-        const decodedData = decodeFormData(formData)
-        const parsingResult = EmailSchema.safeParse(decodedData)
+        const data = formData.get("email")
+        const parsingResult = EmailSchema.safeParse(data)
 
         if (!parsingResult.success) {
             return fail(HttpCodes.ClientError.BadRequest, {
-                message: "Invalid Email"
+                error: parsingResult.error.errors[0].message,
+                message: undefined
             })
         }
 
@@ -21,6 +21,7 @@ export const actions: Actions = {
         const user = await db.auth.getUserByEmail(email)
         if (!user) {
             return fail(HttpCodes.ClientError.BadRequest, {
+                error: undefined,
                 message: "User doesn't exist"
             })
         }
@@ -30,6 +31,7 @@ export const actions: Actions = {
             !db.auth.validateExpireTime(user.emailConfirmationRequest.expireDate)
         ) {
             return fail(HttpCodes.ClientError.BadRequest, {
+                error: undefined,
                 message: "A email confirmation request already was sent"
             })
         }
@@ -37,6 +39,7 @@ export const actions: Actions = {
         const error = await db.auth.sendConfirmationEmail(user)
         if (error) {
             return fail(HttpCodes.ServerError.InternalServerError, {
+                error: undefined,
                 message: "Error sending email"
             })
         }
