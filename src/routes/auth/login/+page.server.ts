@@ -26,14 +26,17 @@ export const actions: Actions = {
             })
         }
 
-        if (
-            user.emailConfirmationRequest &&
-            !db.auth.validateExpireTime(user.emailConfirmationRequest.expireDate)
-        ) {
-            return fail(HttpCodes.ClientError.BadRequest, {
-                error: undefined,
-                message: "A email confirmation request already was sent"
-            })
+        if (user.emailConfirmationRequest) {
+            if (db.auth.validateExpireTime(user.emailConfirmationRequest.expireDate)) {
+                return fail(HttpCodes.ClientError.BadRequest, {
+                    error: undefined,
+                    message: "A email confirmation request already was sent"
+                })
+            } else {
+                db.auth.deleteEmailConfirmationRequestByToken(
+                    user.emailConfirmationRequest.token
+                )
+            }
         }
 
         const error = await db.auth.sendConfirmationEmail(user)
