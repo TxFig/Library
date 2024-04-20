@@ -65,7 +65,7 @@
 <div class="w-full h-full flex flex-col gap-4">
     <p class="text-xl">Admin Page</p>
 
-    {#if !$page.data.user}
+    {#if !$page.data.user || !$page.data.user.admin}
         <NotLoggedIn/>
     {:else}
         {#if users.length == 0}
