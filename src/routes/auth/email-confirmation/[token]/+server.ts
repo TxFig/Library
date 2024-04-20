@@ -1,11 +1,11 @@
 import { redirect } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
+import type { RequestHandler } from "./$types";
 import { validate } from "uuid"
 import db from "$lib/server/database/";
 import HttpCodes from "$lib/utils/http-codes";
 
 
-export const load: PageServerLoad = async ({ params, cookies }) => {
+export const GET: RequestHandler = async ({ params, cookies }) => {
     const { token } = params
 
     if (!validate(token)) {
@@ -28,7 +28,5 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
         path: "/"
     })
 
-    return {
-        user: emailConfirmationRequest.user
-    }
+    redirect(HttpCodes.SeeOther, "/auth/email-confirmation/success/")
 }
