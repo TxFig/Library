@@ -5,7 +5,7 @@ import db from "$lib/server/database/";
 import HttpCodes from "$lib/utils/http-codes";
 
 
-export const GET: RequestHandler = async ({ params, cookies }) => {
+export const GET: RequestHandler = async ({ params, cookies, url }) => {
     const { token } = params
 
     if (!validate(token)) {
@@ -28,5 +28,7 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
         path: "/"
     })
 
-    redirect(HttpCodes.SeeOther, "/auth/email-confirmation/success/")
+    const redirectPath = url.searchParams.get("redirect")
+    if (redirectPath) redirect(HttpCodes.SeeOther, redirectPath)
+    else redirect(HttpCodes.SeeOther, "/auth/email-confirmation/success/")
 }

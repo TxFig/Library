@@ -29,7 +29,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     try {
         await db.auth.createUser({
             email: parsedData.email,
-            username: parsedData.username
+            username: parsedData.username,
+            admin: false
         })
         return json({
             status: 200,

@@ -5,7 +5,7 @@ import { EmailSchema } from "$lib/validation/auth/user";
 
 
 export const actions: Actions = {
-    default: async ({ request }) => {
+    default: async ({ request, url }) => {
         const formData = await request.formData()
         const data = formData.get("email")
         const parsingResult = EmailSchema.safeParse(data)
@@ -39,7 +39,8 @@ export const actions: Actions = {
             }
         }
 
-        const error = await db.auth.sendConfirmationEmail(user)
+        const redirectPath = url.searchParams.get("redirect") ?? undefined
+        const error = await db.auth.sendConfirmationEmail(user, redirectPath)
         if (error) {
             return fail(HttpCodes.ServerError.InternalServerError, {
                 error: undefined,

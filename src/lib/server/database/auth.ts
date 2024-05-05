@@ -48,10 +48,13 @@ function generateExpirationDate(): Date {
     return now
 }
 
-export async function sendConfirmationEmail(user: User): Promise<Error | undefined> {
+export async function sendConfirmationEmail(
+    user: User,
+    redirectPath: string = "/"
+): Promise<Error | undefined> {
     try {
         const token = uuidv4()
-        const confirmationURL = `${ORIGIN}/auth/email-confirmation/${token}`
+        const confirmationURL = `${ORIGIN}/auth/email-confirmation/${token}?redirect=${redirectPath}`
 
         // await transport.sendMail({
         //     to: user.email,
@@ -199,6 +202,10 @@ export async function getBookReadingState(isbn: bigint, userId: number): Promise
     return userBookReadingState?.state ?? null
 }
 
+export async function getUsersCount(): Promise<number> {
+    return await prisma.user.count()
+}
+
 export default {
     getUserByEmail,
     sendConfirmationEmail,
@@ -212,5 +219,6 @@ export default {
     createUser,
     updateUserReadingState,
     getBookReadingState,
-    getUserAndSessionBySessionToken
+    getUserAndSessionBySessionToken,
+    getUsersCount
 }
