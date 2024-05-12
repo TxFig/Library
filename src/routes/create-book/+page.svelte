@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ActionData, PageData, SubmitFunction } from "./$types"
+    import type { ActionData, ActionsExport, PageData } from "./$types"
     import { page } from "$app/stores"
     import { applyAction, enhance } from "$app/forms"
 
@@ -14,9 +14,8 @@
     import ErrorMessage from "$lib/components/book-form/ErrorMessage.svelte"
 
     import { BookCreateSchema, BookCreateSchemaDecodeInfo } from "$lib/validation/book-form"
-    import { decode as decodeFormData } from "decode-formdata"
-    import clearEmptyFields from "$lib/utils/clear-empty-fields"
     import type { z } from "zod"
+    import SubmitFunctionFactory from "$lib/utils/submit-function-factory"
 
 
     export let data: PageData
@@ -37,19 +36,12 @@
 
     const toastStore = getToastStore()
 
-
-    const enhanceHandler: SubmitFunction = function({ formData, cancel }) {
-        const decodedFormData = decodeFormData(formData, BookCreateSchemaDecodeInfo)
-        const data = clearEmptyFields(decodedFormData)
-
-        const parsingResult = BookCreateSchema.safeParse(data)
-        if (!parsingResult.success) {
-            errors = parsingResult.error.format()
-            cancel()
-        }
-
-
-        return async ({ result }) => {
+    const submitFunction = SubmitFunctionFactory<ActionsExport>(
+        BookCreateSchema, BookCreateSchemaDecodeInfo,
+        (error) => {
+            errors = error.format()
+        },
+        async (result) => {
             if (result.type == "failure" && result.data?.message) {
                 toastStore.trigger({
                     message: result.data.message,
@@ -64,7 +56,7 @@
                 await applyAction(result)
             }
         }
-    }
+    )
 </script>
 
 {#if $page.data.user}
@@ -72,7 +64,7 @@
         class="space-y-6"
         method="post"
         enctype="multipart/form-data"
-        use:enhance={enhanceHandler}
+        use:enhance={submitFunction}
     >
         <h2 class="h2">Book Creation</h2>
 
