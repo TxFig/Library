@@ -25,7 +25,7 @@ export function SubmitFunctionFactory<
     Schema extends z.ZodTypeAny = z.ZodTypeAny,
 >(
     schema: Schema,
-    formDataDecodeInfo: FormDataInfo,
+    formDataDecodeInfo?: FormDataInfo,
     onClientSideParsingError?: (error: z.ZodError<z.infer<Schema>>) => void,
     onServerSideResponse?: (actionResult: ActionResult<ActionResultSuccess, ActionResultFailure>) => void
 ): SubmitFunction<ActionResultSuccess, ActionResultFailure> {
