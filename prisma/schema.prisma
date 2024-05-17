@@ -28,7 +28,11 @@ model User {
 
   emailConfirmationRequest EmailConfirmationRequest?
   session                  Session[]
-  userBookReadingState     UserBookReadingState[]
+
+  userBookReadingState UserBookReadingState[]
+
+  permissionGroupId Int?
+  permissionGroup   PermissionGroup? @relation(fields: [permissionGroupId], references: [id])
 }
 
 model EmailConfirmationRequest {
@@ -47,6 +51,23 @@ model Session {
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+}
+
+model Permission {
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  description String
+
+  permissionGroups PermissionGroup[]
+}
+
+model PermissionGroup {
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  description String
+
+  permissions Permission[]
+  users       User[]
 }
 
 model UserBookReadingState {
