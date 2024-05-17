@@ -6,6 +6,7 @@
     import { getModalStore, getToastStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
     import type { User } from "@prisma/client";
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
+    import type { UserWithPermissionGroup } from "$lib/server/database/auth";
 
     export let data: PageData
     let { users } = data
@@ -40,7 +41,7 @@
         const json: {
             status: 200,
             message: string,
-            user: User
+            user: UserWithPermissionGroup
         } | {
             status: 500,
             message: string
@@ -81,6 +82,7 @@
                             <th>Id</th>
                             <th>Email</th>
                             <th>Username</th>
+                            <th>Permission Group</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,6 +91,7 @@
                                 <td>{user.id}</td>
                                 <td>{user.email}</td>
                                 <td>{user.username}</td>
+                                <td>{user.permissionGroup?.name ?? "---"}</td>
                             </tr>
                         {/each}
                     </tbody>

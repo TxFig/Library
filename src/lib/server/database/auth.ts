@@ -10,7 +10,7 @@ import {
     EMAIL_USER,
     ORIGIN
 } from "$env/static/private"
-import { type User, type EmailConfirmationRequest, ReadingState, type Session } from "@prisma/client"
+import { type User, type EmailConfirmationRequest, ReadingState, type Session, type PermissionGroup } from "@prisma/client"
 
 
 const transport = nodemailer.createTransport({
@@ -152,13 +152,30 @@ export async function getUserBySessionToken(sessionToken: string): Promise<User 
     })
 }
 
-export async function getAllUsers(): Promise<User[]> {
-    return await prisma.user.findMany()
+export type UserWithPermissionGroup = User & {
+    permissionGroup: PermissionGroup | null
+}
+export async function getAllUsersWithPermissionGroup(): Promise<UserWithPermissionGroup[]> {
+    return await prisma.user.findMany({
+        include: {
+            permissionGroup: true
+        }
+    })
 }
 
-export async function createUser(user: Omit<User, "id">): Promise<User> {
+export async function createUser(user: Omit<User, "id" | "permissionGroupId">): Promise<UserWithPermissionGroup> {
     return await prisma.user.create({
-        data: user
+        data: {
+            ...user,
+            permissionGroup: {
+                connect: {
+                    name: "Member"
+                }
+            }
+        },
+        include: {
+            permissionGroup: true
+        }
     })
 }
 
@@ -215,7 +232,7 @@ export default {
     createSession,
     deleteSessionByToken,
     getUserBySessionToken,
-    getAllUsers,
+    getAllUsersWithPermissionGroup,
     createUser,
     updateUserReadingState,
     getBookReadingState,
