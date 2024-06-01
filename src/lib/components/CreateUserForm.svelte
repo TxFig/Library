@@ -1,19 +1,12 @@
 <script lang="ts">
-    import { enhance } from "$app/forms";
-    import SubmitFunctionFactory from "$lib/utils/submit-function-factory";
-    import { UserCreateSchema } from "$lib/validation/auth/user";
-
     export let formData: {
 		email: string,
 		username: string
 	}
 
-    const submitFunction = SubmitFunctionFactory(UserCreateSchema)
-
 </script>
 
 <form
-    use:enhance={submitFunction}
     method="post"
     class="modal-form border border-surface-500 p-4 space-y-4 rounded-container-token"
 >

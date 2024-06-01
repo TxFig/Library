@@ -3,58 +3,23 @@
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types";
     import CreateUserModalForm from "$lib/components/CreateUserModalForm.svelte"
-    import { getModalStore, getToastStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
-    import type { User } from "@prisma/client";
+    import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
-    import type { UserWithPermissionGroup } from "$lib/server/database/auth";
+    import type { UserWithPermissionGroup } from "$lib/server/database/auth"
 
     export let data: PageData
     let { users } = data
 
-    const toastStore = getToastStore()
 
     const modalStore = getModalStore()
-    const createUserModalComponent: ModalComponent = {
-        ref: CreateUserModalForm
-    }
     const createUserModal: ModalSettings = {
         type: "component",
-        component: createUserModalComponent,
+        component: { ref: CreateUserModalForm },
         title: "Create User Form",
-        async response(r) {
-            await createUserFormSubmit(r)
-        },
-    }
-
-    async function createUserFormSubmit(data: { email: string, username: string }) {
-        const response = await fetch("/api/user/", {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: data.email,
-                username: data.username
-            })
-        })
-
-        const json: {
-            status: 200,
-            message: string,
-            user: UserWithPermissionGroup
-        } | {
-            status: 500,
-            message: string
-        } = await response.json()
-
-        if (json.status == 200) {
-            users = [...users, json.user]
+        response(user: UserWithPermissionGroup) {
+            console.log(user)
+            users = [...users, user]
         }
-
-        toastStore.trigger({
-            message: json.message,
-            background: json.status == 200 ? "variant-filled-success" : "variant-filled-error"
-        })
     }
 
     function createUser() {
