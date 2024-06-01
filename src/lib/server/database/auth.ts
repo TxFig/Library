@@ -56,13 +56,11 @@ export async function sendConfirmationEmail(
         const token = uuidv4()
         const confirmationURL = `${ORIGIN}/auth/email-confirmation/${token}?redirect=${redirectPath}`
 
-        // await transport.sendMail({
-        //     to: user.email,
-        //     subject: "Library Email Confirmation",
-        //     text: confirmationEmailText(confirmationURL)
-        // })
-
-        console.log(confirmationURL)
+        await transport.sendMail({
+            to: user.email,
+            subject: "Library Email Confirmation",
+            text: confirmationEmailText(confirmationURL)
+        })
 
         await prisma.emailConfirmationRequest.create({
             data: {
