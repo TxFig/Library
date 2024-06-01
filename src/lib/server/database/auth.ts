@@ -8,7 +8,8 @@ import {
     EMAIL_PASSWORD,
     EMAIL_PORT,
     EMAIL_USER,
-    ORIGIN
+    ORIGIN,
+    SESSION_EXPIRATION_TIME
 } from "$env/static/private"
 import { type User, type EmailConfirmationRequest, ReadingState, type Session, type PermissionGroup } from "@prisma/client"
 
@@ -42,9 +43,9 @@ function confirmationEmailText(confirmationURL: string): string {
     `.trim()
 }
 
-function generateExpirationDate(): Date {
+function generateExpirationDate(time: number): Date {
     const now = new Date()
-    now.setSeconds(now.getSeconds() + +EMAIL_CONFIRMATION_EXPIRATION_TIME)
+    now.setSeconds(now.getSeconds() + time)
     return now
 }
 
@@ -65,7 +66,7 @@ export async function sendConfirmationEmail(
         await prisma.emailConfirmationRequest.create({
             data: {
                 token,
-                expireDate: generateExpirationDate(),
+                expireDate: generateExpirationDate(+EMAIL_CONFIRMATION_EXPIRATION_TIME),
                 userId: user.id
             }
         })
@@ -100,17 +101,17 @@ export function isSessionValid(session: Session): boolean {
     return session.expireDate.getTime() > Date.now()
 }
 
-export async function createSession(userId: number): Promise<string> {
+export async function createSession(userId: number): Promise<{ token: string, expireDate: Date }> {
     const token = uuidv4()
+    const expireDate = generateExpirationDate(+SESSION_EXPIRATION_TIME)
 
     await prisma.session.create({
         data: {
-            token, userId,
-            expireDate: generateExpirationDate()
+            token, userId, expireDate
         }
     })
 
-    return token
+    return { token, expireDate }
 }
 
 export async function deleteSessionByToken(token: string): Promise<void> {

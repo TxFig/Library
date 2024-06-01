@@ -23,9 +23,10 @@ export const GET: RequestHandler = async ({ params, cookies, url }) => {
 
     await db.auth.deleteEmailConfirmationRequestByToken(token)
 
-    const sessionToken = await db.auth.createSession(emailConfirmationRequest.userId)
+    const { token: sessionToken, expireDate } = await db.auth.createSession(emailConfirmationRequest.userId)
     cookies.set("sessionToken", sessionToken, {
-        path: "/"
+        path: "/",
+        expires: expireDate
     })
 
     const redirectPath = url.searchParams.get("redirect")
