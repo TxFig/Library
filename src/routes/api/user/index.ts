@@ -17,11 +17,7 @@ export const POST = async (data: any) => {
         const clearedData = clearEmptyFields(data)
         const parsedData = UserCreateSchema.parse(clearedData)
 
-        const user = await db.auth.createUser({
-            email: parsedData.email,
-            username: parsedData.username,
-            admin: false
-        })
+        const user = await db.auth.createUser({ ...parsedData })
         return json({
             user,
             message: "Successfully Created User"

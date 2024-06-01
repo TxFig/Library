@@ -4,14 +4,22 @@
     import CreateUserForm from "./CreateUserForm.svelte"
     import HttpCodes from "$lib/utils/http-codes"
     import type { POSTReturnType } from "@api/user";
-    import type { UserWithPermissionGroup } from "$lib/server/database/auth"
+    import type { CreateUserInput, UserWithPermissionGroup } from "$lib/server/database/auth"
+    import type { PermissionGroup } from "@prisma/client";
 
-    export let parent: SvelteComponent;
+    export let parent: SvelteComponent
+
+    export let permissionGroups: PermissionGroup[]
 
 	const modalStore = getModalStore()
     const toastStore = getToastStore()
 
-    let formData = { email: "", username: "" }
+    let formData = {
+        email: "",
+        username: "",
+        admin: false,
+        permissionGroup: ""
+    }
 	async function onFormSubmit(): Promise<void> {
         const user = await createUserFormSubmit(formData)
         if ($modalStore[0].response && user) {
@@ -20,16 +28,13 @@
         }
 	}
 
-    async function createUserFormSubmit(data: { email: string, username: string }): Promise<UserWithPermissionGroup | undefined> {
+    async function createUserFormSubmit(data: CreateUserInput): Promise<UserWithPermissionGroup | undefined> {
         const response = await fetch("/api/user/", {
             method: "post",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                email: data.email,
-                username: data.username
-            })
+            body: JSON.stringify({ ...data })
         })
 
         const json: POSTReturnType = await response.json()
@@ -48,7 +53,7 @@
 {#if $modalStore[0]}
 	<div class="card p-4 w-modal shadow-xl space-y-4">
 		<header class="text-2xl font-bold">{$modalStore[0].title}</header>
-		<CreateUserForm bind:formData={formData} />
+		<CreateUserForm bind:formData={formData} {permissionGroups}/>
 
         <footer class="modal-footer {parent.regionFooter}">
             <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>

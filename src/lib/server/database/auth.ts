@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid"
 import { prisma } from "."
 import nodemailer from "nodemailer"
 import {
+    DEFAULT_PERMISSION_GROUP_NAME,
     EMAIL_CONFIRMATION_EXPIRATION_TIME,
     EMAIL_FROM,
     EMAIL_HOST,
@@ -162,13 +163,17 @@ export async function getAllUsersWithPermissionGroup(): Promise<UserWithPermissi
     })
 }
 
-export async function createUser(user: Omit<User, "id" | "permissionGroupId">): Promise<UserWithPermissionGroup> {
+export type CreateUserInput = Omit<User, "id" | "permissionGroupId"> & {
+    permissionGroup?: string
+}
+export async function createUser(userAndPermissionGroupName: CreateUserInput): Promise<UserWithPermissionGroup> {
+    const { permissionGroup, ...user } = userAndPermissionGroupName
     return await prisma.user.create({
         data: {
             ...user,
             permissionGroup: {
                 connect: {
-                    name: "Member"
+                    name: permissionGroup ?? DEFAULT_PERMISSION_GROUP_NAME
                 }
             }
         },
@@ -222,6 +227,10 @@ export async function getUsersCount(): Promise<number> {
     return await prisma.user.count()
 }
 
+export async function getAllPermissionGroups(): Promise<PermissionGroup[]> {
+    return await prisma.permissionGroup.findMany()
+}
+
 export default {
     getUserByEmail,
     sendConfirmationEmail,
@@ -236,5 +245,6 @@ export default {
     updateUserReadingState,
     getBookReadingState,
     getUserAndSessionBySessionToken,
-    getUsersCount
+    getUsersCount,
+    getAllPermissionGroups
 }

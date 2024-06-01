@@ -12,7 +12,7 @@
 >
     <label class="label">
         <span>Email</span>
-        <input class="input" type="email" bind:value={formData.email} placeholder="Enter email..." />
+        <input class="input" type="email" value={formData.email} disabled />
     </label>
     <label class="label">
         <span>Username</span>

@@ -2,28 +2,46 @@
     import { page } from "$app/stores"
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types";
-    import CreateUserModalForm from "$lib/components/CreateUserModalForm.svelte"
+    import CreateUserModalForm from "$lib/components/admin/CreateUserModalForm.svelte"
     import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
     import type { UserWithPermissionGroup } from "$lib/server/database/auth"
+    import EditUserModalForm from "$lib/components/admin/EditUserModalForm.svelte";
 
     export let data: PageData
-    let { users } = data
-
+    let { users, permissionGroups } = data
 
     const modalStore = getModalStore()
     const createUserModal: ModalSettings = {
         type: "component",
-        component: { ref: CreateUserModalForm },
+        component: {
+            ref: CreateUserModalForm,
+            props: { permissionGroups }
+        },
         title: "Create User Form",
         response(user: UserWithPermissionGroup) {
-            console.log(user)
             users = [...users, user]
         }
     }
 
     function createUser() {
         modalStore.trigger(createUserModal)
+    }
+
+    function editUser(user: UserWithPermissionGroup) {
+        modalStore.trigger({
+            type: "component",
+            component: { ref: EditUserModalForm },
+            title: "Edit User Form",
+            response(user: UserWithPermissionGroup) {
+                users = users.map(u => u.id == user.id ? user : u)
+            }
+        })
+    }
+
+    function deleteUser(user: UserWithPermissionGroup) {
+        // TODO: delete user from database
+        users = users.filter(u => u.id != user.id)
     }
 
 </script>
@@ -48,6 +66,8 @@
                             <th>Email</th>
                             <th>Username</th>
                             <th>Permission Group</th>
+                            <th class="w-16">Edit</th>
+                            <th class="w-16">Delete</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -57,6 +77,16 @@
                                 <td>{user.email}</td>
                                 <td>{user.username}</td>
                                 <td>{user.permissionGroup?.name ?? "---"}</td>
+                                <td>
+                                    <button on:click={() => editUser(user)}>
+                                        <Icon icon="mdi:pencil" width="24" height="24"/>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button on:click={() => deleteUser(user)}>
+                                        <Icon icon="mdi:delete" width="24" height="24"/>
+                                    </button>
+                                </td>
                             </tr>
                         {/each}
                     </tbody>

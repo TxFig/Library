@@ -5,5 +5,7 @@ export const EmailSchema = z.string().min(1, "Required").email()
 
 export const UserCreateSchema = z.object({
     email: EmailSchema,
-    username: z.string()
+    username: z.string().min(1, "Required"),
+    admin: z.boolean().default(false),
+    permissionGroup: z.string().min(1, "Required")
 })
