@@ -31,8 +31,8 @@ model User {
 
   userBookReadingState UserBookReadingState[]
 
-  permissionGroupId Int?
-  permissionGroup   PermissionGroup? @relation(fields: [permissionGroupId], references: [id])
+  permissionGroupId Int
+  permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id])
 }
 
 model EmailConfirmationRequest {
