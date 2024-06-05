@@ -24,8 +24,9 @@
             props: { permissionGroups }
         },
         title: "Create User Form",
-        response(user: EntireUser) {
-            users = [...users, user]
+        response(user?: EntireUser) {
+            if (user)
+                users = [...users, user]
         }
     }
 
