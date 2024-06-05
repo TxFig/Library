@@ -9,7 +9,7 @@
 
     export let parent: SvelteComponent
 
-    export let permissionGroups: PermissionGroup[]
+    export let allPermissionGroups: PermissionGroup[]
 
 	const modalStore = getModalStore()
     const toastStore = getToastStore()
@@ -53,7 +53,7 @@
 {#if $modalStore[0]}
 	<div class="card p-4 w-modal shadow-xl space-y-4">
 		<header class="text-2xl font-bold">{$modalStore[0].title}</header>
-		<CreateUserForm bind:formData={formData} {permissionGroups}/>
+		<CreateUserForm bind:formData={formData} {allPermissionGroups}/>
 
         <footer class="modal-footer {parent.regionFooter}">
             <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>

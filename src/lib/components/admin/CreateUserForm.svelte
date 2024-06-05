@@ -10,7 +10,7 @@
         admin: boolean
 	}
 
-    export let permissionGroups: PermissionGroup[]
+    export let allPermissionGroups: PermissionGroup[]
 
     let selectedPermissionGroup: string
     $: formData.permissionGroup = selectedPermissionGroup
@@ -50,7 +50,7 @@
         </button>
         <div class="card w-48 shadow-xl py-2" data-popup="popupCombobox">
             <ListBox rounded="rounded-container-token">
-                {#each permissionGroups as permissionGroup}
+                {#each allPermissionGroups as permissionGroup}
                     <ListBoxItem bind:group={selectedPermissionGroup} name="permissionGroup" value={permissionGroup.name}>{permissionGroup.name}</ListBoxItem>
                 {/each}
             </ListBox>

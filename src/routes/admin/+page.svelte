@@ -12,7 +12,7 @@
 
 
     export let data: PageData
-    let { users, permissionGroups } = data
+    let { users, allPermissionGroups } = data
 
     const modalStore = getModalStore()
     const toastStore = getToastStore()
@@ -21,7 +21,7 @@
         type: "component",
         component: {
             ref: CreateUserModalForm,
-            props: { permissionGroups }
+            props: { allPermissionGroups }
         },
         title: "Create User Form",
         response(user?: EntireUser) {
@@ -33,6 +33,18 @@
     function createUser() {
         modalStore.trigger(createUserModal)
     }
+
+    const editUserModal: (user: EntireUser) => ModalSettings = (user) => ({
+        type: "component",
+        component: {
+            ref: EditUserModalForm,
+            props: { allPermissionGroups }
+        },
+        title: "Edit User Form",
+        response(user: EntireUser) {
+            users = users.map(u => u.id == user.id ? user : u)
+        }
+    })
 
     function editUser(user: EntireUser) {
         modalStore.trigger({
