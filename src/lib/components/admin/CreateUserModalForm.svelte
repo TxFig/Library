@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { SvelteComponent } from "svelte"
 	import { getModalStore, getToastStore } from "@skeletonlabs/skeleton"
-    import CreateUserForm from "./CreateUserForm.svelte"
+    import UserForm from "./UserForm.svelte"
     import HttpCodes from "$lib/utils/http-codes"
     import type { ResponseType } from "@api/user";
-    import type { CreateUserInput, EntireUser } from "$lib/server/database/auth"
+    import type { InsertUserInput, EntireUser } from "$lib/server/database/auth"
     import type { PermissionGroup } from "@prisma/client";
 
     export let parent: SvelteComponent
@@ -28,9 +28,9 @@
         }
 	}
 
-    async function createUserFormSubmit(data: CreateUserInput): Promise<EntireUser | undefined> {
+    async function createUserFormSubmit(data: InsertUserInput): Promise<EntireUser | undefined> {
         const response = await fetch("/api/user/", {
-            method: "post",
+            method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -53,7 +53,7 @@
 {#if $modalStore[0]}
 	<div class="card p-4 w-modal shadow-xl space-y-4">
 		<header class="text-2xl font-bold">{$modalStore[0].title}</header>
-		<CreateUserForm bind:formData={formData} {allPermissionGroups}/>
+		<UserForm bind:formData={formData} {allPermissionGroups}/>
 
         <footer class="modal-footer {parent.regionFooter}">
             <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>

@@ -171,17 +171,36 @@ export async function getAllEntireUsers(): Promise<EntireUser[]> {
     })
 }
 
-export type CreateUserInput = Omit<User, "id" | "permissionGroupId"> & {
-    permissionGroup?: string
+export type InsertUserInput = Omit<User, "id" | "permissionGroupId"> & {
+    permissionGroup: string
 }
-export async function createUser(userAndPermissionGroupName: CreateUserInput): Promise<EntireUser> {
+export async function createUser(userAndPermissionGroupName: InsertUserInput): Promise<EntireUser> {
     const { permissionGroup, ...user } = userAndPermissionGroupName
     return await prisma.user.create({
         data: {
             ...user,
             permissionGroup: {
                 connect: {
-                    name: permissionGroup ?? DEFAULT_PERMISSION_GROUP_NAME
+                    name: permissionGroup
+                }
+            }
+        },
+        include: {
+            permissionGroup: true,
+            userBookReadingState: true
+        }
+    })
+}
+
+export async function updateUser(userId: number, userAndPermissionGroupName: InsertUserInput): Promise<EntireUser> {
+    const { permissionGroup, ...user } = userAndPermissionGroupName
+    return await prisma.user.update({
+        where: { id: userId },
+        data: {
+            ...user,
+            permissionGroup: {
+                connect: {
+                    name: permissionGroup
                 }
             }
         },
@@ -261,6 +280,7 @@ export default {
     getUserBySessionToken,
     getAllEntireUsers,
     createUser,
+    updateUser,
     deleteUser,
     updateUserReadingState,
     getBookReadingState,

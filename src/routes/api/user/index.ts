@@ -1,7 +1,7 @@
 import { json } from "@sveltejs/kit"
 import db from "$lib/server/database/"
 import clearEmptyFields from "$lib/utils/clear-empty-fields"
-import { UserCreateSchema } from "$lib/validation/auth/user"
+import { UserInsertSchema } from "$lib/validation/auth/user"
 import type { EntireUser } from "$lib/server/database/auth"
 import HttpCodes from "$lib/utils/http-codes"
 import { z } from "zod"
@@ -16,7 +16,7 @@ export type ResponseType = {
 export const POST = async (data: any) => {
     try {
         const clearedData = clearEmptyFields(data)
-        const parsedData = UserCreateSchema.parse(clearedData)
+        const parsedData = UserInsertSchema.parse(clearedData)
 
         const user = await db.auth.createUser({ ...parsedData })
         return json({
@@ -53,8 +53,32 @@ export const DELETE = async (userId: string) => {
     }
 }
 
+export const PATCH = async (userId: string, data: any) => {
+    try {
+        const clearedData = clearEmptyFields(data)
+        const parsedData = UserInsertSchema.parse(clearedData)
+
+        const parsedId = z.coerce.number().parse(userId)
+        const user = await db.auth.updateUser(parsedId, parsedData)
+        return json({
+            user,
+            message: "Successfully Updated User"
+        }, {
+            status: HttpCodes.Success
+        })
+    } catch (error) {
+        console.log(error)
+        return json({
+            message: "Error Updating User"
+        }, {
+            status: HttpCodes.ClientError.BadRequest
+        })
+    }
+}
+
 
 export default {
     POST,
-    DELETE
+    DELETE,
+    PATCH
 }

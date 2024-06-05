@@ -38,23 +38,17 @@
         type: "component",
         component: {
             ref: EditUserModalForm,
-            props: { allPermissionGroups }
+            props: { allPermissionGroups, user }
         },
         title: "Edit User Form",
-        response(user: EntireUser) {
-            users = users.map(u => u.id == user.id ? user : u)
+        response(editedUser?: EntireUser) {
+            if (editedUser)
+                users = users.map(u => u.id == editedUser.id ? editedUser : u)
         }
     })
 
     function editUser(user: EntireUser) {
-        modalStore.trigger({
-            type: "component",
-            component: { ref: EditUserModalForm },
-            title: "Edit User Form",
-            response(user: EntireUser) {
-                users = users.map(u => u.id == user.id ? user : u)
-            }
-        })
+        modalStore.trigger(editUserModal(user))
     }
 
     const deleteUserModal: (user: EntireUser) => ModalSettings = (user) => ({

@@ -12,7 +12,7 @@
 
     export let allPermissionGroups: PermissionGroup[]
 
-    let selectedPermissionGroup: string
+    let selectedPermissionGroup: string = formData.permissionGroup
     $: formData.permissionGroup = selectedPermissionGroup
     const popupCombobox: PopupSettings = {
         event: "click",
@@ -21,7 +21,7 @@
         closeQuery: ".listbox-item",
     }
 
-    let admin: boolean = false;
+    let admin: boolean = formData.admin
     $: selectedPermissionGroup = admin ? "Admin" : selectedPermissionGroup
     $: formData.admin = admin
 
@@ -45,7 +45,7 @@
     <label class="label flex flex-col">
         <span>Permission Group</span>
         <button class="btn variant-filled w-48 justify-between" use:popup={popupCombobox}>
-            <span class="capitalize">{selectedPermissionGroup ?? "Select"}</span>
+            <span class="capitalize">{selectedPermissionGroup || "Select"}</span>
             <Icon icon="tabler:caret-down-filled" width="24" height="24" />
         </button>
         <div class="card w-48 shadow-xl py-2" data-popup="popupCombobox">
