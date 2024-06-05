@@ -5,7 +5,7 @@ import methods from "./index"
 
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-    if (!locals.user) {
+    if (!locals.user || locals.user.permissionGroup.name != "Admin") {
         error(HttpCodes.ClientError.Unauthorized, {
             message: "Need to be logged in to create users"
         })

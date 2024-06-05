@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     const permissionGroups = await db.auth.getAllPermissionGroups()
 
     return {
-        users: loggedIn ? await db.auth.getAllUsersWithPermissionGroup() : [],
+        users: loggedIn ? await db.auth.getAllEntireUsers() : [],
         permissionGroups
     }
 }

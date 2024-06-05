@@ -162,13 +162,11 @@ export async function getUserBySessionToken(sessionToken: string): Promise<User 
     })
 }
 
-export type UserWithPermissionGroup = User & {
-    permissionGroup: PermissionGroup | null
-}
-export async function getAllUsersWithPermissionGroup(): Promise<UserWithPermissionGroup[]> {
+export async function getAllEntireUsers(): Promise<EntireUser[]> {
     return await prisma.user.findMany({
         include: {
-            permissionGroup: true
+            permissionGroup: true,
+            userBookReadingState: true
         }
     })
 }
@@ -176,7 +174,7 @@ export async function getAllUsersWithPermissionGroup(): Promise<UserWithPermissi
 export type CreateUserInput = Omit<User, "id" | "permissionGroupId"> & {
     permissionGroup?: string
 }
-export async function createUser(userAndPermissionGroupName: CreateUserInput): Promise<UserWithPermissionGroup> {
+export async function createUser(userAndPermissionGroupName: CreateUserInput): Promise<EntireUser> {
     const { permissionGroup, ...user } = userAndPermissionGroupName
     return await prisma.user.create({
         data: {
@@ -188,7 +186,18 @@ export async function createUser(userAndPermissionGroupName: CreateUserInput): P
             }
         },
         include: {
-            permissionGroup: true
+            permissionGroup: true,
+            userBookReadingState: true
+        }
+    })
+}
+
+export async function deleteUser(id: number): Promise<EntireUser> {
+    return await prisma.user.delete({
+        where: { id },
+        include: {
+            permissionGroup: true,
+            userBookReadingState: true
         }
     })
 }
@@ -250,8 +259,9 @@ export default {
     createSession,
     deleteSessionByToken,
     getUserBySessionToken,
-    getAllUsersWithPermissionGroup,
+    getAllEntireUsers,
     createUser,
+    deleteUser,
     updateUserReadingState,
     getBookReadingState,
     getEntireUserAndSessionBySessionToken,

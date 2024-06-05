@@ -3,15 +3,20 @@
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types";
     import CreateUserModalForm from "$lib/components/admin/CreateUserModalForm.svelte"
-    import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
+    import { getModalStore, getToastStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
-    import type { UserWithPermissionGroup } from "$lib/server/database/auth"
     import EditUserModalForm from "$lib/components/admin/EditUserModalForm.svelte";
+    import HttpCodes from "$lib/utils/http-codes"
+    import type { ResponseType } from "@api/user";
+    import type { EntireUser } from "$lib/server/database/auth"
+
 
     export let data: PageData
     let { users, permissionGroups } = data
 
     const modalStore = getModalStore()
+    const toastStore = getToastStore()
+
     const createUserModal: ModalSettings = {
         type: "component",
         component: {
@@ -19,7 +24,7 @@
             props: { permissionGroups }
         },
         title: "Create User Form",
-        response(user: UserWithPermissionGroup) {
+        response(user: EntireUser) {
             users = [...users, user]
         }
     }
@@ -28,20 +33,31 @@
         modalStore.trigger(createUserModal)
     }
 
-    function editUser(user: UserWithPermissionGroup) {
+    function editUser(user: EntireUser) {
         modalStore.trigger({
             type: "component",
             component: { ref: EditUserModalForm },
             title: "Edit User Form",
-            response(user: UserWithPermissionGroup) {
+            response(user: EntireUser) {
                 users = users.map(u => u.id == user.id ? user : u)
             }
         })
     }
 
-    function deleteUser(user: UserWithPermissionGroup) {
-        // TODO: delete user from database
-        users = users.filter(u => u.id != user.id)
+    async function deleteUser(user: EntireUser) {
+        const response = await fetch(`/api/user/${user.id}`, {
+            method: "DELETE"
+        })
+
+        if (response.status == HttpCodes.Success) {
+            users = users.filter(u => u.id != user.id)
+        } else {
+            const json: ResponseType = await response.json()
+            toastStore.trigger({
+                message: json.message,
+                background: response.status == 200 ? "variant-filled-success" : "variant-filled-error"
+            })
+        }
     }
 
 </script>

@@ -3,8 +3,8 @@
 	import { getModalStore, getToastStore } from "@skeletonlabs/skeleton"
     import CreateUserForm from "./CreateUserForm.svelte"
     import HttpCodes from "$lib/utils/http-codes"
-    import type { POSTReturnType } from "@api/user";
-    import type { CreateUserInput, UserWithPermissionGroup } from "$lib/server/database/auth"
+    import type { ResponseType } from "@api/user";
+    import type { CreateUserInput, EntireUser } from "$lib/server/database/auth"
     import type { PermissionGroup } from "@prisma/client";
 
     export let parent: SvelteComponent
@@ -28,7 +28,7 @@
         }
 	}
 
-    async function createUserFormSubmit(data: CreateUserInput): Promise<UserWithPermissionGroup | undefined> {
+    async function createUserFormSubmit(data: CreateUserInput): Promise<EntireUser | undefined> {
         const response = await fetch("/api/user/", {
             method: "post",
             headers: {
@@ -37,7 +37,7 @@
             body: JSON.stringify({ ...data })
         })
 
-        const json: POSTReturnType = await response.json()
+        const json: ResponseType = await response.json()
         if (response.status == HttpCodes.Success) {
             return json.user
         }
