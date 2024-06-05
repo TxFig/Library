@@ -12,7 +12,7 @@ import {
     ORIGIN,
     SESSION_EXPIRATION_TIME
 } from "$env/static/private"
-import { type User, type EmailConfirmationRequest, ReadingState, type Session, type PermissionGroup } from "@prisma/client"
+import { type User, type EmailConfirmationRequest, ReadingState, type Session, type PermissionGroup, type UserBookReadingState } from "@prisma/client"
 
 
 const transport = nodemailer.createTransport({
@@ -121,15 +121,25 @@ export async function deleteSessionByToken(token: string): Promise<void> {
     })
 }
 
-export async function getUserAndSessionBySessionToken(sessionToken: string): Promise<
-    { user: User, session: Session } |
+
+export type EntireUser = User & {
+    permissionGroup: PermissionGroup
+    userBookReadingState: UserBookReadingState[]
+}
+export async function getEntireUserAndSessionBySessionToken(sessionToken: string): Promise<
+    { user: EntireUser, session: Session } |
     { user: null, session: null }
 > {
     const result = await prisma.session.findUnique({
         where: {
             token: sessionToken
         },
-        include: { user: true }
+        include: { user: {
+            include: {
+                permissionGroup: true,
+                userBookReadingState: true
+            }
+        } }
     })
 
     if (result) {
@@ -244,7 +254,7 @@ export default {
     createUser,
     updateUserReadingState,
     getBookReadingState,
-    getUserAndSessionBySessionToken,
+    getEntireUserAndSessionBySessionToken,
     getUsersCount,
     getAllPermissionGroups
 }

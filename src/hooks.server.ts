@@ -32,7 +32,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         (sessionToken && !validateUUID(sessionToken))
     ) return resolveWithoutUserAndSession()
 
-    const { user, session } = await db.auth.getUserAndSessionBySessionToken(sessionToken)
+    const { user, session } = await db.auth.getEntireUserAndSessionBySessionToken(sessionToken)
 
     if (!session) return resolveWithoutUserAndSession()
 

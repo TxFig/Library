@@ -1,6 +1,8 @@
 // See https://kit.svelte.dev/docs/types#app
 
-import type { Session, User } from "@prisma/client"
+import type { Session } from "@prisma/client"
+import type { EntireUser } from "$lib/server/database/auth"
+
 
 // for information about these interfaces
 declare global {
@@ -18,12 +20,12 @@ declare global {
         }
 
         interface Locals {
-            user: User | null
+            user: EntireUser | null
             session: Session | null
         }
 
         interface PageData {
-            user: User | null
+            user: EntireUser | null
         }
         // interface Platform {}
     }
