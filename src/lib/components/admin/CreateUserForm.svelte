@@ -46,7 +46,7 @@
         <span>Permission Group</span>
         <button class="btn variant-filled w-48 justify-between" use:popup={popupCombobox}>
             <span class="capitalize">{selectedPermissionGroup ?? "Select"}</span>
-            <Icon icon="icon-park-solid:down-one" width="24" height="24" />
+            <Icon icon="tabler:caret-down-filled" width="24" height="24" />
         </button>
         <div class="card w-48 shadow-xl py-2" data-popup="popupCombobox">
             <ListBox rounded="rounded-container-token">
