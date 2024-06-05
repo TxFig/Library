@@ -21,10 +21,9 @@ datasource db {
 //
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  username String  @unique
-  admin    Boolean @default(false)
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  username String @unique
 
   emailConfirmationRequest EmailConfirmationRequest?
   session                  Session[]

@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from "uuid"
 import { prisma } from "."
 import nodemailer from "nodemailer"
 import {
-    DEFAULT_PERMISSION_GROUP_NAME,
     EMAIL_CONFIRMATION_EXPIRATION_TIME,
     EMAIL_FROM,
     EMAIL_HOST,

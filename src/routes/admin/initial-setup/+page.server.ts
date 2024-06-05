@@ -16,7 +16,6 @@ export const load: PageServerLoad = async () => {
         const user = await db.auth.createUser({
             email: ADMIN_EMAIL,
             username: "Admin",
-            admin: true,
             permissionGroup: "Admin"
         })
 

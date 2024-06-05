@@ -18,7 +18,6 @@
     let formData = {
         email: user.email,
         username: user.username,
-        admin: user.admin,
         permissionGroup: user.permissionGroup.name
     }
 	async function onFormSubmit(): Promise<void> {

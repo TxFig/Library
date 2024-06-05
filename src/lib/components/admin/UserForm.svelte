@@ -1,13 +1,12 @@
 <script lang="ts">
     import Icon from "@iconify/svelte";
     import type { PermissionGroup } from "@prisma/client";
-    import { ListBox, ListBoxItem, SlideToggle, popup, type PopupSettings } from "@skeletonlabs/skeleton";
+    import { ListBox, ListBoxItem, popup, type PopupSettings } from "@skeletonlabs/skeleton";
 
     export let formData: {
 		email: string,
 		username: string,
         permissionGroup: string,
-        admin: boolean
 	}
 
     export let allPermissionGroups: PermissionGroup[]
@@ -20,11 +19,6 @@
         placement: "bottom",
         closeQuery: ".listbox-item",
     }
-
-    let admin: boolean = formData.admin
-    $: selectedPermissionGroup = admin ? "Admin" : selectedPermissionGroup
-    $: formData.admin = admin
-
 </script>
 
 <form
@@ -37,10 +31,6 @@
     <label class="label">
         <span>Username</span>
         <input class="input" type="text" bind:value={formData.username} placeholder="Enter username..." />
-    </label>
-    <label class="label flex items-center gap-2" for="slide">
-        <span>Admin</span>
-        <SlideToggle name="slide" bind:checked={admin} size="sm" />
     </label>
     <label class="label flex flex-col">
         <span>Permission Group</span>
