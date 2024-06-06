@@ -11,7 +11,7 @@ import {
     ORIGIN,
     SESSION_EXPIRATION_TIME
 } from "$env/static/private"
-import { type User, type EmailConfirmationRequest, ReadingState, type Session, type PermissionGroup, type UserBookReadingState } from "@prisma/client"
+import { type User, type EmailConfirmationRequest, ReadingState, type Session, type PermissionGroup, type UserBookReadingState, type Permission } from "@prisma/client"
 
 
 const transport = nodemailer.createTransport({
@@ -122,7 +122,9 @@ export async function deleteSessionByToken(token: string): Promise<void> {
 
 
 export type EntireUser = User & {
-    permissionGroup: PermissionGroup
+    permissionGroup: PermissionGroup & {
+        permissions: Permission[]
+    }
     userBookReadingState: UserBookReadingState[]
 }
 export async function getEntireUserAndSessionBySessionToken(sessionToken: string): Promise<
@@ -135,7 +137,11 @@ export async function getEntireUserAndSessionBySessionToken(sessionToken: string
         },
         include: { user: {
             include: {
-                permissionGroup: true,
+                permissionGroup: {
+                    include: {
+                        permissions: true
+                    }
+                },
                 userBookReadingState: true
             }
         } }
@@ -164,7 +170,11 @@ export async function getUserBySessionToken(sessionToken: string): Promise<User 
 export async function getAllEntireUsers(): Promise<EntireUser[]> {
     return await prisma.user.findMany({
         include: {
-            permissionGroup: true,
+            permissionGroup: {
+                include: {
+                    permissions: true
+                }
+            },
             userBookReadingState: true
         }
     })
@@ -185,7 +195,11 @@ export async function createUser(userAndPermissionGroupName: InsertUserInput): P
             }
         },
         include: {
-            permissionGroup: true,
+            permissionGroup: {
+                include: {
+                    permissions: true
+                }
+            },
             userBookReadingState: true
         }
     })
@@ -204,7 +218,11 @@ export async function updateUser(userId: number, userAndPermissionGroupName: Ins
             }
         },
         include: {
-            permissionGroup: true,
+            permissionGroup: {
+                include: {
+                    permissions: true
+                }
+            },
             userBookReadingState: true
         }
     })
@@ -214,7 +232,11 @@ export async function deleteUser(id: number): Promise<EntireUser> {
     return await prisma.user.delete({
         where: { id },
         include: {
-            permissionGroup: true,
+            permissionGroup: {
+                include: {
+                    permissions: true
+                }
+            },
             userBookReadingState: true
         }
     })
