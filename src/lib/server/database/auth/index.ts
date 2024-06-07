@@ -3,6 +3,7 @@ import session from "./session"
 import emailConfirmation from "./email-confirmation"
 import readingState from "./reading-state"
 import permissionGroup from "./permission-group"
+import permission from "./permission"
 
 
 export default {
@@ -10,5 +11,6 @@ export default {
     session,
     emailConfirmation,
     readingState,
-    permissionGroup
+    permissionGroup,
+    permission
 }

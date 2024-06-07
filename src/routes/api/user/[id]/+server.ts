@@ -2,12 +2,7 @@ import type { RequestHandler } from "./$types"
 import { error } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
 import methods from "../index"
-import type { EntireUser } from "$lib/server/database/auth/user"
-
-
-function isUserAdmin(user: EntireUser): boolean {
-    return user.permissionGroup.permissions.some(p => p.name == "Admin")
-}
+import { isUserAdmin } from "$lib/utils/permissions"
 
 
 
