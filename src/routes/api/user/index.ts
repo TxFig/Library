@@ -2,7 +2,7 @@ import { json } from "@sveltejs/kit"
 import db from "$lib/server/database/"
 import clearEmptyFields from "$lib/utils/clear-empty-fields"
 import { UserInsertSchema } from "$lib/validation/auth/user"
-import type { EntireUser } from "$lib/server/database/auth"
+import type { EntireUser } from "$lib/server/database/auth/user"
 import HttpCodes from "$lib/utils/http-codes"
 import { z } from "zod"
 
@@ -18,7 +18,7 @@ export const POST = async (data: any) => {
         const clearedData = clearEmptyFields(data)
         const parsedData = UserInsertSchema.parse(clearedData)
 
-        const user = await db.auth.createUser({ ...parsedData })
+        const user = await db.auth.user.createUser({ ...parsedData })
         return json({
             user,
             message: "Successfully Created User"
@@ -37,7 +37,7 @@ export const POST = async (data: any) => {
 export const DELETE = async (userId: string) => {
     try {
         const parsedId = z.coerce.number().parse(userId)
-        const user = await db.auth.deleteUser(parsedId)
+        const user = await db.auth.user.deleteUser(parsedId)
         return json({
             user,
             message: "Successfully Deleted User"
@@ -59,7 +59,7 @@ export const PATCH = async (userId: string, data: any) => {
         const parsedData = UserInsertSchema.parse(clearedData)
 
         const parsedId = z.coerce.number().parse(userId)
-        const user = await db.auth.updateUser(parsedId, parsedData)
+        const user = await db.auth.user.updateUser(parsedId, parsedData)
         return json({
             user,
             message: "Successfully Updated User"

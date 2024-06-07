@@ -23,7 +23,7 @@ export async function close() {
 
 
 import book from "./book"
-import auth from "./auth"
+import auth from "./auth/"
 
 export default {
     book,

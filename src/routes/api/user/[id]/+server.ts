@@ -2,10 +2,17 @@ import type { RequestHandler } from "./$types"
 import { error } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
 import methods from "../index"
+import type { EntireUser } from "$lib/server/database/auth/user"
+
+
+function isUserAdmin(user: EntireUser): boolean {
+    return user.permissionGroup.permissions.some(p => p.name == "Admin")
+}
+
 
 
 export const DELETE: RequestHandler = async ({ params, locals }) => {
-    if (!locals.user || locals.user.permissionGroup.name != "Admin") {
+    if (!locals.user || !isUserAdmin(locals.user)) {
         error(HttpCodes.ClientError.Unauthorized, {
             message: "Need to be logged in to delete users"
         })

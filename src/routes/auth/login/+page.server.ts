@@ -2,6 +2,7 @@ import db from "$lib/server/database/";
 import { fail, type Actions } from "@sveltejs/kit";
 import HttpCodes from "$lib/utils/http-codes"
 import { EmailSchema } from "$lib/validation/auth/user";
+import isDateExpired from "$lib/utils/is-date-expired";
 
 
 export const actions: Actions = {
@@ -18,7 +19,7 @@ export const actions: Actions = {
         }
 
         const email = parsingResult.data
-        const user = await db.auth.getUserByEmail(email)
+        const user = await db.auth.user.getUserByEmail(email)
         if (!user) {
             return fail(HttpCodes.ClientError.BadRequest, {
                 error: undefined,
@@ -27,20 +28,20 @@ export const actions: Actions = {
         }
 
         if (user.emailConfirmationRequest) {
-            if (db.auth.validateExpireTime(user.emailConfirmationRequest.expireDate)) {
+            if (!isDateExpired(user.emailConfirmationRequest.expireDate)) {
                 return fail(HttpCodes.ClientError.BadRequest, {
                     error: undefined,
                     message: "A email confirmation request already was sent"
                 })
             } else {
-                db.auth.deleteEmailConfirmationRequestByToken(
+                db.auth.emailConfirmation.deleteEmailConfirmationRequestByToken(
                     user.emailConfirmationRequest.token
                 )
             }
         }
 
         const redirectPath = url.searchParams.get("redirect") ?? undefined
-        const error = await db.auth.sendConfirmationEmail(user, redirectPath)
+        const error = await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, redirectPath)
         if (error) {
             return fail(HttpCodes.ServerError.InternalServerError, {
                 error: undefined,

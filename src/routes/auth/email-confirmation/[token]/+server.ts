@@ -3,6 +3,7 @@ import type { RequestHandler } from "./$types";
 import { validate } from "uuid"
 import db from "$lib/server/database/";
 import HttpCodes from "$lib/utils/http-codes";
+import isDateExpired from "$lib/utils/is-date-expired";
 
 
 export const GET: RequestHandler = async ({ params, cookies, url }) => {
@@ -12,18 +13,18 @@ export const GET: RequestHandler = async ({ params, cookies, url }) => {
         throw redirect(HttpCodes.SeeOther, "/auth/login/")
     }
 
-    const emailConfirmationRequest = await db.auth.getEmailConfirmationRequestByToken(token)
+    const emailConfirmationRequest = await db.auth.emailConfirmation.getEmailConfirmationRequestByToken(token)
     if (!emailConfirmationRequest) {
         throw redirect(HttpCodes.SeeOther, "/auth/login/")
     }
-    else if (emailConfirmationRequest && !db.auth.validateExpireTime(emailConfirmationRequest.expireDate)) {
-        await db.auth.deleteEmailConfirmationRequestByToken(token)
+    else if (emailConfirmationRequest && isDateExpired(emailConfirmationRequest.expireDate)) {
+        await db.auth.emailConfirmation.deleteEmailConfirmationRequestByToken(token)
         throw redirect(HttpCodes.SeeOther, "/auth/login/")
     }
 
-    await db.auth.deleteEmailConfirmationRequestByToken(token)
+    await db.auth.emailConfirmation.deleteEmailConfirmationRequestByToken(token)
 
-    const { token: sessionToken, expireDate } = await db.auth.createSession(emailConfirmationRequest.userId)
+    const { token: sessionToken, expireDate } = await db.auth.session.createSession(emailConfirmationRequest.userId)
     cookies.set("sessionToken", sessionToken, {
         path: "/",
         expires: expireDate

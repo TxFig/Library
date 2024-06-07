@@ -1,6 +1,6 @@
 import { SESSION_COOKIE_NAME } from "$env/static/private"
 import db from "$lib/server/database/"
-import { isSessionValid } from "$lib/server/database/auth";
+import isDateExpired from "$lib/utils/is-date-expired";
 import type { Handle } from "@sveltejs/kit"
 import { validate as validateUUID } from "uuid"
 
@@ -32,12 +32,12 @@ export const handle: Handle = async ({ event, resolve }) => {
         (sessionToken && !validateUUID(sessionToken))
     ) return resolveWithoutUserAndSession()
 
-    const { user, session } = await db.auth.getEntireUserAndSessionBySessionToken(sessionToken)
+    const { user, session } = await db.auth.session.getEntireUserAndSessionBySessionToken(sessionToken)
 
     if (!session) return resolveWithoutUserAndSession()
 
-    if (session && !isSessionValid(session)) {
-        await db.auth.deleteSessionByToken(sessionToken)
+    if (session && isDateExpired(session.expireDate)) {
+        await db.auth.session.deleteSessionByToken(sessionToken)
         return resolveWithoutUserAndSession()
     }
 

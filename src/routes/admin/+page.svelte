@@ -8,7 +8,7 @@
     import EditUserModalForm from "$lib/components/admin/EditUserModalForm.svelte";
     import HttpCodes from "$lib/utils/http-codes"
     import type { ResponseType } from "@api/user";
-    import type { EntireUser } from "$lib/server/database/auth"
+    import type { EntireUser } from "$lib/server/database/auth/user"
 
 
     export let data: PageData

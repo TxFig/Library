@@ -1,4 +1,4 @@
-import { AllReadingStates } from "$lib/server/database/auth"
+import { AllReadingStates } from "$lib/server/database/auth/reading-state"
 import { z } from "zod"
 import { ISBNSchema } from "./isbn"
 

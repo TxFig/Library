@@ -5,8 +5,9 @@
     import ImageDisplayer from "$lib/components/ImageDisplayer.svelte"
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
-    import type { AllReadingState } from "$lib/server/database/auth";
+    import type { AllReadingState } from "$lib/server/database/auth/reading-state";
     import type { ReadingStateUpdateSchema } from "$lib/validation/reading-state";
+
 
     export let data: PageData
     const { book, readingState } = data
