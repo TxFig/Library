@@ -17,6 +17,29 @@ datasource db {
 }
 
 //
+// activity.prisma
+//
+
+model Activity {
+  id        Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id])
+  userId    Int
+  type      ActivityType
+  metadata  Json
+}
+
+enum ActivityType {
+  BOOK_ADDED
+  BOOK_UPDATED
+  BOOK_DELETED
+  BOOK_BORROWED
+  USER_CREATED
+  USER_UPDATED
+  USER_DELETED
+}
+
+//
 // auth.prisma
 //
 
@@ -32,6 +55,7 @@ model User {
 
   permissionGroupId Int
   permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id])
+  Activity          Activity[]
 }
 
 model EmailConfirmationRequest {

@@ -1,5 +1,6 @@
 import type { EmailConfirmationRequest, Permission, PermissionGroup, User, UserBookReadingState } from "@prisma/client"
 import { prisma } from ".."
+import type { UserCreateData, UserUpdateData } from "$lib/validation/auth/user"
 
 
 export type EntireUser = User & {
@@ -20,11 +21,8 @@ export const EntireUserInclude = {
     emailConfirmationRequest: true
 }
 
-export type CreateUserInput = Omit<User, "id" | "permissionGroupId"> & {
-    permissionGroup: string
-}
-export async function createUser(input: CreateUserInput): Promise<EntireUser> {
-    const { permissionGroup, ...user } = input
+export async function createUser(data: UserCreateData): Promise<EntireUser> {
+    const { permissionGroup, ...user } = data
     return await prisma.user.create({
         data: {
             ...user,
@@ -38,11 +36,8 @@ export async function createUser(input: CreateUserInput): Promise<EntireUser> {
     })
 }
 
-export type UpdateUserInput = Omit<User, "id" | "permissionGroupId"> & {
-    permissionGroup: string
-}
-export async function updateUser(id: number, input: UpdateUserInput): Promise<EntireUser> {
-    const { permissionGroup, ...user } = input
+export async function updateUser(id: number, data: UserUpdateData): Promise<EntireUser> {
+    const { permissionGroup, ...user } = data
     return await prisma.user.update({
         where: { id },
         data: {
