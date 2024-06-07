@@ -1,12 +1,19 @@
-import type { PermissionGroup } from "@prisma/client";
+import type { Permission, PermissionGroup } from "@prisma/client";
 import { prisma } from "..";
 
 
-export async function getAllPermissionGroups(): Promise<PermissionGroup[]> {
-    return await prisma.permissionGroup.findMany()
+export type PermissionGroupWithAssociatedPermissions = PermissionGroup & {
+    permissions: Permission[]
+}
+export async function getAllPermissionGroupsAndAssociatedPermissions(): Promise<PermissionGroupWithAssociatedPermissions[]> {
+    return await prisma.permissionGroup.findMany({
+        include: {
+            permissions: true
+        }
+    })
 }
 
 
 export default {
-    getAllPermissionGroups
+    getAllPermissionGroupsAndAssociatedPermissions
 }

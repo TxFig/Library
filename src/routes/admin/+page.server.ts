@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     const sessionToken = cookies.get("sessionToken")
     const loggedIn = Boolean(sessionToken && validate(sessionToken))
 
-    const allPermissionGroups = await db.auth.permissionGroup.getAllPermissionGroups()
+    const allPermissionGroups = await db.auth.permissionGroup.getAllPermissionGroupsAndAssociatedPermissions()
     const allPermissions = await db.auth.permission.getAllPermissions()
 
     return {

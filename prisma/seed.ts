@@ -9,7 +9,7 @@ const permissions = [
     { name: "Delete Book", description: "Allows the use to remove books from the library."         },
     { name: "Borrow Book", description: "Allows the user to borrow books from the library."        },
     { name: "View Book"  , description: "Allows the user to view details of books in the library." },
-    { name: "Admin"      , description: "Has all permissions"                                      }
+    { name: "Admin"      , description: "Has access to the admin panel."                           }
 ] as const
 
 type PermissionsNames = (typeof permissions)[number]["name"][]

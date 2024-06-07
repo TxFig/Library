@@ -21,7 +21,7 @@
 {:else}
     <TabGroup>
         <Tab bind:group={tabSet} name="users" value={0}>Users</Tab>
-        <Tab bind:group={tabSet} name="permission-groups" value={1}>Permission Groups</Tab>
+        <Tab bind:group={tabSet} name="permission-groups" value={1}>Permissions</Tab>
         <Tab bind:group={tabSet} name="activity" value={2}>Activity</Tab>
         <!-- Tab Panels --->
         <svelte:fragment slot="panel">
