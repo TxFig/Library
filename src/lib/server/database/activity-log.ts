@@ -1,44 +1,33 @@
 import type { Activity, ActivityType } from "@prisma/client"
 import { prisma } from "."
-import { BookCreateSchema, BookUpdateSchema } from "$lib/validation/book-form"
+import { type BookCreateData, type BookUpdateData } from "$lib/validation/book-form"
 import { z } from "zod"
-import { ISBNSchema } from "$lib/validation/isbn"
-import { UserCreateSchema, UserUpdateSchema } from "$lib/validation/auth/user"
+import { UserCreateSchema, UserUpdateSchema, type UserCreateData, type UserUpdateData } from "$lib/validation/auth/user"
 
 
 export function getEntireActivityLog(): Promise<Activity[]> {
     return prisma.activity.findMany()
 }
 
-const MetadataSchemas = {
-    BOOK_ADDED: BookCreateSchema,
-    BOOK_UPDATED: BookUpdateSchema,
-    BOOK_DELETED: z.object({
-        isbn: ISBNSchema
-    }),
-    BOOK_BORROWED: z.object({
-        bookId: z.number(),
-        userId: z.number()
-    }),
-    USER_CREATED: UserCreateSchema,
-    USER_UPDATED: UserUpdateSchema,
-    USER_DELETED: z.object({
-        userId: z.number()
-    })
-} as const
+type MetadataSchemas = {
+    BOOK_ADDED: BookCreateData,
+    BOOK_UPDATED: BookUpdateData,
+    BOOK_DELETED: { isbn: bigint },
+    BOOK_BORROWED: never, // TODO
+    USER_CREATED: UserCreateData,
+    USER_UPDATED: UserUpdateData,
+    USER_DELETED: { userId: number }
+}
 
-export async function logActivity(
+export async function logActivity<Type extends ActivityType>(
     userId: number,
-    type: ActivityType,
-    metadata: z.input<typeof MetadataSchemas[typeof type]>
+    type: Type,
+    metadata: MetadataSchemas[Type]
 ): Promise<Activity> {
-    const schema = MetadataSchemas[type]
-    const parsedMetadata = schema.parse(metadata)
-
     return await prisma.activity.create({
         data: {
             type,
-            metadata: JSON.stringify(parsedMetadata),
+            metadata: JSON.stringify(metadata),
             user: {
                 connect: {
                     id: userId

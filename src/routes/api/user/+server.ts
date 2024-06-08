@@ -11,5 +11,5 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         })
     }
     const data = await request.json()
-    return methods.POST(data)
+    return methods.POST(locals.user, data)
 }

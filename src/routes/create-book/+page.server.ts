@@ -6,6 +6,7 @@ import HttpCodes from "$lib/utils/http-codes"
 import API from "@api"
 import { HttpError } from "$lib/utils/custom-errors"
 import type { PostMethodReturn } from "@api/book"
+import { hasPermission } from "$lib/utils/permissions"
 
 
 export const load: PageServerLoad = async () => ({
@@ -18,7 +19,7 @@ export const load: PageServerLoad = async () => ({
 
 export const actions: Actions = {
     default: async ({ request, locals }) => {
-        if (!locals.user) {
+        if (!locals.user || !hasPermission(locals.user, "Create Book")) {
             error(HttpCodes.ClientError.Unauthorized, {
                 message: "Need to be logged in"
             })
@@ -28,7 +29,7 @@ export const actions: Actions = {
 
         let info: PostMethodReturn
         try {
-            info = await API.book.POST(formData)
+            info = await API.book.POST(locals.user, formData)
 
             if (!info.success)
                 return fail(info.code, info)

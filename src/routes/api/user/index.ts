@@ -13,14 +13,17 @@ export type ResponseType = {
     user?: EntireUser
 }
 
-export const POST = async (data: any) => {
+export const POST = async (user: EntireUser, data: any) => {
     try {
         const clearedData = clearEmptyFields(data)
         const parsedData = UserCreateSchema.parse(clearedData)
 
-        const user = await db.auth.user.createUser({ ...parsedData })
+        const createdUser = await db.auth.user.createUser({ ...parsedData })
+
+        await db.activityLog.logActivity(user.id, "USER_CREATED", parsedData)
+
         return json({
-            user,
+            user: createdUser,
             message: "Successfully Created User"
         }, {
             status: HttpCodes.Success
@@ -34,12 +37,17 @@ export const POST = async (data: any) => {
     }
 }
 
-export const DELETE = async (userId: string) => {
+export const DELETE = async (user: EntireUser, userId: string) => {
     try {
         const parsedId = z.coerce.number().parse(userId)
-        const user = await db.auth.user.deleteUser(parsedId)
+        const deletedUser = await db.auth.user.deleteUser(parsedId)
+
+        await db.activityLog.logActivity(user.id, "USER_DELETED", {
+            userId: deletedUser.id
+        })
+
         return json({
-            user,
+            user: deletedUser,
             message: "Successfully Deleted User"
         }, {
             status: HttpCodes.Success
@@ -53,15 +61,18 @@ export const DELETE = async (userId: string) => {
     }
 }
 
-export const PATCH = async (userId: string, data: any) => {
+export const PATCH = async (user: EntireUser, userId: string, data: any) => {
     try {
         const clearedData = clearEmptyFields(data)
         const parsedData = UserUpdateSchema.parse(clearedData)
 
         const parsedId = z.coerce.number().parse(userId)
-        const user = await db.auth.user.updateUser(parsedId, parsedData)
+        const updatedUser = await db.auth.user.updateUser(parsedId, parsedData)
+
+        await db.activityLog.logActivity(user.id, "USER_UPDATED", parsedData)
+
         return json({
-            user,
+            user: updatedUser,
             message: "Successfully Updated User"
         }, {
             status: HttpCodes.Success

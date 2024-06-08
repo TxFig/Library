@@ -14,6 +14,7 @@ import { decode as decodeFormData } from "decode-formdata"
 import clearEmptyFields from "$lib/utils/clear-empty-fields"
 import type { z } from "zod"
 import type { Book } from "@prisma/client"
+import type { EntireUser } from "$lib/server/database/auth/user"
 
 
 export type PostMethodReturn = {
@@ -27,7 +28,7 @@ export type PostMethodReturn = {
     message?: string
     success: false
 }
-export async function POST(formData: FormData): Promise<PostMethodReturn> {
+export async function POST(user: EntireUser, formData: FormData): Promise<PostMethodReturn> {
     const decodedFormData = decodeFormData<BookCreateDataWithImageFiles>(formData, BookCreateSchemaDecodeInfo)
     const data = clearEmptyFields(decodedFormData)
 
@@ -70,6 +71,7 @@ export async function POST(formData: FormData): Promise<PostMethodReturn> {
 
     try {
         await db.book.createBook(createBookData)
+        await db.activityLog.logActivity(user.id, "BOOK_ADDED", createBookData)
     } catch {
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error creating book in database")
     }
@@ -92,7 +94,7 @@ export type PatchMethodReturn = {
     message?: string
     success: false
 }
-export async function PATCH(formData: FormData): Promise<PatchMethodReturn> {
+export async function PATCH(user: EntireUser, formData: FormData): Promise<PatchMethodReturn> {
     const decodedFormData = decodeFormData<BookCreateDataWithImageFiles>(formData, BookUpdateSchemaDecodeInfo)
     const data = clearEmptyFields(decodedFormData)
 
@@ -125,6 +127,7 @@ export async function PATCH(formData: FormData): Promise<PatchMethodReturn> {
     let book: Book
     try {
         book = await db.book.updateBook(updateBookData)
+        await db.activityLog.logActivity(user.id, "BOOK_UPDATED", updateBookData)
     } catch {
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error updating book in database")
     }

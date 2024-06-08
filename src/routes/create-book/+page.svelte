@@ -42,9 +42,15 @@
             errors = error.format()
         },
         async (result) => {
-            if (result.type == "failure" && result.data?.message) {
+            if (result.type == "failure"  && result.data?.message) {
                 toastStore.trigger({
                     message: result.data.message,
+                    background: "variant-filled-error"
+                })
+            }
+            else if (result.type == "error") {
+                toastStore.trigger({
+                    message: result.error.message,
                     background: "variant-filled-error"
                 })
             }

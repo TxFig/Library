@@ -12,7 +12,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
             message: "Need to be logged in to delete users"
         })
     }
-    return methods.DELETE(params.id)
+    return methods.DELETE(locals.user, params.id)
 }
 
 export const PATCH: RequestHandler = async ({ params, locals, request }) => {
@@ -22,7 +22,7 @@ export const PATCH: RequestHandler = async ({ params, locals, request }) => {
         })
     }
 
-    return methods.PATCH(params.id, await request.json())
+    return methods.PATCH(locals.user, params.id, await request.json())
 }
 
 // export const DELETE: RequestHandler = applyDecorators(decorators.ensureAdmin(), methods.DELETE)

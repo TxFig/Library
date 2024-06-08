@@ -8,10 +8,17 @@ import methods from "."
 import { parseISBN, parseOptionalISBN } from "$lib/validation/isbn"
 import type { EntireBook } from "$lib/server/database/book"
 import type { Book } from "@prisma/client"
+import { hasPermission } from "$lib/utils/permissions"
 
 
 // Create Book
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
+    if (!locals.user || !hasPermission(locals.user, "Create Book")) {
+        error(HttpCodes.ClientError.Unauthorized, {
+            message: "Need to be logged in to create books"
+        })
+    }
+
     let formData: FormData
 
     try {
@@ -23,7 +30,7 @@ export const POST: RequestHandler = async ({ request }) => {
     }
 
     try {
-        await methods.POST(formData)
+        await methods.POST(locals.user, formData)
     }
     catch (err) {
         if (err instanceof HttpError) {
@@ -80,7 +87,13 @@ export const GET: RequestHandler = async ({ url }) => {
 }
 
 // Update Book
-export const PATCH: RequestHandler = async ({ request }) => {
+export const PATCH: RequestHandler = async ({ request, locals }) => {
+    if (!locals.user || !hasPermission(locals.user, "Edit Book")) {
+        error(HttpCodes.ClientError.Unauthorized, {
+            message: "Need to be logged in to edit books"
+        })
+    }
+
     let formData: FormData
 
     try {
@@ -92,7 +105,7 @@ export const PATCH: RequestHandler = async ({ request }) => {
     }
 
     try {
-        await methods.PATCH(formData)
+        await methods.PATCH(locals.user, formData)
     }
     catch (err) {
         if (err instanceof HttpError) {
@@ -109,7 +122,7 @@ export const PATCH: RequestHandler = async ({ request }) => {
 
 // Delete Book
 export const DELETE: RequestHandler = async ({ url, locals }) => {
-    if (!locals.user) {
+    if (!locals.user || !hasPermission(locals.user, "Delete Book")) {
         error(HttpCodes.ClientError.Unauthorized, {
             message: "Need to be logged in"
         })
@@ -128,6 +141,9 @@ export const DELETE: RequestHandler = async ({ url, locals }) => {
 
     try {
         await db.book.deleteBook(isbn!)
+        await db.activityLog.logActivity(locals.user.id, "BOOK_DELETED", {
+            isbn: isbn!
+        })
     } catch (err) {
         error(HttpCodes.ServerError.InternalServerError, {
             message: "Error deleting book in database"
