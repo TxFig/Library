@@ -23,7 +23,7 @@ model EmailConfirmationRequest {
     token      String   @unique
     expireDate DateTime
 
-    user   User @relation(fields: [userId], references: [id])
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId Int  @unique
 }
 
