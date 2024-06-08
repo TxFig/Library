@@ -3,19 +3,27 @@ import { prisma } from ".."
 
 
 export async function updateUserReadingState(bookId: number, userId: number, state: ReadingState): Promise<void> {
-    await prisma.userBookReadingState.upsert({
-        where: {
-            userId_bookId: { bookId, userId }
-        },
-        create: {
-            state,
-            bookId,
-            userId
-        },
-        update: {
-            state
-        }
-    })
+    if (state === ReadingState.READ) {
+        await prisma.userBookReadingState.delete({
+            where: {
+                userId_bookId: { bookId, userId }
+            }
+        })
+    } else {
+        await prisma.userBookReadingState.upsert({
+            where: {
+                userId_bookId: { bookId, userId }
+            },
+            create: {
+                state,
+                bookId,
+                userId
+            },
+            update: {
+                state
+            }
+        })
+    }
 }
 
 export async function getBookReadingState(bookId: number, userId: number): Promise<ReadingState | null> {
