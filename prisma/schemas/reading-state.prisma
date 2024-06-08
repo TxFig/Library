@@ -4,14 +4,15 @@ import { User } from "auth"
 
 model UserBookReadingState {
     userId Int
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
     bookId Int
-    book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+    book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
     state ReadingState
 
     @@id([userId, bookId])
 }
+
 
 enum ReadingState {
     NOT_READ

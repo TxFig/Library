@@ -16,21 +16,24 @@
 
 <p class="text-2xl">{pageUser.username}</p>
 <p>{pageUser.permissionGroup.name}</p>
-{#if booksReading.length > 0}
-    <hr class="my-4" />
-    <p class="text-xl">Books Reading:</p>
-    <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">
-        {#each booksReading as book}
-            <div class="snap-start shrink-0 card py-12 w-24 text-center">{book.title}</div>
-        {/each}
-    </div>
-{/if}
-{#if booksRead.length > 0}
-    <hr class="my-4" />
-    <p class="text-xl">Books Read:</p>
-    <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">
-        {#each booksRead as book}
-            <div class="snap-start shrink-0 card py-12 w-24 text-center">{book.title}</div>
-        {/each}
-    </div>
+
+{#if pageUser.userSettings?.visibleReadingState}
+    {#if booksReading.length > 0}
+        <hr class="my-4" />
+        <p class="text-xl">Books Reading:</p>
+        <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">
+            {#each booksReading as book}
+                <a href={`/book/${book.isbn}`} class="snap-start shrink-0 card py-12 w-24 text-center">{book.title}</a>
+            {/each}
+        </div>
+    {/if}
+    {#if booksRead.length > 0}
+        <hr class="my-4" />
+        <p class="text-xl">Books Read:</p>
+        <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">
+            {#each booksRead as book}
+                <a href={`/book/${book.isbn}`} class="snap-start shrink-0 card py-12 w-24 text-center">{book.title}</a>
+            {/each}
+        </div>
+    {/if}
 {/if}

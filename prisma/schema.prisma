@@ -58,6 +58,17 @@ model User {
   permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id])
 
   activities Activity[]
+
+  userSettings UserSettings?
+}
+
+model UserSettings {
+  id Int @id @default(autoincrement())
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  visibleReadingState Boolean @default(false)
 }
 
 model EmailConfirmationRequest {
