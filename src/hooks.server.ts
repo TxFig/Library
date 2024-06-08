@@ -5,18 +5,6 @@ import type { Handle } from "@sveltejs/kit"
 import { validate as validateUUID } from "uuid"
 
 
-// https://github.com/GoogleChromeLabs/jsbi/issues/30#issuecomment-1006088574
-declare global {
-    interface BigInt {
-        /** Convert to BigInt to string form in JSON.stringify */
-        toJSON: () => string;
-    }
-}
-
-BigInt.prototype.toJSON = function() { return this.toString() }
-// ----------------------------------------------------------------------------
-
-
 export const handle: Handle = async ({ event, resolve }) => {
     async function resolveWithoutUserAndSession() {
         event.cookies.delete(SESSION_COOKIE_NAME, { path: "/" })

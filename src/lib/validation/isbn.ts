@@ -45,13 +45,12 @@ export const ISBNSchema = z
     .min(1)
     .refine(validateISBN, "Invalid ISBN")
     .transform(value => value.replace(allSpacesAndHyphensRegex, ""))
-    .transform(value => BigInt(value))
 
-export const ISBNOptionalSchema = ISBNSchema
+    export const ISBNOptionalSchema = ISBNSchema
     .nullish()
 
 
-export function parseISBN(isbn: unknown): bigint {
+export function parseISBN(isbn: unknown): string {
     const parsingResult = ISBNSchema.safeParse(isbn)
     if (!parsingResult.success) {
         throw new HttpError(
@@ -63,7 +62,7 @@ export function parseISBN(isbn: unknown): bigint {
     return parsingResult.data
 }
 
-export function parseOptionalISBN(isbn: unknown): bigint | null | undefined {
+export function parseOptionalISBN(isbn: unknown): string | null | undefined {
     const parsingResult = ISBNOptionalSchema.safeParse(isbn)
     if (!parsingResult.success) {
         throw new HttpError(

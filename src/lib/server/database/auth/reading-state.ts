@@ -2,7 +2,7 @@ import { ReadingState } from "@prisma/client"
 import { prisma } from ".."
 
 
-export async function updateUserReadingState(bookId: bigint, userId: number, state: ReadingState): Promise<void> {
+export async function updateUserReadingState(bookId: number, userId: number, state: ReadingState): Promise<void> {
     await prisma.userBookReadingState.upsert({
         where: {
             userId_bookId: { bookId, userId }
@@ -18,11 +18,11 @@ export async function updateUserReadingState(bookId: bigint, userId: number, sta
     })
 }
 
-export async function getBookReadingState(isbn: bigint, userId: number): Promise<ReadingState | null> {
+export async function getBookReadingState(bookId: number, userId: number): Promise<ReadingState | null> {
     const userBookReadingState = await prisma.userBookReadingState.findUnique({
         where: {
             userId_bookId: {
-                bookId: isbn,
+                bookId,
                 userId
             }
         }

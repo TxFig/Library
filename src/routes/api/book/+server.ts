@@ -48,7 +48,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 // Retrieve Book
 export const GET: RequestHandler = async ({ url }) => {
     const isbnString = url.searchParams.get("isbn")
-    let isbn: bigint | null | undefined
+    let isbn: string | null | undefined
 
     try {
         isbn = parseOptionalISBN(isbnString)
@@ -129,7 +129,7 @@ export const DELETE: RequestHandler = async ({ url, locals }) => {
     }
 
     const isbnString = url.searchParams.get("isbn")
-    let isbn: bigint
+    let isbn: string
 
     try {
         isbn = parseISBN(isbnString)

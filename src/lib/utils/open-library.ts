@@ -80,13 +80,13 @@ async function parseOpenLibraryData(
 
     const isbn13 = data.identifiers
         ? data.identifiers["isbn_13"]
-            ? BigInt(data.identifiers["isbn_13"][0])
+            ? data.identifiers["isbn_13"][0]
             : null
         : null
 
     const isbn10 = data.identifiers
         ? data.identifiers["isbn_10"]
-            ? BigInt(data.identifiers["isbn_10"][0])
+            ? data.identifiers["isbn_10"][0]
             : null
         : null
 
@@ -103,7 +103,7 @@ async function parseOpenLibraryData(
         number_of_pages: data.number_of_pages ?? null,
         publish_date: publishDate,
 
-        isbn: BigInt(isbn),
+        isbn: isbn,
         isbn13: isbn13,
         isbn10: isbn10,
 

@@ -29,9 +29,9 @@ export const PATCH: RequestHandler = async ({ request, locals }) => {
     const parsedData = parsingResult.data
 
     try {
-        await db.auth.readingState.updateUserReadingState(parsedData.isbn, locals.user.id, parsedData.state)
+        await db.auth.readingState.updateUserReadingState(parsedData.bookId, locals.user.id, parsedData.state)
         await db.activityLog.logActivity(locals.user.id, ActivityType.READING_STATE_UPDATED, {
-            isbn: parsedData.isbn,
+            bookId: parsedData.bookId,
             userId: locals.user.id,
             state: parsedData.state
         })

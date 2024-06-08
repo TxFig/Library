@@ -11,7 +11,7 @@ const StateSchema = z.union([
 
 export const ReadingStateUpdateSchema = z.object({
     state: StateSchema,
-    isbn: ISBNSchema
+    bookId: z.number()
 })
 
 

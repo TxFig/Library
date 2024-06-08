@@ -100,8 +100,9 @@ model PermissionGroup {
 //
 
 model Book {
-  isbn BigInt @id @unique
+  id Int @id @default(autoincrement())
 
+  isbn            String  @unique
   title           String
   subtitle        String?
   number_of_pages Int?
@@ -109,8 +110,8 @@ model Book {
   publish_date  PublishDate? @relation(fields: [publishDateId], references: [id])
   publishDateId Int?
 
-  isbn10 BigInt? @unique
-  isbn13 BigInt? @unique
+  isbn10 String? @unique
+  isbn13 String? @unique
 
   front_image Boolean @default(false)
   back_image  Boolean @default(false)
@@ -176,9 +177,9 @@ model Subject {
 
 model UserBookReadingState {
   userId Int
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bookId BigInt
-  book   Book   @relation(fields: [bookId], references: [isbn], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookId Int
+  book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   state ReadingState
 
