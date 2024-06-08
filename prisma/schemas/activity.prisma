@@ -18,4 +18,5 @@ enum ActivityType {
     USER_CREATED
     USER_UPDATED
     USER_DELETED
+    READING_STATE_UPDATED
 }

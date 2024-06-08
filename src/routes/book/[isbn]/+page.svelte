@@ -5,8 +5,8 @@
     import ImageDisplayer from "$lib/components/ImageDisplayer.svelte"
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
-    import type { AllReadingState } from "$lib/server/database/auth/reading-state";
     import type { ReadingStateUpdateSchema } from "$lib/validation/reading-state";
+    import { ReadingState } from "@prisma/client";
 
 
     export let data: PageData
@@ -62,7 +62,7 @@
         goto(`/book/edit/${book.isbn}`)
     }
 
-    async function setReadingState(state: AllReadingState) {
+    async function setReadingState(state: ReadingState) {
         const updateData: ReadingStateUpdateSchema = {
             state,
             isbn: book.isbn
@@ -78,7 +78,7 @@
     }
 
     let subjectLimit = 10
-    let userState: AllReadingState = readingState ?? "NOT READ"
+    let userBookReadingState: ReadingState = readingState ?? ReadingState.NOT_READ
 </script>
 
 <div class="flex flex-col sm:flex-row justify-center items-center h-full pb-20 sm:gap-4">
@@ -157,30 +157,30 @@
                 <p>Reading State:</p>
                 <RadioGroup class="flex flex-col">
                     <RadioItem
-                        bind:group={userState}
-                        name="userState"
-                        value={"NOT READ"}
-                        on:click={() => setReadingState("NOT READ")}
-                        class="flex pl-5 items-center gap-2 pr-8"
+                        bind:group={userBookReadingState}
+                        name="userBookReadingState"
+                        value={ReadingState.NOT_READ}
+                        on:click={() => setReadingState(ReadingState.NOT_READ)}
+                        class="flex items-center gap-2 pr-8"
                     >
                         <Icon icon="fa6-regular:eye-slash" width="16" height="16"/>
                         <span>Not Read</span>
                     </RadioItem>
                     <RadioItem
-                        bind:group={userState}
-                        name="userState"
-                        value={"READING"}
-                         on:click={() => setReadingState("READING")}
+                        bind:group={userBookReadingState}
+                        name="userBookReadingState"
+                        value={ReadingState.READING}
+                         on:click={() => setReadingState(ReadingState.READING)}
                          class="flex items-center gap-2 pr-8"
                         >
                         <Icon icon="fa6-regular:bookmark" width="16" height="16"/>
                         <span>Currently Reading</span>
                     </RadioItem>
                     <RadioItem
-                        bind:group={userState}
-                        name="userState"
-                        value={"READ"}
-                        on:click={() => setReadingState("READ")}
+                        bind:group={userBookReadingState}
+                        name="userBookReadingState"
+                        value={ReadingState.READ}
+                        on:click={() => setReadingState(ReadingState.READ)}
                         class="flex items-center gap-2 pr-8"
                     >
                         <Icon icon="fa6-regular:circle-check" width="16" height="16"/>

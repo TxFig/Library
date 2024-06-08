@@ -1,0 +1,20 @@
+import { Book } from "book"
+import { User } from "auth"
+
+
+model UserBookReadingState {
+    userId Int
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    bookId BigInt
+    book   Book   @relation(fields: [bookId], references: [isbn], onDelete: Cascade)
+
+    state ReadingState
+
+    @@id([userId, bookId])
+}
+
+enum ReadingState {
+    NOT_READ
+    READING
+    READ
+}

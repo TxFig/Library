@@ -37,6 +37,7 @@ enum ActivityType {
   USER_CREATED
   USER_UPDATED
   USER_DELETED
+  READING_STATE_UPDATED
 }
 
 //
@@ -92,22 +93,6 @@ model PermissionGroup {
 
   permissions Permission[]
   users       User[]
-}
-
-model UserBookReadingState {
-  userId Int
-  user   User   @relation(fields: [userId], references: [id])
-  bookId BigInt
-  book   Book   @relation(fields: [bookId], references: [isbn])
-
-  state ReadingState
-
-  @@id([userId, bookId])
-}
-
-enum ReadingState {
-  READING
-  READ
 }
 
 //
@@ -183,4 +168,25 @@ model Subject {
   value String @unique
 
   books Book[]
+}
+
+//
+// reading-state.prisma
+//
+
+model UserBookReadingState {
+  userId Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookId BigInt
+  book   Book   @relation(fields: [bookId], references: [isbn], onDelete: Cascade)
+
+  state ReadingState
+
+  @@id([userId, bookId])
+}
+
+enum ReadingState {
+  NOT_READ
+  READING
+  READ
 }

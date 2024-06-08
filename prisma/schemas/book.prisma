@@ -1,4 +1,4 @@
-import { UserBookReadingState } from "auth"
+import { UserBookReadingState } from "reading-state"
 
 
 model Book {

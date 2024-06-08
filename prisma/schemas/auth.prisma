@@ -1,5 +1,6 @@
 import { Book } from "book"
 import { Activity } from "activity"
+import { UserBookReadingState } from "reading-state"
 
 
 model User {
@@ -51,20 +52,4 @@ model PermissionGroup {
 
     permissions Permission[]
     users       User[]
-}
-
-model UserBookReadingState { // unnecesasry?
-    userId Int
-    user   User   @relation(fields: [userId], references: [id])
-    bookId BigInt
-    book   Book   @relation(fields: [bookId], references: [isbn])
-
-    state ReadingState
-
-    @@id([userId, bookId])
-}
-
-enum ReadingState {
-    READING
-    READ
 }
