@@ -4,8 +4,9 @@
     import UserForm from "./UserForm.svelte"
     import HttpCodes from "$lib/utils/http-codes"
     import type { ResponseType } from "@api/user";
-    import type { CreateUserInput, EntireUser } from "$lib/server/database/auth/user";
+    import type { EntireUser } from "$lib/server/database/auth/user";
     import type { PermissionGroup } from "@prisma/client";
+    import type { UserCreateData } from "$lib/validation/auth/user";
 
 
     export let parent: SvelteComponent
@@ -28,7 +29,7 @@
         }
 	}
 
-    async function createUserFormSubmit(data: CreateUserInput): Promise<EntireUser | undefined> {
+    async function createUserFormSubmit(data: UserCreateData): Promise<EntireUser | undefined> {
         const response = await fetch("/api/user/", {
             method: "POST",
             headers: {

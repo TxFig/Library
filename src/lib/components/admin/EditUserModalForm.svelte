@@ -4,8 +4,9 @@
     import UserForm from "./UserForm.svelte"
     import HttpCodes from "$lib/utils/http-codes"
     import type { ResponseType } from "@api/user";
-    import type { EntireUser, UpdateUserInput } from "$lib/server/database/auth/user";
+    import type { EntireUser } from "$lib/server/database/auth/user";
     import type { PermissionGroup } from "@prisma/client";
+    import type { UserUpdateData } from "$lib/validation/auth/user";
 
 
     export let parent: SvelteComponent
@@ -29,8 +30,8 @@
         }
 	}
 
-    async function updateUserFormSubmit(userId: number, data: UpdateUserInput): Promise<EntireUser | undefined> {
-        const response = await fetch(`/api/user/${user.id}`, {
+    async function updateUserFormSubmit(userId: number, data: UserUpdateData): Promise<EntireUser | undefined> {
+        const response = await fetch(`/api/user/${userId}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json"
