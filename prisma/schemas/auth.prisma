@@ -1,4 +1,5 @@
 import { Book } from "book"
+import { Activity } from "activity"
 
 
 model User {
@@ -13,6 +14,8 @@ model User {
 
     permissionGroupId Int
     permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id])
+
+    activities Activity[]
 }
 
 model EmailConfirmationRequest {
