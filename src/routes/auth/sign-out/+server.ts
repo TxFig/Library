@@ -15,6 +15,6 @@ export const GET: RequestHandler = async ({ cookies, url }) => {
         })
     }
 
-    const path = url.searchParams.get("path")
+    const path = url.searchParams.get("redirectPath")
     throw redirect(HttpCodes.SeeOther, path ?? "/")
 }

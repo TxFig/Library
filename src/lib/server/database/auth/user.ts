@@ -1,4 +1,4 @@
-import type { EmailConfirmationRequest, Permission, PermissionGroup, User, UserBookReadingState } from "@prisma/client"
+import type { Book, EmailConfirmationRequest, Permission, PermissionGroup, User, UserBookReadingState, UserSettings } from "@prisma/client"
 import { prisma } from ".."
 import type { UserCreateData, UserUpdateData } from "$lib/validation/auth/user"
 
@@ -7,8 +7,11 @@ export type EntireUser = User & {
     permissionGroup: PermissionGroup & {
         permissions: Permission[]
     }
-    userBookReadingState: UserBookReadingState[],
+    userBookReadingState: (UserBookReadingState & {
+        book: Book
+    })[]
     emailConfirmationRequest: EmailConfirmationRequest | null
+    userSettings: UserSettings | null
 }
 
 export const EntireUserInclude = {
@@ -17,8 +20,13 @@ export const EntireUserInclude = {
             permissions: true
         }
     },
-    userBookReadingState: true,
-    emailConfirmationRequest: true
+    userBookReadingState: {
+        include: {
+            book: true
+        }
+    },
+    emailConfirmationRequest: true,
+    userSettings: true
 }
 
 export async function createUser(data: UserCreateData): Promise<EntireUser> {
@@ -29,6 +37,11 @@ export async function createUser(data: UserCreateData): Promise<EntireUser> {
             permissionGroup: {
                 connect: {
                     name: permissionGroup
+                }
+            },
+            userSettings: {
+                create: {
+                    visibleReadingState: true
                 }
             }
         },

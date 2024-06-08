@@ -4,6 +4,7 @@ import emailConfirmation from "./email-confirmation"
 import readingState from "./reading-state"
 import permissionGroup from "./permission-group"
 import permission from "./permission"
+import settings from "./settings"
 
 
 export default {
@@ -12,5 +13,6 @@ export default {
     emailConfirmation,
     readingState,
     permissionGroup,
-    permission
+    permission,
+    settings
 }

@@ -1,8 +1,7 @@
-import type { Activity, ActivityType } from "@prisma/client"
+import type { Activity, ActivityType, ReadingState } from "@prisma/client"
 import { prisma } from "."
 import { type BookCreateData, type BookUpdateData } from "$lib/validation/book-form"
-import { z } from "zod"
-import { UserCreateSchema, UserUpdateSchema, type UserCreateData, type UserUpdateData } from "$lib/validation/auth/user"
+import { type UserCreateData, type UserUpdateData } from "$lib/validation/auth/user"
 
 
 export function getEntireActivityLog(): Promise<Activity[]> {
@@ -16,7 +15,8 @@ type MetadataSchemas = {
     BOOK_BORROWED: never, // TODO
     USER_CREATED: UserCreateData,
     USER_UPDATED: UserUpdateData,
-    USER_DELETED: { userId: number }
+    USER_DELETED: { userId: number },
+    READING_STATE_UPDATED: { bookId: number, userId: number, state: ReadingState }
 }
 
 export async function logActivity<Type extends ActivityType>(

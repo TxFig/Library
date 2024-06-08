@@ -1,21 +1,33 @@
 import { Book } from "book"
 import { Activity } from "activity"
+import { UserBookReadingState } from "reading-state"
 
 
 model User {
-    id       Int     @id @default(autoincrement())
-    email    String  @unique
-    username String  @unique
+    id       Int    @id @default(autoincrement())
+    email    String @unique
+    username String @unique
 
     emailConfirmationRequest EmailConfirmationRequest?
     session                  Session[]
 
-    userBookReadingState     UserBookReadingState[]
+    userBookReadingState UserBookReadingState[]
 
     permissionGroupId Int
     permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id])
 
     activities Activity[]
+
+    userSettings UserSettings?
+}
+
+model UserSettings {
+    id Int @id @default(autoincrement())
+
+    userId Int  @unique
+    user   User @relation(fields: [userId], references: [id])
+
+    visibleReadingState Boolean @default(false)
 }
 
 model EmailConfirmationRequest {
@@ -51,20 +63,4 @@ model PermissionGroup {
 
     permissions Permission[]
     users       User[]
-}
-
-model UserBookReadingState { // unnecesasry?
-    userId Int
-    user   User   @relation(fields: [userId], references: [id])
-    bookId Int
-    book   Book   @relation(fields: [bookId], references: [id])
-
-    state ReadingState
-
-    @@id([userId, bookId])
-}
-
-enum ReadingState {
-    READING
-    READ
 }

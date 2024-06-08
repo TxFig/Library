@@ -1,18 +1,14 @@
-import type { ReadingState } from "@prisma/client"
+import { ReadingState } from "@prisma/client"
 import { prisma } from ".."
 
 
-export type AllReadingState = "NOT READ" | ReadingState
-export const AllReadingStates = ["NOT READ", "READING", "READ"] as const //! Hardcoded
-export async function updateUserReadingState(bookId: number, userId: number, state: AllReadingState): Promise<void> {
-    if (state == "NOT READ") {
-        try {
-            await prisma.userBookReadingState.delete({
-                where: {
-                    userId_bookId: { bookId, userId }
-                }
-            })
-        } catch {}
+export async function updateUserReadingState(bookId: number, userId: number, state: ReadingState): Promise<void> {
+    if (state === ReadingState.NOT_READ) {
+        await prisma.userBookReadingState.delete({
+            where: {
+                userId_bookId: { bookId, userId }
+            }
+        })
     } else {
         await prisma.userBookReadingState.upsert({
             where: {
