@@ -3,7 +3,7 @@ import { prisma } from ".."
 
 
 export async function updateUserReadingState(bookId: number, userId: number, state: ReadingState): Promise<void> {
-    if (state === ReadingState.READ) {
+    if (state === ReadingState.NOT_READ) {
         await prisma.userBookReadingState.delete({
             where: {
                 userId_bookId: { bookId, userId }
