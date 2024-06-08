@@ -78,7 +78,6 @@ export const PATCH = async (user: EntireUser, userId: string, data: any) => {
             status: HttpCodes.Success
         })
     } catch (error) {
-        console.log(error)
         return json({
             message: "Error Updating User"
         }, {
