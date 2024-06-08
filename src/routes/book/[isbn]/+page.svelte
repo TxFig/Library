@@ -65,7 +65,7 @@
     async function setReadingState(state: AllReadingState) {
         const updateData: ReadingStateUpdateSchema = {
             state,
-            isbn: book.isbn
+            bookId: book.id
         }
 
         await fetch(`/api/reading-state/`, {

@@ -7,7 +7,7 @@ import HttpCodes from "$lib/utils/http-codes"
 
 
 const resizeHeights = [1080, 720, 480, 320]
-export async function generateResizedImages(isbn: bigint, side: "front" | "back", file: File): Promise<void> {
+export async function generateResizedImages(isbn: string, side: "front" | "back", file: File): Promise<void> {
     const arrayBuffer = await file.arrayBuffer()
     const image = sharp(arrayBuffer)
 
@@ -24,7 +24,7 @@ export async function generateResizedImages(isbn: bigint, side: "front" | "back"
     const heights = resizeHeights.filter(height => height < size.height)
 
     for (const height of heights) {
-        const folder = path.join(IMAGES_PATH, isbn.toString(), side)
+        const folder = path.join(IMAGES_PATH, isbn, side)
         const filename = `${height.toString()}.webp`
         const filepath = path.join(folder, filename)
 
@@ -44,7 +44,7 @@ export async function generateResizedImages(isbn: bigint, side: "front" | "back"
     }
 }
 
-export async function deleteImagesFolder(isbn: bigint) {
-    const folder = path.join(IMAGES_PATH, isbn.toString())
+export async function deleteImagesFolder(isbn: string) {
+    const folder = path.join(IMAGES_PATH, isbn)
     fs.rmSync(folder, { recursive: true, force: true })
 }

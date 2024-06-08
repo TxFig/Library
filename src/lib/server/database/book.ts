@@ -107,7 +107,7 @@ export async function updateBook({ publish_date, location, language, authors, pu
     })
 }
 
-export async function deleteBook(isbn: bigint): Promise<void> {
+export async function deleteBook(isbn: string): Promise<void> {
     const book = await prisma.book.findUnique({
         where: { isbn },
         include: {
@@ -179,7 +179,7 @@ export async function deleteBook(isbn: bigint): Promise<void> {
 }
 
 
-export async function doesBookExist(isbn: bigint): Promise<boolean> {
+export async function doesBookExist(isbn: string): Promise<boolean> {
     const book = await prisma.book.findUnique({
         where: { isbn }
     })
@@ -196,7 +196,7 @@ export type EntireBook = Book & {
     language: Language | null
 }
 
-export function getEntireBookByISBN(isbn: bigint): Promise<EntireBook | null> {
+export function getEntireBookByISBN(isbn: string): Promise<EntireBook | null> {
     return prisma.book.findUnique({
         where: { isbn },
         include: {

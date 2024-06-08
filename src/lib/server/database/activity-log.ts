@@ -12,7 +12,7 @@ export function getEntireActivityLog(): Promise<Activity[]> {
 type MetadataSchemas = {
     BOOK_ADDED: BookCreateData,
     BOOK_UPDATED: BookUpdateData,
-    BOOK_DELETED: { isbn: bigint },
+    BOOK_DELETED: { isbn: string },
     BOOK_BORROWED: never, // TODO
     USER_CREATED: UserCreateData,
     USER_UPDATED: UserUpdateData,

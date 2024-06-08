@@ -4,7 +4,7 @@ import { prisma } from ".."
 
 export type AllReadingState = "NOT READ" | ReadingState
 export const AllReadingStates = ["NOT READ", "READING", "READ"] as const //! Hardcoded
-export async function updateUserReadingState(bookId: bigint, userId: number, state: AllReadingState): Promise<void> {
+export async function updateUserReadingState(bookId: number, userId: number, state: AllReadingState): Promise<void> {
     if (state == "NOT READ") {
         try {
             await prisma.userBookReadingState.delete({
@@ -30,11 +30,11 @@ export async function updateUserReadingState(bookId: bigint, userId: number, sta
     }
 }
 
-export async function getBookReadingState(isbn: bigint, userId: number): Promise<ReadingState | null> {
+export async function getBookReadingState(bookId: number, userId: number): Promise<ReadingState | null> {
     const userBookReadingState = await prisma.userBookReadingState.findUnique({
         where: {
             userId_bookId: {
-                bookId: isbn,
+                bookId,
                 userId
             }
         }

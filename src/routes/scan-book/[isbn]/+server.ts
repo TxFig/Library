@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ params, locals }) => {
         })
     }
     const { isbn: isbnString } = params
-    let isbn: bigint
+    let isbn: string
     try {
         isbn = parseISBN(isbnString)
     } catch (err) {

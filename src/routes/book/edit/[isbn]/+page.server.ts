@@ -13,7 +13,7 @@ import { hasPermission } from "$lib/utils/permissions"
 export const load: PageServerLoad = async ({ params }) => {
     const { isbn: isbnString } = params
 
-    let isbn: bigint
+    let isbn: string
     try {
         isbn = parseISBN(isbnString)
     } catch (err) {

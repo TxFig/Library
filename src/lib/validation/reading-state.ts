@@ -5,7 +5,7 @@ import { ISBNSchema } from "./isbn"
 
 export const ReadingStateUpdateSchema = z.object({
     state: z.enum(AllReadingStates),
-    isbn: ISBNSchema
+    bookId: z.number()
 })
 
 export type ReadingStateUpdateSchema = z.infer<typeof ReadingStateUpdateSchema>

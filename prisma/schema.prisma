@@ -96,9 +96,9 @@ model PermissionGroup {
 
 model UserBookReadingState {
   userId Int
-  user   User   @relation(fields: [userId], references: [id])
-  bookId BigInt
-  book   Book   @relation(fields: [bookId], references: [isbn])
+  user   User @relation(fields: [userId], references: [id])
+  bookId Int
+  book   Book @relation(fields: [bookId], references: [id])
 
   state ReadingState
 
@@ -115,8 +115,9 @@ enum ReadingState {
 //
 
 model Book {
-  isbn BigInt @id @unique
+  id Int @id @default(autoincrement())
 
+  isbn            String  @unique
   title           String
   subtitle        String?
   number_of_pages Int?
@@ -124,8 +125,8 @@ model Book {
   publish_date  PublishDate? @relation(fields: [publishDateId], references: [id])
   publishDateId Int?
 
-  isbn10 BigInt? @unique
-  isbn13 BigInt? @unique
+  isbn10 String? @unique
+  isbn13 String? @unique
 
   front_image Boolean @default(false)
   back_image  Boolean @default(false)

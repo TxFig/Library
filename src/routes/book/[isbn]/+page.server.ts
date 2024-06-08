@@ -10,7 +10,7 @@ import { HttpError } from "$lib/utils/custom-errors"
 export const load: PageServerLoad = async ({ params, locals }) => {
     const { isbn: isbnString } = params
 
-    let isbn: bigint
+    let isbn: string
     try {
         isbn = parseISBN(isbnString)
     } catch (err) {
@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     }
 
     const readingState = locals.user ?
-        await db.auth.readingState.getBookReadingState(isbn, locals.user.id)
+        await db.auth.readingState.getBookReadingState(book.id, locals.user.id)
     : null
 
     return { book, readingState }
