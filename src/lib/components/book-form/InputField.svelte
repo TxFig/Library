@@ -7,6 +7,7 @@
     export let type: "text" | "number" = "text"
     export let value: string | undefined = undefined
     export let required: boolean = false
+    export let placeholder: string | undefined = undefined
 
     let inputElement: HTMLInputElement
     export function focus(): void {
@@ -23,8 +24,8 @@
         {/if}
     </span>
     {#if type == "text"}
-        <input class="input" type="text" name={name} bind:value={value} bind:this={inputElement} autocomplete="off" />
+        <input class="input" type="text" name={name} bind:value={value} bind:this={inputElement} autocomplete="off" placeholder={placeholder}/>
     {:else}
-        <NumberInput name={name} value={value} bind:inputElement={inputElement} />
+        <NumberInput name={name} value={value} bind:inputElement={inputElement} placeholder={placeholder}/>
     {/if}
 </label>

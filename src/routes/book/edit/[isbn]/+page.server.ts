@@ -7,6 +7,7 @@ import { parseISBN } from "$lib/validation/isbn"
 import { HttpError } from "$lib/utils/custom-errors"
 import API from "@api"
 import type { PatchMethodReturn } from "@api/book"
+import { hasPermission } from "$lib/utils/permissions"
 
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -37,7 +38,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 export const actions: Actions = {
     default: async ({ request, locals }) => {
-        if (!locals.user) {
+        if (!locals.user || !hasPermission(locals.user, "Edit Book")) {
             error(HttpCodes.ClientError.Unauthorized, {
                 message: "Need to be logged in"
             })
@@ -47,7 +48,7 @@ export const actions: Actions = {
 
         let info: PatchMethodReturn
         try {
-            info = await API.book.PATCH(formData)
+            info = await API.book.PATCH(locals.user, formData)
 
             if (!info.success)
                 return fail(info.code, info)

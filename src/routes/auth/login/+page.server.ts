@@ -2,41 +2,49 @@ import db from "$lib/server/database/";
 import { fail, type Actions } from "@sveltejs/kit";
 import HttpCodes from "$lib/utils/http-codes"
 import { EmailSchema } from "$lib/validation/auth/user";
-import { decode as decodeFormData } from "decode-formdata";
+import isDateExpired from "$lib/utils/is-date-expired";
 
 
 export const actions: Actions = {
-    default: async ({ request }) => {
+    default: async ({ request, url }) => {
         const formData = await request.formData()
-        const decodedData = decodeFormData(formData)
-        const parsingResult = EmailSchema.safeParse(decodedData)
+        const data = formData.get("email")
+        const parsingResult = EmailSchema.safeParse(data)
 
         if (!parsingResult.success) {
             return fail(HttpCodes.ClientError.BadRequest, {
-                message: "Invalid Email"
+                error: parsingResult.error.errors[0].message,
+                message: undefined
             })
         }
 
         const email = parsingResult.data
-        const user = await db.auth.getUserByEmail(email)
+        const user = await db.auth.user.getUserByEmail(email)
         if (!user) {
             return fail(HttpCodes.ClientError.BadRequest, {
+                error: undefined,
                 message: "User doesn't exist"
             })
         }
 
-        if (
-            user.emailConfirmationRequest &&
-            !db.auth.validateExpireTime(user.emailConfirmationRequest.expireDate)
-        ) {
-            return fail(HttpCodes.ClientError.BadRequest, {
-                message: "A email confirmation request already was sent"
-            })
+        if (user.emailConfirmationRequest) {
+            if (!isDateExpired(user.emailConfirmationRequest.expireDate)) {
+                return fail(HttpCodes.ClientError.BadRequest, {
+                    error: undefined,
+                    message: "A email confirmation request already was sent"
+                })
+            } else {
+                db.auth.emailConfirmation.deleteEmailConfirmationRequestByToken(
+                    user.emailConfirmationRequest.token
+                )
+            }
         }
 
-        const error = await db.auth.sendConfirmationEmail(user)
+        const redirectPath = url.searchParams.get("redirect") ?? undefined
+        const error = await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, redirectPath)
         if (error) {
             return fail(HttpCodes.ServerError.InternalServerError, {
+                error: undefined,
                 message: "Error sending email"
             })
         }

@@ -1,14 +1,21 @@
 import { Book } from "book"
+import { Activity } from "activity"
 
 
 model User {
-    id       Int    @id @default(autoincrement())
-    email    String @unique
-    username String @unique
+    id       Int     @id @default(autoincrement())
+    email    String  @unique
+    username String  @unique
 
     emailConfirmationRequest EmailConfirmationRequest?
     session                  Session[]
+
     userBookReadingState     UserBookReadingState[]
+
+    permissionGroupId Int
+    permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id])
+
+    activities Activity[]
 }
 
 model EmailConfirmationRequest {
@@ -16,7 +23,7 @@ model EmailConfirmationRequest {
     token      String   @unique
     expireDate DateTime
 
-    user   User @relation(fields: [userId], references: [id])
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId Int  @unique
 }
 
@@ -26,10 +33,27 @@ model Session {
     expireDate DateTime
 
     userId Int
-    user   User @relation(fields: [userId], references: [id])
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model UserBookReadingState {
+model Permission {
+    id          Int    @id @default(autoincrement())
+    name        String @unique
+    description String
+
+    permissionGroups PermissionGroup[]
+}
+
+model PermissionGroup {
+    id          Int    @id @default(autoincrement())
+    name        String @unique
+    description String
+
+    permissions Permission[]
+    users       User[]
+}
+
+model UserBookReadingState { // unnecesasry?
     userId Int
     user   User   @relation(fields: [userId], references: [id])
     bookId BigInt
