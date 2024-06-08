@@ -43,13 +43,18 @@
                 <Icon icon="material-symbols:person-sharp" width="32" height="32"/>
             </button>
             <div class="card p-4" data-popup="auth-popup">
-                <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
                     <p>{$page.data.user.username}</p>
                     <a href="/user/{$page.data.user.username}" class="btn variant-outline-secondary">
                         <Icon icon="material-symbols:person-sharp" width="24" height="24"/>
                         <span>Profile</span>
                     </a>
-                    <a href="/auth/sign-out?path={$page.url.href}" class="btn variant-outline-secondary">
+                    <a href="/settings" class="btn variant-outline-secondary">
+                        <Icon icon="material-symbols:settings" width="24" height="24"/>
+                        <span>Settings</span>
+                    </a>
+                    <hr>
+                    <a href="/auth/sign-out?redirectPath={$page.url.href}" class="btn variant-outline-error">
                         <Icon icon="ph:sign-out" width="24" height="24"/>
                         <span>Sign out</span>
                     </a>
