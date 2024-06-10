@@ -44,7 +44,7 @@ export async function POST(user: EntireUser, formData: FormData): Promise<PostMe
 
     const parsedData: BookCreateDataWithImageFiles = parsingResult.data
 
-    const bookAlreadyExists = await db.book.doesBookExist(parsedData.isbn)
+    const bookAlreadyExists = await db.books.book.doesBookExist(parsedData.isbn)
     if (bookAlreadyExists) {
         return {
             data,
@@ -70,7 +70,7 @@ export async function POST(user: EntireUser, formData: FormData): Promise<PostMe
     }
 
     try {
-        await db.book.createBook(createBookData)
+        await db.books.book.createBook(createBookData)
         await db.activityLog.logActivity(user.id, "BOOK_ADDED", createBookData)
     } catch {
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error creating book in database")
@@ -126,7 +126,7 @@ export async function PATCH(user: EntireUser, formData: FormData): Promise<Patch
 
     let book: Book
     try {
-        book = await db.book.updateBook(updateBookData)
+        book = await db.books.book.updateBook(updateBookData)
         await db.activityLog.logActivity(user.id, "BOOK_UPDATED", updateBookData)
     } catch {
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error updating book in database")

@@ -60,6 +60,8 @@ model User {
   activities Activity[]
 
   userSettings UserSettings?
+
+  Book Book[]
 }
 
 model UserSettings {
@@ -137,6 +139,10 @@ model Book {
   publishers           Publisher[]
   subjects             Subject[]
   userBookReadingState UserBookReadingState[]
+
+  owner   User?   @relation(fields: [ownerId], references: [id])
+  ownerId Int?
+  public  Boolean @default(false)
 }
 
 model PublishDate {

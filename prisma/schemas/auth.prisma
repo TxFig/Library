@@ -19,6 +19,8 @@ model User {
     activities Activity[]
 
     userSettings UserSettings?
+
+    Book Book[]
 }
 
 model UserSettings {

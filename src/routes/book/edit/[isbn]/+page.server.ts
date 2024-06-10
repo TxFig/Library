@@ -21,18 +21,18 @@ export const load: PageServerLoad = async ({ params }) => {
         else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
     }
 
-    const book = await db.book.getEntireBookByISBN(isbn)
+    const book = await db.books.book.getEntireBookByISBN(isbn)
     if (!book) {
         error(HttpCodes.ClientError.NotFound, "Book Not Available")
     }
 
     return {
         book,
-        allAuthors: await db.book.getAllAuthors(),
-        allPublishers: await db.book.getAllPublishers(),
-        allSubjects: await db.book.getAllSubjects(),
-        allLocations: await db.book.getAllLocations(),
-        allLanguages: await db.book.getAllLanguages()
+        allAuthors: await db.books.author.getAllAuthors(),
+        allPublishers: await db.books.publisher.getAllPublishers(),
+        allSubjects: await db.books.subject.getAllSubjects(),
+        allLocations: await db.books.location.getAllLocations(),
+        allLanguages: await db.books.language.getAllLanguages()
     }
 }
 

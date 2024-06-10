@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
         else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
     }
 
-    const book = await db.book.getEntireBookByISBN(isbn)
+    const book = await db.books.book.getEntireBookByISBN(isbn)
     if (!book) {
         error(HttpCodes.ClientError.NotFound, "Book Not Found")
     }

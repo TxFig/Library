@@ -1,4 +1,5 @@
 import { UserBookReadingState } from "reading-state"
+import { User } from "auth"
 
 
 model Book {
@@ -28,6 +29,10 @@ model Book {
     publishers           Publisher[]
     subjects             Subject[]
     userBookReadingState UserBookReadingState[]
+
+    owner   User? @relation(fields: [ownerId], references: [id])
+    ownerId Int?
+    public  Boolean @default(false)
 }
 
 model PublishDate {

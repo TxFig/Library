@@ -1,7 +1,7 @@
 import type { Actions, PageServerLoad } from "./$types"
 import { error, fail, redirect } from "@sveltejs/kit"
 
-import db from "$lib/server/database/book"
+import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
 import API from "@api"
 import { HttpError } from "$lib/utils/custom-errors"
@@ -10,11 +10,11 @@ import { hasPermission } from "$lib/utils/permissions"
 
 
 export const load: PageServerLoad = async () => ({
-    authors: await db.getAllAuthors(),
-    publishers: await db.getAllPublishers(),
-    subjects: await db.getAllSubjects(),
-    locations: await db.getAllLocations(),
-    languages: await db.getAllLanguages()
+    authors: await db.books.author.getAllAuthors(),
+    publishers: await db.books.publisher.getAllPublishers(),
+    subjects: await db.books.subject.getAllSubjects(),
+    locations: await db.books.location.getAllLocations(),
+    languages: await db.books.language.getAllLanguages()
 })
 
 export const actions: Actions = {

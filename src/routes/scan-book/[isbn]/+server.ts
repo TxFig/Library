@@ -25,7 +25,7 @@ export const POST: RequestHandler = async ({ params, locals }) => {
         else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
     }
 
-    const bookAlreadyExists = await db.book.doesBookExist(isbn)
+    const bookAlreadyExists = await db.books.book.doesBookExist(isbn)
     if (bookAlreadyExists) {
         error(HttpCodes.ClientError.Conflict, {
             message: "Book already exists in database.",
@@ -56,7 +56,7 @@ export const POST: RequestHandler = async ({ params, locals }) => {
     }
 
     try {
-        await db.book.createBook(createBookData)
+        await db.books.book.createBook(createBookData)
         return json({
             status: 200,
             message: "Successfully added Book"
