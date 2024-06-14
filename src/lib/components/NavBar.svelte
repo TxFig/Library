@@ -54,7 +54,7 @@
                         <span>Settings</span>
                     </a>
                     <hr>
-                    <a href="/auth/sign-out?redirectPath={$page.url.href}" class="btn variant-outline-error">
+                    <a href="/auth/sign-out?redirectPath={$page.url.pathname}" class="btn variant-outline-error">
                         <Icon icon="ph:sign-out" width="24" height="24"/>
                         <span>Sign out</span>
                     </a>
