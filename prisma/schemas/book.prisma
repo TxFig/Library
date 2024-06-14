@@ -30,9 +30,11 @@ model Book {
     subjects             Subject[]
     userBookReadingState UserBookReadingState[]
 
-    owner   User? @relation(fields: [ownerId], references: [id])
+    owner   User?   @relation(fields: [ownerId], references: [id])
     ownerId Int?
     public  Boolean @default(false)
+
+    bookCollections BookCollection[]
 }
 
 model PublishDate {
@@ -76,4 +78,14 @@ model Subject {
     value String @unique
 
     books Book[]
+}
+
+model BookCollection {
+    id   Int    @id @default(autoincrement())
+    name String
+
+    books Book[]
+
+    ownerId Int
+    owner   User @relation(fields: [ownerId], references: [id])
 }

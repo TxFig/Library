@@ -1,4 +1,4 @@
-import { Book } from "book"
+import { Book, BookCollection } from "book"
 import { Activity } from "activity"
 import { UserBookReadingState } from "reading-state"
 
@@ -21,7 +21,10 @@ model User {
     userSettings UserSettings?
 
     Book Book[]
+
+    BookCollection BookCollection[]
 }
+
 
 model UserSettings {
     id Int @id @default(autoincrement())
