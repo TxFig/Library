@@ -34,7 +34,7 @@
         buttonTextConfirm: "Manually Add Book",
         response(confirm) {
             if (confirm) {
-                window.location.href = `/create-book/?isbn=${displayISBN}`
+                window.location.href = `/book/create/?isbn=${displayISBN}`
             } else {
                 initQuagga()
                 displayISBN = ""
@@ -91,7 +91,7 @@
     })
 
     async function onISBNConfirmation() {
-        const response = await fetch(`/scan-book/${displayISBN}`, { method: "post" })
+        const response = await fetch(`/book/scan/${displayISBN}`, { method: "post" })
 
         if (response.status == HttpCodes.ClientError.Conflict) {
             // Sometime popup gets remove (weird bug)
