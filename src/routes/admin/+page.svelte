@@ -3,7 +3,7 @@
     import type { PageData } from "./$types";
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
     import { Tab, TabGroup } from "@skeletonlabs/skeleton";
-    import { isUserAdmin } from "$lib/utils/permissions";
+    import { hasPermission } from "$lib/utils/permissions";
     import UsersTab from "$lib/components/admin/tabs/UsersTab.svelte";
     import PermissionGroupsTab from "$lib/components/admin/tabs/PermissionGroupsTab.svelte";
     import ActivityLogTab from "$lib/components/admin/tabs/ActivityLogTab.svelte";
@@ -17,7 +17,7 @@
 
 <p class="text-xl mb-4">Admin Page</p>
 
-{#if !$page.data.user || !isUserAdmin($page.data.user)}
+{#if !$page.data.user || !hasPermission($page.data.user, "Admin")}
     <NotLoggedIn/>
 {:else}
     <TabGroup>
