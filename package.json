@@ -10,7 +10,7 @@
         "prisma:generate": "npx prisma generate",
         "prisma:seed": "npx prisma db seed",
         "prisma:deploy": "npx prisma migrate deploy",
-        "start": "run-s prisma:deploy start:server",
+        "start": "run-s prisma:deploy prisma:seed start:server",
         "start:server": "node server.mjs",
         "preview": "vite preview",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
