@@ -42,7 +42,7 @@
     <Icon icon="fluent:collections-24-regular" width="20" height="20" />
 </button>
 
-<div class="card p-4 variant-filled-surface" data-popup="CreateNewCollectionPopup">
+<div class="card p-4 variant-glass-surface z-10" data-popup="CreateNewCollectionPopup">
     <div class="arrow variant-filled-surface" />
     <div class="flex flex-col gap-2">
         <p>Name:</p>

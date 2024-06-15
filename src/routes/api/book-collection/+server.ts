@@ -19,33 +19,33 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         })
     }
 
-        const data = await request.json()
-        const name = data.name
-        if (!name || typeof name !== "string") {
-            return json({
-                message: "Name is required",
-                status: HttpCodes.ClientError.BadRequest
-            }, {
-                status: HttpCodes.ClientError.BadRequest
-            })
-        }
-
-
-        const isNameAvailable = await db.books.collection.isNameAvailable(name, locals.user.id)
-        if (!isNameAvailable) {
-            return json({
-                message: "Collection name already exists",
-                status: HttpCodes.ClientError.Conflict
-            }, {
-                status: HttpCodes.ClientError.Conflict
-            })
-        }
-
-        const createdBookCollection = await db.books.collection.createCollection(name, locals.user.id)
+    const data = await request.json()
+    const name = data.name
+    if (!name || typeof name !== "string") {
         return json({
-            createdBookCollection,
-            status: HttpCodes.Success
+            message: "Name is required",
+            status: HttpCodes.ClientError.BadRequest
         }, {
-            status: HttpCodes.Success
+            status: HttpCodes.ClientError.BadRequest
         })
+    }
+
+
+    const isNameAvailable = await db.books.collection.isNameAvailable(name, locals.user.id)
+    if (!isNameAvailable) {
+        return json({
+            message: "Collection name already exists",
+            status: HttpCodes.ClientError.Conflict
+        }, {
+            status: HttpCodes.ClientError.Conflict
+        })
+    }
+
+    const createdBookCollection = await db.books.collection.createCollection(name, locals.user.id)
+    return json({
+        createdBookCollection,
+        status: HttpCodes.Success
+    }, {
+        status: HttpCodes.Success
+    })
 }

@@ -30,8 +30,18 @@ export async function createCollection(name: string, ownerId: number): Promise<B
     }
 }
 
+export async function deleteCollection(id: number, ownerId: number): Promise<void> {
+    await prisma.bookCollection.delete({
+        where: {
+            id,
+            ownerId
+        }
+    })
+}
+
 
 export default {
     createCollection,
-    isNameAvailable
+    isNameAvailable,
+    deleteCollection
 }

@@ -1,25 +1,39 @@
 <script lang="ts">
     import { ReadingState } from "@prisma/client";
     import type { PageData } from "./$types";
-    import Icon from "@iconify/svelte";
     import CreateNewCollectionButton from "$lib/components/user/CreateNewCollectionButton.svelte";
     import type { BookCollectionWithBooks } from "$lib/server/database/books/collection";
+    import BookCollection from "$lib/components/user/BookCollection.svelte";
+    import BuiltInBookCollection from "$lib/components/user/BuiltInBookCollection.svelte";
 
     export let data: PageData
     const { pageUser, isCurrentUser } = data
 
 
+    const BooksReadingCollection: Omit<BookCollectionWithBooks, "id"> = {
+        name: "Books Reading",
+        books: pageUser.userBookReadingState
+            .filter(readingState => readingState.state === ReadingState.READING)
+            .map(readingState => readingState.book),
 
-    const booksReading = pageUser.userBookReadingState
-        .filter(readingState => readingState.state === ReadingState.READING)
-        .map(readingState => readingState.book)
-    const booksRead = pageUser.userBookReadingState
-        .filter(readingState => readingState.state === ReadingState.READ)
-        .map(readingState => readingState.book)
+        ownerId: pageUser.id
+    }
+    const BooksReadCollection: Omit<BookCollectionWithBooks, "id"> = {
+        name: "Books Read",
+        books: pageUser.userBookReadingState
+            .filter(readingState => readingState.state === ReadingState.READ)
+            .map(readingState => readingState.book),
+
+        ownerId: pageUser.id
+    }
 
     let bookCollections = pageUser.bookCollections
     function onCreatedBookCollection(collection: BookCollectionWithBooks) {
         bookCollections = [...bookCollections, collection]
+    }
+
+    function onDeleteBookCollection(collection: BookCollectionWithBooks) {
+        bookCollections = bookCollections.filter(bookCollection => bookCollection.id !== collection.id)
     }
 
 </script>
@@ -28,23 +42,11 @@
 <p>{pageUser.permissionGroup.name}</p>
 
 {#if pageUser.userSettings?.visibleReadingState || isCurrentUser}
-    {#if booksReading.length > 0}
-        <hr class="my-4" />
-        <p>Books Reading:</p>
-        <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">
-            {#each booksReading as book}
-                <a href={`/book/${book.isbn}`} class="snap-start shrink-0 card py-12 w-24 text-center">{book.title}</a>
-            {/each}
-        </div>
+    {#if BooksReadingCollection.books.length > 0}
+        <BuiltInBookCollection collection={BooksReadingCollection} />
     {/if}
-    {#if booksRead.length > 0}
-        <hr class="my-4" />
-        <p>Books Read:</p>
-        <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">
-            {#each booksRead as book}
-                <a href={`/book/${book.isbn}`} class="snap-start shrink-0 card py-12 w-24 text-center">{book.title}</a>
-            {/each}
-        </div>
+    {#if BooksReadCollection.books.length > 0}
+        <BuiltInBookCollection collection={BooksReadCollection} />
     {/if}
 {/if}
 
@@ -54,17 +56,9 @@
         <p class="text-xl">Collections</p>
         <CreateNewCollectionButton {onCreatedBookCollection}/>
     </div>
-    {#each bookCollections as bookCollection}
-        <fieldset class="border border-surface-600 px-4 py-1 rounded-token">
-            <legend class="px-1">{bookCollection.name}</legend>
-            <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">
-                {#each bookCollection.books as book}
-                    <a href={`/book/${book.isbn}`} class="snap-start shrink-0 card py-12 w-24 text-center">{book.title}</a>
-                {/each}
-                <button class="snap-start shrink-0 card py-12 w-24 btn">
-                    <Icon icon="material-symbols:add" width="24" height="24" class="mx-auto" />
-                </button>
-            </div>
-        </fieldset>
-    {/each}
+    <div class="flex flex-col gap-2">
+        {#each bookCollections as collection}
+            <BookCollection collection={collection} onDelete={() => onDeleteBookCollection(collection)} />
+        {/each}
+    </div>
 {/if}
