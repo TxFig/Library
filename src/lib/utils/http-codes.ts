@@ -1,6 +1,7 @@
 import type { Values } from "./types"
 
-const codes = {
+
+export const HttpCodes = {
     // Successful
     Success: 200,
 
@@ -19,10 +20,10 @@ const codes = {
     }
 } as const
 
-type Codes = typeof codes
-type ClientError = Codes["ClientError"]
-type ServerError = Codes["ServerError"]
+export type HttpCodes = typeof HttpCodes
 
-export type HttpErrorCodes = Values<ClientError> | Values<ServerError>
+type ClientError = HttpCodes["ClientError"]
+type ServerError = HttpCodes["ServerError"]
+export type HttpCodesValues = Values<ClientError> | Values<ServerError>
 
-export default codes
+export default HttpCodes

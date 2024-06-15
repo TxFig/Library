@@ -1,11 +1,11 @@
-import type { HttpErrorCodes } from "./http-codes"
+import type { HttpCodesValues } from "./http-codes"
 
 
 export class HttpError {
     message: any
-    httpCode: HttpErrorCodes
+    httpCode: HttpCodesValues
 
-    constructor(httpCode: HttpErrorCodes, message?: any) {
+    constructor(httpCode: HttpCodesValues, message?: any) {
         this.message = typeof message == "string" ? { message } : message
         this.httpCode = httpCode
     }
