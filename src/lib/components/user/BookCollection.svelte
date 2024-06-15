@@ -19,8 +19,41 @@
     }
 
 
+    let collectionName = collection.name
+    const editCollectionModal: ModalSettings = {
+        type: "prompt",
+        title: "Update Collection",
+        body: "Provide the new collection name in the field below.",
+        value: collectionName,
+        valueAttr: { type: "text", minlength: 3, maxlength: 10, required: true },
+        response: (response: false | string) => {
+            if (response) {
+                editCollection(response)
+            }
+        },
+    }
+
+    async function editCollection(newName: string) {
+        const response = await fetch(`/api/book-collection/${collection.id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: newName })
+        })
+
+        if (response.status == HttpCodes.Success) {
+            collectionName = newName
+        }
+        else
+            toastStore.trigger({
+                message: "Failed to update collection",
+                background: "variant-filled-error"
+            })
+    }
+
     function onEditCollection() {
-        console.log("onEditCollection")
+        modalStore.trigger(editCollectionModal)
     }
 
     const deleteCollectionModal: ModalSettings = {
@@ -61,7 +94,7 @@
 
 <fieldset class="border border-surface-600 px-4 py-1 rounded-token relative">
     <legend class="px-2 flex gap-2 items-center">
-        <span>{collection.name}</span>
+        <span>{collectionName}</span>
         <button class="btn-icon btn-icon-sm variant-soft-surface aspect-auto" use:popup={collectionOptionPopup}>
             <Icon icon="tabler:dots" width="18" height="18" />
         </button>

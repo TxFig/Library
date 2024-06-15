@@ -38,27 +38,31 @@
 
 </script>
 
-<p class="text-2xl">{pageUser.username}</p>
-<p>{pageUser.permissionGroup.name}</p>
-
-{#if pageUser.userSettings?.visibleReadingState || isCurrentUser}
-    {#if BooksReadingCollection.books.length > 0}
-        <BuiltInBookCollection collection={BooksReadingCollection} />
-    {/if}
-    {#if BooksReadCollection.books.length > 0}
-        <BuiltInBookCollection collection={BooksReadCollection} />
-    {/if}
-{/if}
-
-{#if isCurrentUser}
-    <hr class="my-4" />
-    <div class="flex items-center gap-2">
-        <p class="text-xl">Collections</p>
-        <CreateNewCollectionButton {onCreatedBookCollection}/>
+<div class="flex flex-col gap-4">
+    <div>
+        <p class="text-2xl">{pageUser.username}</p>
+        <p>{pageUser.permissionGroup.name}</p>
     </div>
-    <div class="flex flex-col gap-2">
-        {#each bookCollections as collection}
-            <BookCollection collection={collection} onDelete={() => onDeleteBookCollection(collection)} />
-        {/each}
-    </div>
-{/if}
+
+    {#if pageUser.userSettings?.visibleReadingState || isCurrentUser}
+        {#if BooksReadingCollection.books.length > 0}
+            <BuiltInBookCollection collection={BooksReadingCollection} />
+        {/if}
+        {#if BooksReadCollection.books.length > 0}
+            <BuiltInBookCollection collection={BooksReadCollection} />
+        {/if}
+    {/if}
+
+    {#if isCurrentUser}
+            <hr />
+            <div class="flex items-center gap-2">
+                <p class="text-xl">Collections</p>
+                <CreateNewCollectionButton {onCreatedBookCollection}/>
+            </div>
+            <div class="flex flex-col gap-2">
+                {#each bookCollections as collection}
+                    <BookCollection collection={collection} onDelete={() => onDeleteBookCollection(collection)} />
+                {/each}
+            </div>
+    {/if}
+</div>

@@ -39,9 +39,22 @@ export async function deleteCollection(id: number, ownerId: number): Promise<voi
     })
 }
 
+export async function updateCollection(id: number, ownerId: number, name: string): Promise<void> {
+    await prisma.bookCollection.update({
+        where: {
+            id,
+            ownerId
+        },
+        data: {
+            name
+        }
+    })
+}
+
 
 export default {
     createCollection,
     isNameAvailable,
-    deleteCollection
+    deleteCollection,
+    updateCollection
 }
