@@ -51,10 +51,26 @@ export async function updateCollection(id: number, ownerId: number, name: string
     })
 }
 
+export async function addBookToCollection(name: string, isbn: string): Promise<void> {
+    await prisma.bookCollection.update({
+        where: {
+            name
+        },
+        data: {
+            books: {
+                connect: {
+                    isbn
+                }
+            }
+        }
+    })
+}
+
 
 export default {
     createCollection,
     isNameAvailable,
     deleteCollection,
-    updateCollection
+    updateCollection,
+    addBookToCollection
 }

@@ -27,5 +27,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
         await db.auth.readingState.getBookReadingState(book.id, locals.user.id)
     : null
 
-    return { book, readingState }
+    return {
+        book,
+        readingState,
+        user: locals.user ? await db.auth.user.getUserById(locals.user.id) : null
+    }
 }

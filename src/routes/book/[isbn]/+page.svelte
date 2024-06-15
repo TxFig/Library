@@ -7,6 +7,7 @@
     import { goto } from "$app/navigation";
     import type { ReadingStateUpdateSchema } from "$lib/validation/reading-state";
     import { ReadingState } from "@prisma/client";
+    import BookCollectionList from "$lib/components/BookCollectionList.svelte";
 
 
     export let data: PageData
@@ -79,6 +80,26 @@
 
     let subjectLimit = 10
     let userBookReadingState: ReadingState = readingState ?? ReadingState.NOT_READ
+
+
+    const addToCollectionPopup: ModalSettings = {
+        type: "component",
+        title: "Add to Collection",
+        body: "Select a collection to add this book to.",
+        component: {
+            ref: BookCollectionList,
+            props: {
+                isbn: book.isbn
+            }
+        },
+        response() {
+            modalStore.close()
+        },
+    }
+    function showPopupAddToCollection() {
+        modalStore.trigger(addToCollectionPopup)
+    }
+
 </script>
 
 <div class="flex flex-col sm:flex-row justify-center items-center h-full pb-20 sm:gap-4">
@@ -202,6 +223,10 @@
             <button class="btn variant-ringed-primary rounded-lg" on:click={redirectToEditPage}>
                 <span>Edit</span>
                 <Icon icon="material-symbols:edit" width="24" />
+            </button>
+            <button class="btn variant-ringed-secondary rounded-lg" on:click={showPopupAddToCollection}>
+                <span>Add to Collection</span>
+                <Icon icon="material-symbols:add" width="24" />
             </button>
         </div>
     </div>

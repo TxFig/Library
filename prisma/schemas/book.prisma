@@ -84,7 +84,7 @@ model Subject {
 
 model BookCollection {
     id   Int    @id @default(autoincrement())
-    name String
+    name String @unique
 
     books Book[]
 

@@ -116,6 +116,13 @@ export async function getUserBySessionToken(sessionToken: string): Promise<Entir
     })
 }
 
+export async function getUserById(id: number): Promise<EntireUser | null> {
+    return await prisma.user.findUnique({
+        where: { id },
+        include: EntireUserInclude
+    })
+}
+
 export async function getUserCount(): Promise<number> {
     return await prisma.user.count()
 }
@@ -130,6 +137,7 @@ export default {
     getUserByEmail,
     getUserByUsername,
     getUserBySessionToken,
+    getUserById,
 
     getUserCount
 }
