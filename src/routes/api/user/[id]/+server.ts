@@ -2,12 +2,12 @@ import type { RequestHandler } from "./$types"
 import { error } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
 import methods from "../index"
-import { isUserAdmin } from "$lib/utils/permissions"
+import { hasPermission } from "$lib/utils/permissions"
 
 
 
 export const DELETE: RequestHandler = async ({ params, locals }) => {
-    if (!locals.user || !isUserAdmin(locals.user)) {
+    if (!locals.user || !hasPermission(locals.user, "Admin")) {
         error(HttpCodes.ClientError.Unauthorized, {
             message: "Need to be logged in to delete users"
         })
@@ -16,7 +16,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 }
 
 export const PATCH: RequestHandler = async ({ params, locals, request }) => {
-    if (!locals.user || locals.user.permissionGroup.name != "Admin") {
+    if (!locals.user || !hasPermission(locals.user, "Admin")) {
         error(HttpCodes.ClientError.Unauthorized, {
             message: "Need to be logged in to edit users"
         })

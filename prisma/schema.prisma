@@ -60,13 +60,16 @@ model User {
   activities Activity[]
 
   userSettings UserSettings?
+
+  books           Book[]
+  bookCollections BookCollection[]
 }
 
 model UserSettings {
   id Int @id @default(autoincrement())
 
   userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   visibleReadingState Boolean @default(false)
 }
@@ -118,8 +121,7 @@ model Book {
   subtitle        String?
   number_of_pages Int?
 
-  publish_date  PublishDate? @relation(fields: [publishDateId], references: [id])
-  publishDateId Int?
+  publish_date PublishDate?
 
   isbn10 String? @unique
   isbn13 String? @unique
@@ -137,14 +139,22 @@ model Book {
   publishers           Publisher[]
   subjects             Subject[]
   userBookReadingState UserBookReadingState[]
+
+  owner   User?   @relation(fields: [ownerId], references: [id])
+  ownerId Int?
+  public  Boolean @default(false)
+
+  bookCollections BookCollection[]
 }
 
 model PublishDate {
-  id    Int    @id @default(autoincrement())
+  id    Int  @id @default(autoincrement())
   year  Int
   month Int?
   day   Int?
-  Book  Book[]
+
+  book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId Int  @unique
 }
 
 model Location {
@@ -180,6 +190,16 @@ model Subject {
   value String @unique
 
   books Book[]
+}
+
+model BookCollection {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  books Book[]
+
+  ownerId Int
+  owner   User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 //

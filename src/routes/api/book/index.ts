@@ -8,7 +8,7 @@ import type {
     BookUpdateDataWithImageFiles
 } from "$lib/validation/book-form"
 import { generateResizedImages } from "$lib/utils/images"
-import HttpCodes, { type HttpErrorCodes } from "$lib/utils/http-codes"
+import HttpCodes, { type HttpCodesValues } from "$lib/utils/http-codes"
 import { HttpError } from "$lib/utils/custom-errors"
 import { decode as decodeFormData } from "decode-formdata"
 import clearEmptyFields from "$lib/utils/clear-empty-fields"
@@ -23,7 +23,7 @@ export type PostMethodReturn = {
     success: true
 } | {
     data: Partial<BookCreateDataWithImageFiles>,
-    code: HttpErrorCodes
+    code: HttpCodesValues
     errors?: z.inferFormattedError<typeof BookCreateSchema>,
     message?: string
     success: false
@@ -44,7 +44,7 @@ export async function POST(user: EntireUser, formData: FormData): Promise<PostMe
 
     const parsedData: BookCreateDataWithImageFiles = parsingResult.data
 
-    const bookAlreadyExists = await db.book.doesBookExist(parsedData.isbn)
+    const bookAlreadyExists = await db.books.book.doesBookExist(parsedData.isbn)
     if (bookAlreadyExists) {
         return {
             data,
@@ -70,7 +70,7 @@ export async function POST(user: EntireUser, formData: FormData): Promise<PostMe
     }
 
     try {
-        await db.book.createBook(createBookData)
+        await db.books.book.createBook(createBookData)
         await db.activityLog.logActivity(user.id, "BOOK_ADDED", createBookData)
     } catch {
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error creating book in database")
@@ -89,7 +89,7 @@ export type PatchMethodReturn = {
     success: true
 } | {
     data: Partial<BookUpdateDataWithImageFiles>,
-    code: HttpErrorCodes
+    code: HttpCodesValues
     errors?: z.inferFormattedError<typeof BookUpdateSchema>,
     message?: string
     success: false
@@ -126,7 +126,7 @@ export async function PATCH(user: EntireUser, formData: FormData): Promise<Patch
 
     let book: Book
     try {
-        book = await db.book.updateBook(updateBookData)
+        book = await db.books.book.updateBook(updateBookData)
         await db.activityLog.logActivity(user.id, "BOOK_UPDATED", updateBookData)
     } catch {
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error updating book in database")

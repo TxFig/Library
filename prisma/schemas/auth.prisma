@@ -1,4 +1,4 @@
-import { Book } from "book"
+import { Book, BookCollection } from "book"
 import { Activity } from "activity"
 import { UserBookReadingState } from "reading-state"
 
@@ -19,13 +19,17 @@ model User {
     activities Activity[]
 
     userSettings UserSettings?
+
+    books Book[]
+    bookCollections BookCollection[]
 }
+
 
 model UserSettings {
     id Int @id @default(autoincrement())
 
     userId Int  @unique
-    user   User @relation(fields: [userId], references: [id])
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     visibleReadingState Boolean @default(false)
 }

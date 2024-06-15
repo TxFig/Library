@@ -22,12 +22,12 @@ export async function close() {
 }
 
 
-import book from "./book"
-import auth from "./auth/"
+import books from "./books"
+import auth from "./auth"
 import activityLog from "./activity-log"
 
 export default {
-    book,
+    books,
     auth,
     activityLog,
     close

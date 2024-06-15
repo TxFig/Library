@@ -5,9 +5,10 @@
     export let max: number | undefined = undefined
     export let placeholder: string | undefined = undefined
 
-    const onlyDigitsRegex = /^\d*$/
-    const nonDigitsRegex = /\D/g
+    const onlyDigitsRegex = /^[0-9X]*$/
+    const nonDigitsRegex = /[^0-9X]/g
     function handleInput() {
+        console.log(onlyDigitsRegex.test(value ?? ""))
         if (!value || onlyDigitsRegex.test(value)) return
 
         value = value.replace(nonDigitsRegex, "")

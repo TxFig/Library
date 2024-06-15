@@ -6,7 +6,7 @@ import { HttpError } from "$lib/utils/custom-errors"
 
 import methods from "."
 import { parseISBN, parseOptionalISBN } from "$lib/validation/isbn"
-import type { EntireBook } from "$lib/server/database/book"
+import type { EntireBook } from "$lib/server/database/books/book"
 import type { Book } from "@prisma/client"
 import { hasPermission } from "$lib/utils/permissions"
 
@@ -61,7 +61,7 @@ export const GET: RequestHandler = async ({ url }) => {
     if (isbn) {
         let book: EntireBook | null
         try {
-            book = await db.book.getEntireBookByISBN(isbn)
+            book = await db.books.book.getEntireBookByISBN(isbn)
         } catch (err) {
             error(HttpCodes.ServerError.InternalServerError, {
                 message: `Error retrieving book (isbn = ${isbn}) from database`
@@ -77,7 +77,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
     let allBooks: Book[]
     try {
-        allBooks = await db.book.getAllBooks()
+        allBooks = await db.books.book.getAllBooks()
     } catch (err) {
         error(HttpCodes.ServerError.InternalServerError, {
             message: "Error retrieving all books from database"
@@ -140,7 +140,7 @@ export const DELETE: RequestHandler = async ({ url, locals }) => {
     }
 
     try {
-        await db.book.deleteBook(isbn!)
+        await db.books.book.deleteBook(isbn!)
         await db.activityLog.logActivity(locals.user.id, "BOOK_DELETED", {
             isbn: isbn!
         })

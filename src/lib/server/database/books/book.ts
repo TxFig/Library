@@ -1,11 +1,34 @@
-import type { Book, Location, Language, Author, Publisher, Subject, PublishDate } from "@prisma/client"
-import { prisma } from "."
+import type { Book, Location, Language, Author, Publisher, Subject, PublishDate, User, UserBookReadingState } from "@prisma/client"
+import { prisma } from ".."
 import type { BookCreateData, BookUpdateData } from "$lib/validation/book-form"
 import { deleteImagesFolder } from "$lib/utils/images"
 
 
-export async function createBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookCreateData): Promise<void> {
-    await prisma.book.create({
+export type EntireBook = Book & {
+    publish_date: PublishDate | null
+    authors: Author[]
+    publishers: Publisher[]
+    subjects: Subject[]
+    location: Location | null
+    language: Language | null
+    userBookReadingState: UserBookReadingState[]
+    owner: User | null
+}
+
+export const EntireBookInclude = {
+    publish_date: true,
+    authors: true,
+    publishers: true,
+    subjects: true,
+    location: true,
+    language: true,
+    userBookReadingState: true,
+    owner: true
+}
+
+
+export async function createBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookCreateData): Promise<EntireBook> {
+    return await prisma.book.create({
         data: {
             ...book,
             publish_date: publish_date ? {
@@ -44,18 +67,11 @@ export async function createBook({ publish_date, location, language, authors, pu
                 }))
             } : undefined
         },
-        include: {
-            publish_date: Boolean(publish_date),
-            location: Boolean(location),
-            language: Boolean(language),
-            authors: Boolean(authors),
-            publishers: Boolean(publishers),
-            subjects: Boolean(subjects)
-        }
+        include: EntireBookInclude
     })
 }
 
-export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookUpdateData): Promise<Book> {
+export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookUpdateData): Promise<EntireBook> {
     return await prisma.book.update({
         where: { isbn: book.isbn },
         data: {
@@ -96,14 +112,7 @@ export async function updateBook({ publish_date, location, language, authors, pu
                 }))
             } : undefined
         },
-        include: {
-            publish_date: Boolean(publish_date),
-            location: Boolean(location),
-            language: Boolean(language),
-            authors: Boolean(authors),
-            publishers: Boolean(publishers),
-            subjects: Boolean(subjects)
-        }
+        include: EntireBookInclude
     })
 }
 
@@ -187,73 +196,19 @@ export async function doesBookExist(isbn: string): Promise<boolean> {
 }
 
 
-export type EntireBook = Book & {
-    publish_date: PublishDate | null
-    authors: Author[]
-    publishers: Publisher[]
-    subjects: Subject[]
-    location: Location | null
-    language: Language | null
-}
-
-export function getEntireBookByISBN(isbn: string): Promise<EntireBook | null> {
-    return prisma.book.findUnique({
+export async function getEntireBookByISBN(isbn: string): Promise<EntireBook | null> {
+    return await prisma.book.findUnique({
         where: { isbn },
-        include: {
-            publish_date: true,
-            authors: true,
-            publishers: true,
-            subjects: true,
-            location: true,
-            language: true
-        }
+        include: EntireBookInclude
     })
 }
 
-export function getAllBooks(): Promise<Book[]> {
-    return prisma.book.findMany()
-}
-
-export function getAllAuthors(): Promise<Author[]> {
-    return prisma.author.findMany()
-}
-export function getAllPublishers(): Promise<Publisher[]> {
-    return prisma.publisher.findMany()
-}
-export function getAllSubjects(): Promise<Subject[]> {
-    return prisma.subject.findMany()
-}
-export function getAllLocations(): Promise<Location[]> {
-    return prisma.location.findMany()
-}
-export function getAllLanguages(): Promise<Language[]> {
-    return prisma.language.findMany()
-}
-
-type AuthorWithBooks = Author & {
-    books: Book[]
-}
-export async function getAuthorWithBooksByName(name: string): Promise<AuthorWithBooks | null> {
-    return prisma.author.findUnique({
-        where: { name },
-        include: {
-            books: true
-        }
+export async function getAllBooks(): Promise<EntireBook[]> {
+    return await prisma.book.findMany({
+        include: EntireBookInclude
     })
 }
 
-
-type PublisherWithBooks = Publisher & {
-    books: Book[]
-}
-export async function getPublisherWithBooksByName(name: string): Promise<PublisherWithBooks | null> {
-    return prisma.publisher.findUnique({
-        where: { name },
-        include: {
-            books: true
-        }
-    })
-}
 
 export default {
     createBook,
@@ -262,14 +217,5 @@ export default {
 
     doesBookExist,
     getEntireBookByISBN,
-
-    getAllBooks,
-    getAllAuthors,
-    getAllPublishers,
-    getAllSubjects,
-    getAllLocations,
-    getAllLanguages,
-
-    getAuthorWithBooksByName,
-    getPublisherWithBooksByName
+    getAllBooks
 }

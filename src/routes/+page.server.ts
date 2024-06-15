@@ -1,13 +1,13 @@
 import type { PageServerLoad } from "./$types"
-
 import db from "$lib/server/database/"
+
 
 export const load: PageServerLoad = async () => {
     return {
-        books: await db.book.getAllBooks(),
-        authors: await db.book.getAllAuthors(),
-        publishers: await db.book.getAllPublishers(),
-        languages: await db.book.getAllLanguages(),
-        locations: await db.book.getAllLocations()
+        books: await db.books.book.getAllBooks(),
+        authors: await db.books.author.getAllAuthors(),
+        publishers: await db.books.publisher.getAllPublishers(),
+        languages: await db.books.language.getAllLanguages(),
+        locations: await db.books.location.getAllLocations()
     }
 }

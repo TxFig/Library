@@ -1,4 +1,4 @@
-import type { Book, EmailConfirmationRequest, Permission, PermissionGroup, User, UserBookReadingState, UserSettings } from "@prisma/client"
+import type { Book, BookCollection, EmailConfirmationRequest, Permission, PermissionGroup, User, UserBookReadingState, UserSettings } from "@prisma/client"
 import { prisma } from ".."
 import type { UserCreateData, UserUpdateData } from "$lib/validation/auth/user"
 
@@ -12,6 +12,10 @@ export type EntireUser = User & {
     })[]
     emailConfirmationRequest: EmailConfirmationRequest | null
     userSettings: UserSettings | null
+    books: Book[]
+    bookCollections: (BookCollection & {
+        books: Book[]
+    })[]
 }
 
 export const EntireUserInclude = {
@@ -26,7 +30,13 @@ export const EntireUserInclude = {
         }
     },
     emailConfirmationRequest: true,
-    userSettings: true
+    userSettings: true,
+    books: true,
+    bookCollections: {
+        include: {
+            books: true
+        }
+    }
 }
 
 export async function createUser(data: UserCreateData): Promise<EntireUser> {
@@ -106,6 +116,13 @@ export async function getUserBySessionToken(sessionToken: string): Promise<Entir
     })
 }
 
+export async function getUserById(id: number): Promise<EntireUser | null> {
+    return await prisma.user.findUnique({
+        where: { id },
+        include: EntireUserInclude
+    })
+}
+
 export async function getUserCount(): Promise<number> {
     return await prisma.user.count()
 }
@@ -120,6 +137,7 @@ export default {
     getUserByEmail,
     getUserByUsername,
     getUserBySessionToken,
+    getUserById,
 
     getUserCount
 }
