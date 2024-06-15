@@ -4,6 +4,7 @@ import publisher from "./publisher"
 import subject from "./subject"
 import location from "./location"
 import language from "./language"
+import collection from "./collection"
 
 
 export default {
@@ -12,5 +13,6 @@ export default {
     publisher,
     subject,
     location,
-    language
+    language,
+    collection
 }

@@ -61,9 +61,8 @@ model User {
 
   userSettings UserSettings?
 
-  Book Book[]
-
-  BookCollection BookCollection[]
+  books           Book[]
+  bookCollections BookCollection[]
 }
 
 model UserSettings {
