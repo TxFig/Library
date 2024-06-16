@@ -3,7 +3,7 @@
     "version": "0.8.1",
     "scripts": {
         "dev": "vite dev",
-        "build": "run-s build:* prisma:*",
+        "build": "run-s build:app build:assets prisma:deploy",
         "build:app": "vite build",
         "build:assets": "mkdir \"static/images\" || exit 0",
         "prisma:import": "npx prisma-import -s prisma/schemas/* -o prisma/schema.prisma -f",
