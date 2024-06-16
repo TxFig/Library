@@ -6,7 +6,7 @@
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
     import type { ReadingStateUpdateSchema } from "$lib/validation/reading-state";
-    import { ReadingState } from "@prisma/client";
+    import type { ReadingState } from "@prisma/client";
     import BookCollectionList from "$lib/components/BookCollectionList.svelte";
 
 
@@ -79,7 +79,7 @@
     }
 
     let subjectLimit = 10
-    let userBookReadingState: ReadingState = readingState ?? ReadingState.NOT_READ
+    let userBookReadingState: ReadingState = readingState ?? "NOT_READ"
 
 
     const addToCollectionPopup: ModalSettings = {
@@ -180,8 +180,8 @@
                     <RadioItem
                         bind:group={userBookReadingState}
                         name="userBookReadingState"
-                        value={ReadingState.NOT_READ}
-                        on:click={() => setReadingState(ReadingState.NOT_READ)}
+                        value={"NOT_READ"}
+                        on:click={() => setReadingState("NOT_READ")}
                         class="flex items-center gap-2 pr-8"
                     >
                         <Icon icon="fa6-regular:eye-slash" width="16" height="16"/>
@@ -190,8 +190,8 @@
                     <RadioItem
                         bind:group={userBookReadingState}
                         name="userBookReadingState"
-                        value={ReadingState.READING}
-                         on:click={() => setReadingState(ReadingState.READING)}
+                        value={"READING"}
+                         on:click={() => setReadingState("READING")}
                          class="flex items-center gap-2 pr-8"
                         >
                         <Icon icon="fa6-regular:bookmark" width="16" height="16"/>
@@ -200,8 +200,8 @@
                     <RadioItem
                         bind:group={userBookReadingState}
                         name="userBookReadingState"
-                        value={ReadingState.READ}
-                        on:click={() => setReadingState(ReadingState.READ)}
+                        value={"READ"}
+                        on:click={() => setReadingState("READ")}
                         class="flex items-center gap-2 pr-8"
                     >
                         <Icon icon="fa6-regular:circle-check" width="16" height="16"/>

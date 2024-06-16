@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { ReadingState } from "@prisma/client";
     import type { PageData } from "./$types";
     import CreateNewCollectionButton from "$lib/components/user/CreateNewCollectionButton.svelte";
     import type { BookCollectionWithBooks } from "$lib/server/database/books/collection";
@@ -13,7 +12,7 @@
     const BooksReadingCollection: Omit<BookCollectionWithBooks, "id"> = {
         name: "Books Reading",
         books: pageUser.userBookReadingState
-            .filter(readingState => readingState.state === ReadingState.READING)
+            .filter(readingState => readingState.state === "READING")
             .map(readingState => readingState.book),
 
         ownerId: pageUser.id
@@ -21,7 +20,7 @@
     const BooksReadCollection: Omit<BookCollectionWithBooks, "id"> = {
         name: "Books Read",
         books: pageUser.userBookReadingState
-            .filter(readingState => readingState.state === ReadingState.READ)
+            .filter(readingState => readingState.state === "READ")
             .map(readingState => readingState.book),
 
         ownerId: pageUser.id
