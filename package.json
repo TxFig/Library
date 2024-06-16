@@ -3,14 +3,15 @@
     "version": "0.8.1",
     "scripts": {
         "dev": "vite dev",
-        "build": "run-s build:app build:assets prisma:deploy prisma:seed",
+        "build": "run-s prisma:generate build:app build:assets",
         "build:app": "vite build",
         "build:assets": "mkdir \"static/images\" || exit 0",
         "prisma:import": "npx prisma-import -s prisma/schemas/* -o prisma/schema.prisma -f",
         "prisma:generate": "npx prisma generate",
         "prisma:seed": "npx prisma db seed",
         "prisma:deploy": "npx prisma migrate deploy",
-        "start": "node server.mjs",
+        "start": "run-s prisma:deploy prisma:seed start:server",
+        "start:server": "node server.mjs",
         "preview": "vite preview",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
