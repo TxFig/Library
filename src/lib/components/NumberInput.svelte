@@ -8,7 +8,6 @@
     const onlyDigitsRegex = /^[0-9X]*$/
     const nonDigitsRegex = /[^0-9X]/g
     function handleInput() {
-        console.log(onlyDigitsRegex.test(value ?? ""))
         if (!value || onlyDigitsRegex.test(value)) return
 
         value = value.replace(nonDigitsRegex, "")
