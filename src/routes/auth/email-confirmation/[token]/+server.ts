@@ -4,6 +4,8 @@ import { validate } from "uuid"
 import db from "$lib/server/database/";
 import HttpCodes from "$lib/utils/http-codes";
 import isDateExpired from "$lib/utils/is-date-expired";
+import { SESSION_COOKIE_NAME } from "$env/static/private";
+import { dev } from "$app/environment";
 
 
 export const GET: RequestHandler = async ({ params, cookies, url }) => {
@@ -25,9 +27,10 @@ export const GET: RequestHandler = async ({ params, cookies, url }) => {
     await db.auth.emailConfirmation.deleteEmailConfirmationRequestByToken(token)
 
     const { token: sessionToken, expireDate } = await db.auth.session.createSession(emailConfirmationRequest.userId)
-    cookies.set("sessionToken", sessionToken, {
+    cookies.set(SESSION_COOKIE_NAME, sessionToken, {
         path: "/",
-        expires: expireDate
+        expires: expireDate,
+        secure: !dev
     })
 
     const redirectPath = url.searchParams.get("redirect")
