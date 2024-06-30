@@ -46,7 +46,7 @@ export const ISBNSchema = z
     .refine(validateISBN, "Invalid ISBN")
     .transform(value => value.replace(allSpacesAndHyphensRegex, ""))
 
-    export const ISBNOptionalSchema = ISBNSchema
+export const ISBNOptionalSchema = ISBNSchema
     .nullish()
 
 

@@ -4,9 +4,9 @@ import type { RequestHandler } from "./$types"
 import { getOpenLibraryBook } from "$lib/utils/open-library"
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
-import { parseISBN } from "$lib/validation/isbn"
+import { parseISBN } from "$lib/validation/book/isbn"
 import { HttpError } from "$lib/utils/custom-errors"
-import type { BookCreateData } from "$lib/validation/book-form"
+import type { BookCreateData } from "$lib/validation/book/book-form"
 import { generateResizedImages } from "$lib/utils/images"
 
 

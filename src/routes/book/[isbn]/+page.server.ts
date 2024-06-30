@@ -3,7 +3,7 @@ import { error } from "@sveltejs/kit"
 
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
-import { parseISBN } from "$lib/validation/isbn"
+import { parseISBN } from "$lib/validation/book/isbn"
 import { HttpError } from "$lib/utils/custom-errors"
 
 

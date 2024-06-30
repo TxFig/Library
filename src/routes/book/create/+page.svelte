@@ -13,7 +13,7 @@
     import InputField from "$lib/components/book-form/InputField.svelte"
     import ErrorMessage from "$lib/components/book-form/ErrorMessage.svelte"
 
-    import { BookCreateSchema, BookCreateSchemaDecodeInfo } from "$lib/validation/book-form"
+    import { BookCreateSchema, BookCreateSchemaDecodeInfo } from "$lib/validation/book/book-form"
     import type { z } from "zod"
     import SubmitFunctionFactory from "$lib/utils/submit-function-factory"
 

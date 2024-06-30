@@ -2,24 +2,22 @@
     import filterRegex from "$lib/utils/filter-regex";
 
     export let text: string
-    export let required: boolean = false
     export let name: string | undefined = undefined
-    export let value: number | undefined | null = undefined
+    export let value: string | undefined | null = undefined
+    export let required: boolean = false
     export let placeholder: string | undefined = undefined
 
-    export let min: number | undefined = undefined
-    export let max: number | undefined = undefined
 
-    export let allowedRegex: RegExp = /^[0-9]*$/
+    export let allowedRegex: RegExp | undefined = undefined
     function handleInput() {
-        if (!value) return
+        if (!allowedRegex || !value) return
 
-        const validValue = filterRegex(allowedRegex, value.toString())
-        value = validValue !== "" ? Number(validValue) : undefined
+        value = filterRegex(allowedRegex, value)
     }
 
     let externalClasses: string | undefined = undefined
     export { externalClasses as class }
+
 </script>
 
 <label class="label {externalClasses}">
@@ -32,10 +30,10 @@
     <input
         class="input"
         type="text"
-        {name} {min} {max}
-        bind:value
-        on:input={handleInput}
-        placeholder={placeholder}
+        name={name}
+        bind:value={value}
         autocomplete="off"
+        placeholder={placeholder}
+        on:input={handleInput}
     />
 </label>

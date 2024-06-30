@@ -1,12 +1,12 @@
 import db from "$lib/server/database/"
 
-import { BookCreateSchema, BookUpdateSchema, BookCreateSchemaDecodeInfo, BookUpdateSchemaDecodeInfo } from "$lib/validation/book-form"
+import { BookCreateSchema, BookUpdateSchema, BookCreateSchemaDecodeInfo, BookUpdateSchemaDecodeInfo } from "$lib/validation/book/book-form"
 import type {
     BookCreateData,
     BookCreateDataWithImageFiles,
     BookUpdateData,
     BookUpdateDataWithImageFiles
-} from "$lib/validation/book-form"
+} from "$lib/validation/book/book-form"
 import { generateResizedImages } from "$lib/utils/images"
 import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import { HttpError } from "$lib/utils/custom-errors"

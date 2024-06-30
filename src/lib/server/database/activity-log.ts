@@ -1,6 +1,6 @@
 import type { Activity, ActivityType, ReadingState } from "@prisma/client"
 import { prisma } from "."
-import { type BookCreateData, type BookUpdateData } from "$lib/validation/book-form"
+import { type BookCreateData, type BookUpdateData } from "$lib/validation/book/book-form"
 import { type UserCreateData, type UserUpdateData } from "$lib/validation/auth/user"
 
 

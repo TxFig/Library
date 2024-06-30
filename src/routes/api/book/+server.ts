@@ -2,8 +2,8 @@ import { applyDecorators } from "$lib/decorators";
 import AuthDecorator from "$lib/decorators/auth";
 import type { RequestHandler } from "./$types";
 import db from "$lib/server/database/"
+import HttpCodes from "$lib/utils/http-codes"
 import { json } from "@sveltejs/kit";
-import HttpCodes from "$lib/utils/http-codes";
 
 
 export const GET: RequestHandler = applyDecorators(

@@ -5,7 +5,7 @@
     import ImageDisplayer from "$lib/components/ImageDisplayer.svelte"
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
-    import type { ReadingStateUpdateSchema } from "$lib/validation/reading-state";
+    import type { ReadingStateUpdateSchema } from "$lib/validation/book/reading-state";
     import type { ReadingState } from "@prisma/client";
     import BookCollectionList from "$lib/components/BookCollectionList.svelte";
 

@@ -1,0 +1,18 @@
+<script lang="ts">
+    import type { PageData } from "./$types";
+    import BookForm from "$lib/components/book-form/BookForm.svelte";
+    import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
+
+
+    export let data: PageData;
+
+</script>
+
+{#if data.user}
+    <div class="space-y-4">
+        <h2 class="h2">Book Creation</h2>
+        <BookForm data={data.form} />
+    </div>
+{:else}
+    <NotLoggedIn />
+{/if}
