@@ -1,10 +1,10 @@
 import { error, type RequestEvent } from "@sveltejs/kit"
-import HttpCodes from "$lib/utils/http-codes"
 import type { TargetFunction } from "."
+import HttpCodes from "$lib/utils/http-codes"
 import { hasPermissions, type PermissionName } from "$lib/utils/permissions"
 
 
-export function AuthDecorator(permissions: PermissionName[]) {
+export function AuthDecorator(permissions?: PermissionName[]) {
     return function<Event extends RequestEvent, Return>(
         target: TargetFunction<Event, Return>
     ): TargetFunction<Event, Return> {
@@ -14,9 +14,10 @@ export function AuthDecorator(permissions: PermissionName[]) {
                     message: "Need to be logged in"
                 })
             }
-            if (!hasPermissions(event.locals.user, permissions)) {
+            if (permissions && !hasPermissions(event.locals.user, permissions)) {
+                const permissionsString = permissions.map(p => `'${p}'`).join(", ")
                 error(HttpCodes.ClientError.Forbidden, {
-                    message: "Need to have permissions" // TODO: Add permissions to error
+                    message: `Need to have these permissions: ${permissionsString}`
                 })
             }
 
