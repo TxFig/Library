@@ -6,6 +6,10 @@ export function hasPermission(user: EntireUser, permissionName: PermissionName):
     return user.permissionGroup.permissions.some(p => p.name == permissionName)
 }
 
+export function hasPermissions(user: EntireUser, permissionNames: PermissionName[]): boolean {
+    return permissionNames.every(permission => hasPermission(user, permission))
+}
+
 export default {
     hasPermission
 }
