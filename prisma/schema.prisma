@@ -45,7 +45,9 @@ enum ActivityType {
 //
 
 model User {
-  id             Int     @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
+  opaqueId String @unique
+
   email          String  @unique
   username       String  @unique
   profilePicture Boolean @default(false)
@@ -117,7 +119,7 @@ model PermissionGroup {
 model Book {
   id Int @id @default(autoincrement())
 
-  isbn            String  @unique
+  isbn            String  @unique // also acts as opaque id
   title           String
   subtitle        String?
   number_of_pages Int?

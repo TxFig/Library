@@ -6,7 +6,7 @@ import { Book, Book, PublishDate } from "..\schema"
 model Book {
     id Int @id @default(autoincrement())
 
-    isbn            String  @unique
+    isbn            String  @unique // also acts as opaque id
     title           String
     subtitle        String?
     number_of_pages Int?

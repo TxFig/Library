@@ -5,6 +5,8 @@ import { UserBookReadingState } from "reading-state"
 
 model User {
     id             Int     @id @default(autoincrement())
+    opaqueId       String  @unique
+
     email          String  @unique
     username       String  @unique
     profilePicture Boolean @default(false)
