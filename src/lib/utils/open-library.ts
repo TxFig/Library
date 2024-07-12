@@ -1,9 +1,6 @@
 import type { BookCreateDataWithImageFiles } from "$lib/validation/book/book-form"
 import type { DateObjectWithYear } from "$lib/validation/book/publish-date"
-<<<<<<< HEAD
 import fetchImageAsFile from "./fetch-image-as-file"
-=======
->>>>>>> origin/refactor/api
 
 
 export interface OpenLibraryBookData {
@@ -89,11 +86,7 @@ async function parseOpenLibraryData(
         : null
 
     const imageURL = data.cover?.large ?? data.cover?.medium ?? data.cover?.small ?? null
-<<<<<<< HEAD
     const imageFile = imageURL ? await fetchImageAsFile(imageURL) : undefined
-=======
-    const imageFile = imageURL ? await fetchImageContent(imageURL) : undefined
->>>>>>> origin/refactor/api
 
     const publishDate = data.publish_date ?
         openLibraryDateToDateObject(data.publish_date)

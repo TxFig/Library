@@ -17,10 +17,6 @@
 
     let externalClasses: string | undefined = undefined
     export { externalClasses as class }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/refactor/api
 </script>
 
 <label class="label {externalClasses}">
@@ -38,11 +34,8 @@
         autocomplete="off"
         placeholder={placeholder}
         on:input={handleInput}
-<<<<<<< HEAD
 
         on:change
         on:input
-=======
->>>>>>> origin/refactor/api
     />
 </label>

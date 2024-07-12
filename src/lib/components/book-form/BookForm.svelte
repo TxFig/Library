@@ -1,9 +1,5 @@
 <script lang="ts">
-<<<<<<< HEAD
     import SuperDebug, { superForm, type Infer, type InferIn, type SuperValidated } from "sveltekit-superforms";
-=======
-    import SuperDebug, { superForm, type Infer, type InferIn, type SuperValidated, type ValidationErrors } from "sveltekit-superforms";
->>>>>>> origin/refactor/api
     import ErrorMessage from "./ErrorMessage.svelte";
     import { BookCreateSchema } from "$lib/validation/book/book-form"
     import NumberInput from "../NumberInput.svelte";
@@ -26,23 +22,9 @@
                 alert(form.message.text)
             }
         }
-<<<<<<< HEAD
     })
 
     const ISBNRegex = /^[0-9X]*$/
-=======
-    });
-
-    $errors.publish_date?._errors
-
-    const ISBNRegex = /^[0-9X]*$/
-
-    // $: console.log($errors.publish_date?._errors)
-    // type PublishDateErrors = typeof $errors.publish_date
-    // type PublishDateError = ValidationErrors<Infer<BookCreateSchema>>["publish_date"]
-
-    // $: console.log($errors.publish_date)
->>>>>>> origin/refactor/api
 </script>
 
 
@@ -71,11 +53,7 @@
         <ErrorMessage errors={$errors.number_of_pages}/>
     </div>
 
-<<<<<<< HEAD
     <PublishDate bind:dateObject={$form.publish_date} bind:errors={$errors.publish_date} />
-=======
-    <PublishDate bind:day={$form.publish_date.day} bind:errors={$errors.publish_date} />
->>>>>>> origin/refactor/api
 
     <div class="flex gap-6">
         <ImageInput title="Front Image" name="front_image" bind:file={$form.front_image} />

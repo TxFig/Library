@@ -29,11 +29,7 @@ export const PublishDateSchema = z
         day: z.number().nullish()
     })
     .refine(isValidDate, "Invalid Publish Date")
-<<<<<<< HEAD:src/lib/validation/book/publish-date.ts
     .optional()
-=======
-    .nullish()
->>>>>>> origin/refactor/api:src/lib/validation/publish-date.ts
     .default({})
 
 
