@@ -5,12 +5,12 @@ const daysInMonth = (month: number, year: number) =>
     new Date(year, month, 0).getDate()
 
 const minYear = 1970
-const maxYear = new Date().getFullYear()
 
 export type DateObject = { year?: number | null, month?: number | null, day?: number | null }
 export type DateObjectWithYear = { year: number, month?: number | null, day?: number | null }
 function isValidDate (date: DateObject): date is DateObjectWithYear {
-    const {year, month, day} = date
+    const { year, month, day } = date
+    const maxYear = new Date().getFullYear()
 
     if (!year || (day && !month)) return false
 
@@ -29,7 +29,12 @@ export const PublishDateSchema = z
         day: z.number().nullish()
     })
     .refine(isValidDate, "Invalid Publish Date")
+<<<<<<< HEAD:src/lib/validation/book/publish-date.ts
+    .optional()
+=======
     .nullish()
+>>>>>>> origin/refactor/api:src/lib/validation/publish-date.ts
+    .default({})
 
 
 export default PublishDateSchema

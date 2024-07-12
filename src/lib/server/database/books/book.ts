@@ -1,6 +1,6 @@
 import type { Book, Location, Language, Author, Publisher, Subject, PublishDate, User, UserBookReadingState } from "@prisma/client"
 import { prisma } from ".."
-import type { BookCreateData, BookUpdateData } from "$lib/validation/book-form"
+import type { BookCreateData, BookUpdateData } from "$lib/validation/book/book-form"
 import { deleteImagesFolder } from "$lib/utils/images"
 
 

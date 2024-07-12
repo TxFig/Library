@@ -1,10 +1,13 @@
 <script lang="ts">
-    import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from "$lib/validation/file";
+    import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from "$lib/validation/book/file";
     import Icon from "@iconify/svelte"
     import { FileDropzone, getToastStore } from "@skeletonlabs/skeleton"
+    import TextInput from "../TextInput.svelte";
+    import fetchImageAsFile from "$lib/utils/fetch-image-as-file";
 
 
     const toastStore = getToastStore()
+    let srcError: boolean = false
 
     async function getDataURLImage(image: File): Promise<string | null> {
         if (!image) return null
@@ -24,16 +27,38 @@
     }
 
     async function onImageChange() {
-        const image = files[0]
-        const url = await getDataURLImage(image)
+        file = files[0]
+        const url = await getDataURLImage(file)
         src = url ?? ""
+        srcError = false
     }
 
     export let src: string = ""
     let files: FileList
+    export let file: File | undefined = undefined
 
     export let title: string
     export let name: string
+
+    export let imageUrl: string = ""
+    async function handleImageUrlInput() {
+        if (!imageUrl) return
+        try {
+            const url = new URL(imageUrl)
+            if (url.protocol === "http:" || url.protocol === "https:") {
+                src = imageUrl
+                srcError = false
+                file = await fetchImageAsFile(imageUrl)
+            }
+        } catch (e) {
+            srcError = true
+        }
+    }
+
+    function handleImageError() {
+        src = ""
+        srcError = true
+    }
 </script>
 
 
@@ -47,7 +72,12 @@
             </div>
         </svelte:fragment>
     </FileDropzone>
+    <TextInput text="Image URL" name="image_url" bind:value={imageUrl} on:input={handleImageUrlInput} />
     {#if src}
-        <img src={src} alt={title} class="w-full">
+        <img src={src} alt={title} class="w-full" on:error={handleImageError} />
     {/if}
+    {#if srcError}
+        <p class="text-red-600">Invalid Image</p>
+    {/if}
+    <p></p>
 </div>

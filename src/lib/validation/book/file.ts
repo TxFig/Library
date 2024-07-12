@@ -21,7 +21,7 @@ const FileOptionalSchema = z.instanceof(File)
         (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
         "Only .jpg, .jpeg, .png and .webp formats are supported."
     )
-    .nullish()
+    .optional()
 
 
 export default FileOptionalSchema

@@ -1,5 +1,9 @@
-import type { BookCreateDataWithImageFiles } from "$lib/validation/book-form"
-import type { DateObjectWithYear } from "$lib/validation/publish-date"
+import type { BookCreateDataWithImageFiles } from "$lib/validation/book/book-form"
+import type { DateObjectWithYear } from "$lib/validation/book/publish-date"
+<<<<<<< HEAD
+import fetchImageAsFile from "./fetch-image-as-file"
+=======
+>>>>>>> origin/refactor/api
 
 
 export interface OpenLibraryBookData {
@@ -49,12 +53,6 @@ function capitalizeFirstLetter(string: string): string {
     return string[0].toUpperCase() + string.substring(1)
 }
 
-async function fetchImageContent(url: string): Promise<File> {
-    const res = await fetch(url)
-    const arrayBuffer = await res.arrayBuffer()
-    return new File([arrayBuffer], "")
-}
-
 function openLibraryDateToDateObject(date: string): DateObjectWithYear {
     const dateJsObject = new Date(date)
     return {
@@ -91,11 +89,15 @@ async function parseOpenLibraryData(
         : null
 
     const imageURL = data.cover?.large ?? data.cover?.medium ?? data.cover?.small ?? null
-    const imageFile = imageURL ? await fetchImageContent(imageURL) : null
+<<<<<<< HEAD
+    const imageFile = imageURL ? await fetchImageAsFile(imageURL) : undefined
+=======
+    const imageFile = imageURL ? await fetchImageContent(imageURL) : undefined
+>>>>>>> origin/refactor/api
 
     const publishDate = data.publish_date ?
         openLibraryDateToDateObject(data.publish_date)
-    : null
+    : {}
 
     return {
         title: data.title,
@@ -108,7 +110,7 @@ async function parseOpenLibraryData(
         isbn10: isbn10,
 
         front_image: imageFile,
-        back_image: null,
+        back_image: undefined,
 
         authors,
         publishers,

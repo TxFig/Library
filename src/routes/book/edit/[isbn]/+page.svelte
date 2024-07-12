@@ -13,7 +13,7 @@
     import InputField from "$lib/components/book-form/InputField.svelte"
     import ErrorMessage from "$lib/components/book-form/ErrorMessage.svelte"
 
-    import { BookUpdateSchemaDecodeInfo, BookUpdateSchema } from "$lib/validation/book-form"
+    import { BookUpdateSchemaDecodeInfo, BookUpdateSchema } from "$lib/validation/book/book-form"
     import type { z } from "zod";
     import { decode as decodeFormData } from "decode-formdata"
     import clearEmptyFields from "$lib/utils/clear-empty-fields"

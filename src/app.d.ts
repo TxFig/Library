@@ -29,6 +29,13 @@ declare global {
             session: Session | null
         }
         // interface Platform {}
+
+        namespace Superforms {
+            interface Message {
+                text: string
+                type: "success" | "error"
+            }
+        }
     }
 }
 

@@ -10,10 +10,10 @@
     import AutocompleteInputChip from "$lib/components/book-form/AutocompleteInputChip.svelte"
     import ImageInput from "$lib/components/book-form/ImageInput.svelte"
     import ListBoxInput from "$lib/components/book-form/ListBoxInput.svelte"
-    import InputField from "$lib/components/book-form/InputField.svelte"
+    import InputField from "$lib/components/TextInput.svelte"
     import ErrorMessage from "$lib/components/book-form/ErrorMessage.svelte"
 
-    import { BookCreateSchema, BookCreateSchemaDecodeInfo } from "$lib/validation/book-form"
+    import { BookCreateSchema, BookCreateSchemaDecodeInfo } from "$lib/validation/book/book-form"
     import type { z } from "zod"
     import SubmitFunctionFactory from "$lib/utils/submit-function-factory"
 

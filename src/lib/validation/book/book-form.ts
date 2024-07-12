@@ -1,10 +1,11 @@
 import { z } from "zod"
 import { ISBNOptionalSchema, ISBNSchema } from "./isbn"
-import { MAX_INT32BIT } from "./utils"
+import { MAX_INT32BIT } from "../utils"
 import PublishDateSchema from "./publish-date"
 import FileOptionalSchema from "./file"
 import type { ReplaceFields } from "$lib/utils/types"
 import type { FormDataInfo } from "decode-formdata"
+
 
 
 //* Create Schema
@@ -30,12 +31,13 @@ export const BookCreateSchema = z.object({
     publish_date: PublishDateSchema,
     location: z.string().nullish(),
     language: z.string().nullish(),
-    authors: z.array(z.string()).nullish(),
-    publishers: z.array(z.string()).nullish(),
-    subjects: z.array(z.string()).nullish()
+    authors: z.array(z.string()).default([]),
+    publishers: z.array(z.string()).default([]),
+    subjects: z.array(z.string()).default([])
 }, {
     required_error: "Book Data Required",
 }).strict()
+export type BookCreateSchema = typeof BookCreateSchema
 
 export const BookCreateSchemaDecodeInfo: FormDataInfo = {
     arrays: ["authors", "publishers", "subjects"],
@@ -56,6 +58,7 @@ export type BookCreateData = ReplaceFields<BookCreateDataWithImageFiles, {
 export const BookUpdateSchema = BookCreateSchema.partial().required({
     isbn: true
 })
+export type BookUpdateSchema = typeof BookUpdateSchema
 
 export const BookUpdateSchemaDecodeInfo: FormDataInfo = {
     arrays: ["authors", "publishers", "subjects"],

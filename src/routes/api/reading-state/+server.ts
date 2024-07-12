@@ -3,7 +3,7 @@ import type { RequestHandler } from "./$types"
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
 import clearEmptyFields from "$lib/utils/clear-empty-fields"
-import { ReadingStateUpdateSchema } from "$lib/validation/reading-state"
+import { ReadingStateUpdateSchema } from "$lib/validation/book/reading-state"
 import { hasPermission } from "$lib/utils/permissions"
 import { ActivityType } from "@prisma/client"
 
