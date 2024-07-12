@@ -8,7 +8,7 @@ import type {
     BookUpdateDataWithImageFiles
 } from "$lib/validation/book-form"
 import { generateResizedImages } from "$lib/utils/images"
-import HttpCodes, { type HttpCodesValues } from "$lib/utils/http-codes"
+import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import { HttpError } from "$lib/utils/custom-errors"
 import { decode as decodeFormData } from "decode-formdata"
 import clearEmptyFields from "$lib/utils/clear-empty-fields"
@@ -23,7 +23,7 @@ export type PostMethodReturn = {
     success: true
 } | {
     data: Partial<BookCreateDataWithImageFiles>,
-    code: HttpCodesValues
+    code: HttpErrorCodesValues
     errors?: z.inferFormattedError<typeof BookCreateSchema>,
     message?: string
     success: false
@@ -89,7 +89,7 @@ export type PatchMethodReturn = {
     success: true
 } | {
     data: Partial<BookUpdateDataWithImageFiles>,
-    code: HttpCodesValues
+    code: HttpErrorCodesValues
     errors?: z.inferFormattedError<typeof BookUpdateSchema>,
     message?: string
     success: false

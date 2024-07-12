@@ -25,6 +25,6 @@ export type HttpCodes = typeof HttpCodes
 
 type ClientError = HttpCodes["ClientError"]
 type ServerError = HttpCodes["ServerError"]
-export type HttpCodesValues = Values<ClientError> | Values<ServerError>
+export type HttpErrorCodesValues = Values<ClientError> | Values<ServerError>
 
 export default HttpCodes

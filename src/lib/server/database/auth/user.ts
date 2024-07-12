@@ -1,6 +1,8 @@
 import type { Book, BookCollection, EmailConfirmationRequest, Permission, PermissionGroup, User, UserBookReadingState, UserSettings } from "@prisma/client"
 import { prisma } from ".."
 import type { UserCreateData, UserUpdateData } from "$lib/validation/auth/user"
+import { v4 as uuidv4 } from "uuid"
+import type { Prisma } from "@prisma/client"
 
 
 export type EntireUser = User & {
@@ -39,11 +41,43 @@ export const EntireUserInclude = {
     }
 }
 
+const UserIncludeBase: Prisma.UserInclude = {}
+const UserIncludeAll: Prisma.UserInclude = {
+    permissionGroup: {
+        include: {
+            permissions: true
+        }
+    },
+    userBookReadingState: {
+        include: {
+            book: true
+        }
+    },
+    emailConfirmationRequest: true,
+    userSettings: true,
+    books: true,
+    bookCollections: {
+        include: {
+            books: true
+        }
+    }
+}
+
+export function _getUserById(id: number, include: Prisma.UserInclude = UserIncludeBase) {
+    return prisma.user.findUnique({
+        where: { id },
+        include
+    })
+}
+
+
 export async function createUser(data: UserCreateData): Promise<EntireUser> {
     const { permissionGroup, ...user } = data
+    const opaqueId = uuidv4()
     return await prisma.user.create({
         data: {
             ...user,
+            opaqueId,
             permissionGroup: {
                 connect: {
                     name: permissionGroup
