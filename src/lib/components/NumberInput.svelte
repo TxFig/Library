@@ -20,6 +20,8 @@
 
     let externalClasses: string | undefined = undefined
     export { externalClasses as class }
+
+    export let errors: string[] | undefined = undefined
 </script>
 
 <label class="label {externalClasses}">
@@ -37,5 +39,10 @@
         on:input={handleInput}
         placeholder={placeholder}
         autocomplete="off"
+
+        on:change
+        on:input
+
+        aria-invalid={errors ? "true" : undefined}
     />
 </label>

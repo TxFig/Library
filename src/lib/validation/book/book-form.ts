@@ -14,13 +14,13 @@ export const BookCreateSchema = z.object({
 
     title: z.string(),
 
-    subtitle: z.string().nullish(),
+    subtitle: z.string().optional(),
     number_of_pages: z
         .number()
         .int()
         .positive()
         .lte(MAX_INT32BIT)
-        .nullish(),
+        .optional(),
 
     isbn10: ISBNOptionalSchema,
     isbn13: ISBNOptionalSchema,
@@ -29,8 +29,8 @@ export const BookCreateSchema = z.object({
     back_image: FileOptionalSchema,
 
     publish_date: PublishDateSchema,
-    location: z.string().nullish(),
-    language: z.string().nullish(),
+    location: z.string().optional(),
+    language: z.string().optional(),
     authors: z.array(z.string()).default([]),
     publishers: z.array(z.string()).default([]),
     subjects: z.array(z.string()).default([])
