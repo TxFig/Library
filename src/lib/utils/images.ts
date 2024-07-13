@@ -1,4 +1,4 @@
-import { IMAGES_PATH } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 import fs from "fs"
 import path from "path"
 import sharp from "sharp"
@@ -24,7 +24,7 @@ export async function generateResizedImages(isbn: string, side: "front" | "back"
     const heights = resizeHeights.filter(height => height < size.height)
 
     for (const height of heights) {
-        const folder = path.join(IMAGES_PATH, isbn, side)
+        const folder = path.join(env.IMAGES_PATH, isbn, side)
         const filename = `${height.toString()}.webp`
         const filepath = path.join(folder, filename)
 
@@ -45,6 +45,6 @@ export async function generateResizedImages(isbn: string, side: "front" | "back"
 }
 
 export async function deleteImagesFolder(isbn: string) {
-    const folder = path.join(IMAGES_PATH, isbn)
+    const folder = path.join(env.IMAGES_PATH, isbn)
     fs.rmSync(folder, { recursive: true, force: true })
 }

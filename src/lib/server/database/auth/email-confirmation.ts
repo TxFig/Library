@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 import { prisma } from ".."
 import { sendConfirmationEmail } from "$lib/utils/mail"
 import generateExpirationDate from "$lib/utils/generate-expiration-date"
-import { EMAIL_CONFIRMATION_EXPIRATION_TIME } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 
 
 export async function sendConfirmationEmailAndSaveRequest(
@@ -18,7 +18,7 @@ export async function sendConfirmationEmailAndSaveRequest(
         await prisma.emailConfirmationRequest.create({
             data: {
                 token,
-                expireDate: generateExpirationDate(+EMAIL_CONFIRMATION_EXPIRATION_TIME),
+                expireDate: generateExpirationDate(+env.EMAIL_CONFIRMATION_EXPIRATION_TIME),
                 userId: user.id
             }
         })
