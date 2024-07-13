@@ -4,7 +4,7 @@
     import { getToastStore } from "@skeletonlabs/skeleton"
     import type { ActionData, SubmitFunction } from "./$types"
     import { EmailSchema } from "$lib/validation/auth/user";
-    import InputField from "$lib/components/book-form/InputField.svelte";
+    import TextInput from "$lib/components/TextInput.svelte";
 
 
     const toastStore = getToastStore()
@@ -44,7 +44,7 @@
     <form method="post" class="flex flex-col gap-8 w-1/3 justify-center" use:enhance={enhanceHandler}>
         <h1 class="text-2xl">Log In</h1>
         <div>
-            <InputField
+            <TextInput
                 text="Email"
                 name="email"
                 placeholder="email@example.com"

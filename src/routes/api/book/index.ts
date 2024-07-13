@@ -15,39 +15,30 @@ import clearEmptyFields from "$lib/utils/clear-empty-fields"
 import type { z } from "zod"
 import type { Book } from "@prisma/client"
 import type { EntireUser } from "$lib/server/database/auth/user"
+import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms"
 
 
 export type PostMethodReturn = {
-    data: Partial<BookCreateDataWithImageFiles>,
     book: BookCreateData,
+    message?: string
     success: true
 } | {
-    data: Partial<BookCreateDataWithImageFiles>,
     code: HttpErrorCodesValues
-    errors?: z.inferFormattedError<typeof BookCreateSchema>,
     message?: string
     success: false
 }
-export async function POST(user: EntireUser, formData: FormData): Promise<PostMethodReturn> {
-    const decodedFormData = decodeFormData<BookCreateDataWithImageFiles>(formData, BookCreateSchemaDecodeInfo)
-    const data = clearEmptyFields(decodedFormData)
 
-    const parsingResult = BookCreateSchema.safeParse(data)
-    if (!parsingResult.success) {
-        return {
-            data,
-            code: HttpCodes.ClientError.BadRequest,
-            errors: parsingResult.error.format(),
-            success: false
-        }
-    }
+type SuperFormCreateBook = SuperValidated<
+    Infer<BookCreateSchema>,
+    App.Superforms.Message,
+    InferIn<BookCreateSchema>
+>
+export async function POST(user: EntireUser, form: SuperFormCreateBook): Promise<PostMethodReturn> {
+    const { data } = form
 
-    const parsedData: BookCreateDataWithImageFiles = parsingResult.data
-
-    const bookAlreadyExists = await db.books.book.doesBookExist(parsedData.isbn)
+    const bookAlreadyExists = await db.books.book.doesBookExist(data.isbn)
     if (bookAlreadyExists) {
         return {
-            data,
             code: HttpCodes.ClientError.Conflict,
             message: "Book Already Exists",
             success: false
@@ -55,31 +46,32 @@ export async function POST(user: EntireUser, formData: FormData): Promise<PostMe
     }
 
     const createBookData: BookCreateData = {
-        ...parsedData,
+        ...data,
         front_image: false,
         back_image: false
     }
 
-    if (parsedData.front_image) {
-        await generateResizedImages(parsedData.isbn, "front", parsedData.front_image)
+    if (data.front_image) {
+        await generateResizedImages(data.isbn, "front", data.front_image)
         createBookData.front_image = true
     }
-    if (parsedData.back_image) {
-        await generateResizedImages(parsedData.isbn, "back", parsedData.back_image)
+    if (data.back_image) {
+        await generateResizedImages(data.isbn, "back", data.back_image)
         createBookData.back_image = true
     }
 
     try {
         await db.books.book.createBook(createBookData)
         await db.activityLog.logActivity(user.id, "BOOK_ADDED", createBookData)
-    } catch {
+    } catch (err) {
+        console.log(err) // TODO: fix
         throw new HttpError(HttpCodes.ServerError.InternalServerError, "Error creating book in database")
     }
 
     return {
-        data,
         book: createBookData,
-        success: true
+        success: true,
+        message: "Book Created Successfully"
     }
 }
 

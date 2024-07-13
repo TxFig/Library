@@ -9,7 +9,7 @@ export function AuthDecorator(permissions?: PermissionName[]) {
         target: TargetFunction<Event, Return>
     ): TargetFunction<Event, Return> {
         return function(event) {
-            if (!event.locals.user) {
+            if (!(event.locals.user && event.locals.session)) {
                 error(HttpCodes.ClientError.Unauthorized, {
                     message: "Need to be logged in"
                 })
@@ -22,6 +22,14 @@ export function AuthDecorator(permissions?: PermissionName[]) {
             }
 
             return target(event)
+            // return target({
+            //     ...event,
+            //     locals: {
+            //         ...event.locals,
+            //         user: event.locals.user,
+            //         session: event.locals.session
+            //     }
+            // })
         }
     }
 }

@@ -42,7 +42,7 @@ function validateISBN13(isbn: string): boolean {
 
 export const ISBNSchema = z
     .string()
-    .min(1)
+    .min(1, "ISBN Required")
     .refine(validateISBN, "Invalid ISBN")
     .transform(value => value.replace(allSpacesAndHyphensRegex, ""))
 

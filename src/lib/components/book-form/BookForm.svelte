@@ -10,6 +10,7 @@
     import type { Author, Language, Location, Publisher, Subject } from "@prisma/client";
     import ListBoxInput from "./ListBoxInput.svelte";
     import { getToastStore } from "@skeletonlabs/skeleton";
+    import { goto } from "$app/navigation";
 
 
     export let data: SuperValidated<
@@ -27,16 +28,27 @@
 
     const { form, errors, enhance } = superForm(data, {
         dataType: "json",
-        // stickyNavbar: ...,
-
+        stickyNavbar: ".app-bar",
+        scrollToError: true,
 
         onUpdated({ form: { message } }) {
-            if (message) {
-                toastStore.trigger({
-                    message: message.text,
-                    background: message.type === "success" ? "variant-filled-success" : "variant-filled-error"
-                })
+            if (!message) return
+            const variant = message.type === "success" ? "variant-filled-success" : "variant-filled-error"
+            toastStore.trigger({
+                message: message.text,
+                background: variant
+            })
+
+            if (message.type === "success") {
+                goto("/book/create")
             }
+        },
+
+        onError({ result }) {
+            toastStore.trigger({
+                message: result.error.message,
+                background: "variant-filled-error"
+            })
         }
     })
 

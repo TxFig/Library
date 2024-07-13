@@ -6,9 +6,11 @@ const daysInMonth = (month: number, year: number) =>
 
 const minYear = 1970
 
-export type DateObject = { year?: number | null, month?: number | null, day?: number | null }
-export type DateObjectWithYear = { year: number, month?: number | null, day?: number | null }
-function isValidDate (date: DateObject): date is DateObjectWithYear {
+export type DateObject = { year?: number, month?: number, day?: number }
+export type DateObjectWithYear = { year: number, month?: number, day?: number }
+function isValidDate (date: DateObject | undefined): date is DateObjectWithYear {
+    if (!date || (!date.year && !date.month && !date.day)) return true
+
     const { year, month, day } = date
     const maxYear = new Date().getFullYear()
 
@@ -24,12 +26,12 @@ function isValidDate (date: DateObject): date is DateObjectWithYear {
 
 export const PublishDateSchema = z
     .object({
-        year: z.number().nullish(),
-        month: z.number().nullish(),
-        day: z.number().nullish()
+        year: z.number().optional(),
+        month: z.number().optional(),
+        day: z.number().optional()
     })
-    .refine(isValidDate, "Invalid Publish Date")
     .optional()
+    .refine(isValidDate, "Invalid Publish Date")
     .default({})
 
 

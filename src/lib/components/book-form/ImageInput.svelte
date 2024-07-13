@@ -72,7 +72,7 @@
             </div>
         </svelte:fragment>
     </FileDropzone>
-    <TextInput text="Image URL" name="image_url" bind:value={imageUrl} on:input={handleImageUrlInput} />
+    <TextInput text="Image URL" bind:value={imageUrl} on:input={handleImageUrlInput} />
     {#if src}
         <img src={src} alt={title} class="w-full" on:error={handleImageError} />
     {/if}

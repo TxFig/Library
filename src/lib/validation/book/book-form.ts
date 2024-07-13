@@ -12,7 +12,7 @@ import type { FormDataInfo } from "decode-formdata"
 export const BookCreateSchema = z.object({
     isbn: ISBNSchema,
 
-    title: z.string(),
+    title: z.string().min(1, "Title Required"),
 
     subtitle: z.string().optional(),
     number_of_pages: z
