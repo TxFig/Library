@@ -43,7 +43,7 @@
             })
 
             if (message.type === "success") {
-                goto("/book/create")
+                goto(`/book/${$form.isbn}`)
             }
         },
 
