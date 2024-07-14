@@ -29,7 +29,10 @@
     const { form, errors, enhance } = superForm(data, {
         dataType: "json",
         stickyNavbar: ".app-bar",
-        scrollToError: true,
+        scrollToError: {
+            behavior: "smooth",
+            block: "center",
+        },
 
         onUpdated({ form: { message } }) {
             if (!message) return
