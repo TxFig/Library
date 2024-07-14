@@ -11,7 +11,7 @@ export interface OpenLibraryBookData {
     authors?: { url: string; name: string }[]
     number_of_pages?: number
     identifiers?: { [key: string]: string[] } // e.g. { "isbn_13": ["01234567890123"] }
-    classifications?: { [key: string]: string[] }[] // ?
+    classifications?: { [key: string]: string[] }
     publishers?: { name: string }[] // e.g. { "name": "O'Reilly Media" }
     publish_date?: string // e,g, "March 31, 1999" | "2019"
     subjects?: { name: string; url: string }[] // e.g. { "name": "Mathematics", "url": "https://openlibrary.org/subjects/mathematics" }
@@ -26,7 +26,7 @@ export interface OpenLibraryBookData {
         formats: {}
         borrow_url: string
         checkedout: boolean
-    }[] // ?
+    }[]
     cover?: {
         small?: string
         medium?: string
@@ -90,12 +90,12 @@ async function parseOpenLibraryData(
 
     const publishDate = data.publish_date ?
         openLibraryDateToDateObject(data.publish_date)
-    : {}
+    : undefined
 
     return {
         title: data.title,
-        subtitle: data.subtitle ?? null,
-        number_of_pages: data.number_of_pages ?? null,
+        subtitle: data.subtitle ?? undefined,
+        number_of_pages: data.number_of_pages ?? undefined,
         publish_date: publishDate,
 
         isbn: isbn,
@@ -108,7 +108,7 @@ async function parseOpenLibraryData(
         authors,
         publishers,
         subjects,
-        location: null,
-        language: null
+        location: undefined,
+        language: undefined
     }
 }
