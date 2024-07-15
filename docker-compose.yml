@@ -1,0 +1,21 @@
+services:
+  library:
+    image: txfig/library:latest
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:80
+    restart: ${RESTART}
+    volumes:
+      - library-data:${STATIC}
+  pg:
+    image: postgres:latest
+    env_file:
+      - .env
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    restart: ${RESTART}
+
+volumes:
+  library-data:
+  pg-data:
