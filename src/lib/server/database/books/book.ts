@@ -189,10 +189,10 @@ export async function deleteBook(isbn: string): Promise<void> {
 
 
 export async function doesBookExist(isbn: string): Promise<boolean> {
-    const book = await prisma.book.findUnique({
+    const count = await prisma.book.count({
         where: { isbn }
     })
-    return Boolean(book)
+    return count !== 0
 }
 
 

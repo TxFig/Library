@@ -48,28 +48,3 @@ export const ISBNSchema = z
 
 export const ISBNOptionalSchema = ISBNSchema
     .nullish()
-
-
-export function parseISBN(isbn: unknown): string {
-    const parsingResult = ISBNSchema.safeParse(isbn)
-    if (!parsingResult.success) {
-        throw new HttpError(
-            HttpCodes.ClientError.BadRequest,
-            parsingResult.error.errors[0]
-        )
-    }
-
-    return parsingResult.data
-}
-
-export function parseOptionalISBN(isbn: unknown): string | null | undefined {
-    const parsingResult = ISBNOptionalSchema.safeParse(isbn)
-    if (!parsingResult.success) {
-        throw new HttpError(
-            HttpCodes.ClientError.BadRequest,
-            parsingResult.error.errors[0]
-        )
-    }
-
-    return parsingResult.data
-}

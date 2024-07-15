@@ -4,8 +4,7 @@ import type { RequestHandler } from "./$types"
 import { getOpenLibraryBook } from "$lib/utils/open-library"
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
-import { parseISBN } from "$lib/validation/book/isbn"
-import { HttpError } from "$lib/utils/custom-errors"
+import { ISBNSchema } from "$lib/validation/book/isbn"
 import type { BookCreateData } from "$lib/validation/book/book-form"
 import { generateResizedImages } from "$lib/utils/images"
 
@@ -16,13 +15,12 @@ export const POST: RequestHandler = async ({ params, locals }) => {
             message: "Need to be logged in"
         })
     }
-    const { isbn: isbnString } = params
+    const { isbn: rawISBN } = params
     let isbn: string
     try {
-        isbn = parseISBN(isbnString)
-    } catch (err) {
-        if (err instanceof HttpError) error(err.httpCode, err.message)
-        else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
+        isbn = ISBNSchema.parse(rawISBN)
+    } catch {
+        error(HttpCodes.ClientError.BadRequest, "Invalid ISBN")
     }
 
     const bookAlreadyExists = await db.books.book.doesBookExist(isbn)
@@ -32,7 +30,7 @@ export const POST: RequestHandler = async ({ params, locals }) => {
         })
     }
 
-    const data = await getOpenLibraryBook(isbnString)
+    const data = await getOpenLibraryBook(isbn)
 
     if (!data) {
         error(HttpCodes.ClientError.NotFound, {

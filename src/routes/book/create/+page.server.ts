@@ -1,17 +1,16 @@
 import type { Actions, PageServerLoad } from "./$types"
-import { error, fail, redirect } from "@sveltejs/kit"
+import { error, fail } from "@sveltejs/kit"
 
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
-import API from "@api"
+import API from "$lib/server/api"
 import { HttpError } from "$lib/utils/custom-errors"
-import type { PostMethodReturn } from "@api/book"
-import { hasPermission } from "$lib/utils/permissions"
-import { message, superValidate, type Infer, type InferIn, type SuperValidated } from "sveltekit-superforms"
+import { message, superValidate } from "sveltekit-superforms"
 import { zod } from "sveltekit-superforms/adapters"
 import { BookCreateSchema } from "$lib/validation/book/book-form"
 import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
+import type { BookPostMethodReturn } from "$lib/server/api/book/POST"
 
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -20,11 +19,11 @@ export const load: PageServerLoad = async ({ url }) => {
     return {
         form: await superValidate({ isbn }, zod(BookCreateSchema), { errors: false }),
 
-        authors: await db.books.author.getAllAuthors(),
-        publishers: await db.books.publisher.getAllPublishers(),
-        subjects: await db.books.subject.getAllSubjects(),
-        locations: await db.books.location.getAllLocations(),
-        languages: await db.books.language.getAllLanguages()
+        allAuthors: await db.books.author.getAllAuthors(),
+        allPublishers: await db.books.publisher.getAllPublishers(),
+        allSubjects: await db.books.subject.getAllSubjects(),
+        allLocations: await db.books.location.getAllLocations(),
+        allLanguages: await db.books.language.getAllLanguages()
     }
 }
 
@@ -39,9 +38,9 @@ export const actions: Actions = {
                 return fail(400, { form })
             }
 
-            let info: PostMethodReturn
+            let info: BookPostMethodReturn
             try {
-                info = await API.book.POST(locals.user!, form)
+                info = await API.book.POST(form, locals.user!.id)
 
                 if (!info.success)
                     return fail(info.code, form)
@@ -56,5 +55,5 @@ export const actions: Actions = {
                 else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
             }
         }
-    ),
+    )
 }

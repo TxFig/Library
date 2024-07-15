@@ -1,24 +1,31 @@
+import type { RequestHandler } from "./$types";
+
 import { applyDecorators } from "$lib/decorators";
 import AuthDecorator from "$lib/decorators/auth";
-import type { RequestHandler } from "./$types";
-import db from "$lib/server/database/"
+
 import HttpCodes from "$lib/utils/http-codes"
 import { json } from "@sveltejs/kit";
+
+import { superValidate } from "sveltekit-superforms";
+import { zod } from "sveltekit-superforms/adapters";
+import { BookCreateSchema } from "$lib/validation/book/book-form";
+
+import API from "$lib/server/api"
 
 
 export const GET: RequestHandler = applyDecorators(
     [AuthDecorator(["View Book"])],
     async () => {
-        try {
-            const books = await db.books.book.getAllBooks()
-            return json(books, {
+        const methodReturn = await API.book.GET()
+        if (methodReturn.success) {
+            return json(methodReturn.data, {
                 status: HttpCodes.Success
             })
-        } catch (err) {
+        } else {
             return json({
-                message: "Error retrieving books"
+                message: methodReturn.message
             }, {
-                status: HttpCodes.ServerError.InternalServerError
+                status: methodReturn.code
             })
         }
     }
@@ -26,17 +33,33 @@ export const GET: RequestHandler = applyDecorators(
 
 export const POST: RequestHandler = applyDecorators(
     [AuthDecorator(["Create Book"])],
-    async ({ request }) => {
-        try {
-            const formData = await request.formData()
+    async ({ request, locals }) => {
+        const formData = await request.formData()
+        const userId = locals.user!.id
+        const form = await superValidate(formData, zod(BookCreateSchema))
 
-
-            return new Response()
-        } catch (err) {
+        if (!form.valid) {
             return json({
-                message: "Error creating book"
+                message: "Invalid Form Data",
+                errors: form.errors
             }, {
-                status: HttpCodes.ServerError.InternalServerError
+                status: HttpCodes.ClientError.BadRequest
+            })
+        }
+
+        const methodReturn = await API.book.POST(form, userId)
+        if (methodReturn.success) {
+            return json({
+                message: methodReturn.message,
+                data: methodReturn.data
+            }, {
+                status: HttpCodes.Success
+            })
+        } else {
+            return json({
+                message: methodReturn.message
+            }, {
+                status: methodReturn.code
             })
         }
     }

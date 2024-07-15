@@ -13,11 +13,11 @@
         <h2 class="h2">Book Creation</h2>
         <BookForm
             data={data.form}
-            allAuthors={data.authors}
-            allPublishers={data.publishers}
-            allSubjects={data.subjects}
-            allLocations={data.locations}
-            allLanguages={data.languages}
+            allAuthors={data.allAuthors}
+            allPublishers={data.allPublishers}
+            allSubjects={data.allSubjects}
+            allLocations={data.allLocations}
+            allLanguages={data.allLanguages}
         />
     </div>
 {:else}

@@ -1,24 +1,26 @@
 import type { Actions, PageServerLoad } from "./$types"
-import { error, fail, redirect } from "@sveltejs/kit"
-
+import { error, fail } from "@sveltejs/kit"
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
-import { parseISBN } from "$lib/validation/book/isbn"
+import { ISBNSchema } from "$lib/validation/book/isbn"
 import { HttpError } from "$lib/utils/custom-errors"
-import API from "@api"
-import type { PatchMethodReturn } from "@api/book"
-import { hasPermission } from "$lib/utils/permissions"
+import API from "$lib/server/api"
+import { applyDecorators } from "$lib/decorators"
+import AuthDecorator from "$lib/decorators/auth"
+import { message, superValidate } from "sveltekit-superforms"
+import { zod } from "sveltekit-superforms/adapters"
+import { BookUpdateSchema } from "$lib/validation/book/book-form"
+import type { BookPatchMethodReturn } from "$lib/server/api/book/PATCH"
 
 
 export const load: PageServerLoad = async ({ params }) => {
-    const { isbn: isbnString } = params
+    const { isbn: rawISBN } = params
 
     let isbn: string
     try {
-        isbn = parseISBN(isbnString)
-    } catch (err) {
-        if (err instanceof HttpError) error(err.httpCode, err.message)
-        else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
+        isbn = ISBNSchema.parse(rawISBN)
+    } catch {
+        error(HttpCodes.ClientError.BadRequest, "Invalid ISBN")
     }
 
     const book = await db.books.book.getEntireBookByISBN(isbn)
@@ -26,8 +28,10 @@ export const load: PageServerLoad = async ({ params }) => {
         error(HttpCodes.ClientError.NotFound, "Book Not Available")
     }
 
+    const form = await superValidate(book, zod(BookUpdateSchema), { errors:false })
+
     return {
-        book,
+        form,
         allAuthors: await db.books.author.getAllAuthors(),
         allPublishers: await db.books.publisher.getAllPublishers(),
         allSubjects: await db.books.subject.getAllSubjects(),
@@ -37,29 +41,32 @@ export const load: PageServerLoad = async ({ params }) => {
 }
 
 export const actions: Actions = {
-    default: async ({ request, locals }) => {
-        if (!locals.user || !hasPermission(locals.user, "Edit Book")) {
-            error(HttpCodes.ClientError.Unauthorized, {
-                message: "Need to be logged in"
-            })
-        }
+    default: applyDecorators(
+        [AuthDecorator(["Edit Book"])],
+        async ({ request, locals }) => {
+            const formData = await request.formData()
+            const form = await superValidate(formData, zod(BookUpdateSchema))
 
-        const formData = await request.formData()
+            if (!form.valid) {
+                return fail(400, { form })
+            }
 
-        let info: PatchMethodReturn
-        try {
-            info = await API.book.PATCH(locals.user, formData)
+            let info: BookPatchMethodReturn
+            try {
+                info = await API.book.PATCH(form, locals.user!.id)
 
-            if (!info.success)
-                return fail(info.code, info)
-        }
-        catch (err) {
-            if (err instanceof HttpError) error(err.httpCode, err.message)
-            else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
-        }
+                if (!info.success)
+                    return fail(info.code, info)
 
-        if (info.success) {
-            redirect(HttpCodes.SeeOther, `/book/${info.book.isbn}`)
+                return message(form, {
+                    type: info.success ? "success" : "error",
+                    text: info.message
+                })
+            }
+            catch (err) {
+                if (err instanceof HttpError) error(err.httpCode, err.message)
+                else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
+            }
         }
-    }
+    )
 }

@@ -3,19 +3,17 @@ import { error } from "@sveltejs/kit"
 
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
-import { parseISBN } from "$lib/validation/book/isbn"
-import { HttpError } from "$lib/utils/custom-errors"
+import { ISBNSchema } from "$lib/validation/book/isbn"
 
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-    const { isbn: isbnString } = params
+    const { isbn: rawISBN } = params
 
     let isbn: string
     try {
-        isbn = parseISBN(isbnString)
-    } catch (err) {
-        if (err instanceof HttpError) error(err.httpCode, err.message)
-        else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
+        isbn = ISBNSchema.parse(rawISBN)
+    } catch {
+        error(HttpCodes.ClientError.BadRequest, "Invalid ISBN")
     }
 
     const book = await db.books.book.getEntireBookByISBN(isbn)
