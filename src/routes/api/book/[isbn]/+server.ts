@@ -9,25 +9,22 @@ import { superValidate } from "sveltekit-superforms"
 import { zod } from "sveltekit-superforms/adapters"
 import { BookUpdateSchema } from "$lib/validation/book/book-form"
 import db from "$lib/server/database/"
+import { ParseParamsDecorator } from "$lib/decorators/parse-params"
 
+
+const ISBNParamSchema = {
+    schema: ISBNSchema,
+    onError: () => json({
+        message: "Invalid ISBN"
+    }, {
+        status: HttpCodes.ClientError.BadRequest
+    })
+}
 
 export const GET: RequestHandler = applyDecorators(
-    [AuthDecorator(["View Book"])],
+    [AuthDecorator(["View Book"]), ParseParamsDecorator({ isbn: ISBNParamSchema })],
     async ({ params }) => {
-        const rawISBN = params.isbn
-
-        let isbn: string
-        try {
-            isbn = ISBNSchema.parse(rawISBN)
-        } catch {
-            return json({
-                message: "Invalid ISBN"
-            }, {
-                status: HttpCodes.ClientError.BadRequest
-            })
-        }
-
-        const methodReturn = await API.book.GET(isbn)
+        const methodReturn = await API.book.GET(params.isbn)
         if (methodReturn.success) {
             return json(methodReturn.data, {
                 status: HttpCodes.Success
@@ -43,23 +40,11 @@ export const GET: RequestHandler = applyDecorators(
 )
 
 export const PATCH: RequestHandler = applyDecorators(
-    [AuthDecorator(["Edit Book"])],
+    [AuthDecorator(["Edit Book"]), ParseParamsDecorator({ isbn: ISBNParamSchema })],
     async ({ request, locals, params }) => {
         const formData = await request.formData()
         const userId = locals.user!.id
         const form = await superValidate(formData, zod(BookUpdateSchema))
-
-        const rawISBN = params.isbn
-        let isbn: string
-        try {
-            isbn = ISBNSchema.parse(rawISBN)
-        } catch {
-            return json({
-                message: "Invalid ISBN"
-            }, {
-                status: HttpCodes.ClientError.BadRequest
-            })
-        }
 
         if (!form.valid) {
             return json({
@@ -70,7 +55,7 @@ export const PATCH: RequestHandler = applyDecorators(
             })
         }
 
-        form.data.isbn = isbn
+        form.data.isbn = params.isbn
         const methodReturn = await API.book.PATCH(form, userId)
         if (methodReturn.success) {
             return json({
@@ -90,25 +75,14 @@ export const PATCH: RequestHandler = applyDecorators(
 )
 
 export const DELETE: RequestHandler = applyDecorators(
-    [AuthDecorator(["Delete Book"])],
+    [AuthDecorator(["Delete Book"]), ParseParamsDecorator({ isbn: ISBNParamSchema })],
     async ({ locals, params }) => {
         const userId = locals.user!.id
-        const rawISBN = params.isbn
-        let isbn: string
-        try {
-            isbn = ISBNSchema.parse(rawISBN)
-        } catch {
-            return json({
-                message: "Invalid ISBN"
-            }, {
-                status: HttpCodes.ClientError.BadRequest
-            })
-        }
 
         try {
-            await db.books.book.deleteBook(isbn)
+            await db.books.book.deleteBook(params.isbn)
             await db.activityLog.logActivity(userId, "BOOK_DELETED", {
-                isbn: isbn
+                isbn: params.isbn
             })
         } catch (err) {
             return json({
@@ -118,6 +92,6 @@ export const DELETE: RequestHandler = applyDecorators(
             })
         }
 
-        return json({ message: `Successfully deleted book, isbn ${isbn}` })
+        return json({ message: `Successfully deleted book, isbn ${params.isbn}` })
     }
 )
