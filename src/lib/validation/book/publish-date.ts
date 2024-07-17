@@ -30,7 +30,6 @@ export const PublishDateSchema = z
         month: z.number().optional(),
         day: z.number().optional()
     })
-    .optional()
     .refine(isValidDate, "Invalid Publish Date")
     .default({})
 

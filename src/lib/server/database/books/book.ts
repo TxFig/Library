@@ -31,7 +31,7 @@ export async function createBook({ publish_date, location, language, authors, pu
     return await prisma.book.create({
         data: {
             ...book,
-            publish_date: publish_date ? {
+            publish_date: publish_date.year ? {
                 create: {
                     ...publish_date
                 }
