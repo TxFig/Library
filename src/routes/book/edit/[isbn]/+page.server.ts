@@ -11,34 +11,36 @@ import { message, superValidate } from "sveltekit-superforms"
 import { zod } from "sveltekit-superforms/adapters"
 import { BookUpdateSchema } from "$lib/validation/book/book-form"
 import type { BookPatchMethodReturn } from "$lib/server/api/book/PATCH"
+import { ParseParamsDecorator } from "$lib/decorators/parse-params"
 
 
-export const load: PageServerLoad = async ({ params }) => {
-    const { isbn: rawISBN } = params
+export const load: PageServerLoad = applyDecorators(
+    [ParseParamsDecorator({
+        isbn: {
+            schema: ISBNSchema,
+            onError: () => error(HttpCodes.ClientError.BadRequest, "Invalid ISBN")
+        }
+    })],
+    async ({ params }) => {
+        const { isbn } = params
 
-    let isbn: string
-    try {
-        isbn = ISBNSchema.parse(rawISBN)
-    } catch {
-        error(HttpCodes.ClientError.BadRequest, "Invalid ISBN")
+        const book = await db.books.book.getEntireBookByISBN(isbn)
+        if (!book) {
+            error(HttpCodes.ClientError.NotFound, "Book Not Available")
+        }
+
+        const form = await superValidate(book, zod(BookUpdateSchema), { errors:false })
+
+        return {
+            form,
+            allAuthors: await db.books.author.getAllAuthors(),
+            allPublishers: await db.books.publisher.getAllPublishers(),
+            allSubjects: await db.books.subject.getAllSubjects(),
+            allLocations: await db.books.location.getAllLocations(),
+            allLanguages: await db.books.language.getAllLanguages()
+        }
     }
-
-    const book = await db.books.book.getEntireBookByISBN(isbn)
-    if (!book) {
-        error(HttpCodes.ClientError.NotFound, "Book Not Available")
-    }
-
-    const form = await superValidate(book, zod(BookUpdateSchema), { errors:false })
-
-    return {
-        form,
-        allAuthors: await db.books.author.getAllAuthors(),
-        allPublishers: await db.books.publisher.getAllPublishers(),
-        allSubjects: await db.books.subject.getAllSubjects(),
-        allLocations: await db.books.location.getAllLocations(),
-        allLanguages: await db.books.language.getAllLanguages()
-    }
-}
+)
 
 export const actions: Actions = {
     default: applyDecorators(
