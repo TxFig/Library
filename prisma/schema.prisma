@@ -129,8 +129,8 @@ model Book {
   isbn10 String? @unique
   isbn13 String? @unique
 
-  front_image Boolean @default(false)
-  back_image  Boolean @default(false)
+  front_image Image[] @relation("front_image")
+  back_image  Image[] @relation("back_image")
 
   location   Location? @relation(fields: [locationId], references: [id])
   locationId Int?
@@ -148,6 +148,20 @@ model Book {
   public  Boolean @default(false)
 
   bookCollections BookCollection[]
+}
+
+model Image {
+  id Int @id @default(autoincrement())
+
+  Book_front_image   Book @relation(name: "front_image", fields: [bookId_front_image], references: [id], onDelete: Cascade)
+  bookId_front_image Int
+  Book_back_image    Book @relation(name: "back_image", fields: [bookId_back_image], references: [id], onDelete: Cascade)
+  bookId_back_image  Int
+
+  width  Int
+  height Int
+
+  createdAt DateTime @default(now())
 }
 
 model PublishDate {
