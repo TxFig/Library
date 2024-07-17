@@ -34,7 +34,7 @@
             block: "center",
         },
 
-        onUpdated({ form: { message } }) {
+        onUpdated({ form: { message, data } }) {
             if (!message) return
             const variant = message.type === "success" ? "variant-filled-success" : "variant-filled-error"
             toastStore.trigger({
@@ -43,7 +43,7 @@
             })
 
             if (message.type === "success") {
-                goto(`/book/${$form.isbn}`)
+                goto(`/book/${data.isbn}`)
             }
         },
 
