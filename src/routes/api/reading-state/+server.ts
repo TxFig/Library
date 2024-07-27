@@ -1,49 +1,30 @@
-import { error, json } from "@sveltejs/kit"
+import { json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
-import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
-import clearEmptyFields from "$lib/utils/clear-empty-fields"
-import { ReadingStateUpdateSchema } from "$lib/validation/reading-state"
-import { hasPermission } from "$lib/utils/permissions"
-import { ActivityType } from "@prisma/client"
+import { ReadingStateUpdateSchema } from "$lib/validation/book/reading-state"
+import { applyDecorators } from "$lib/decorators"
+import AuthDecorator from "$lib/decorators/auth"
+import api, { defaultApiMethodResponse } from "$lib/server/api"
 
 
-//* Update User-Book Reading State
-export const PATCH: RequestHandler = async ({ request, locals }) => {
-    if (!locals.user || !hasPermission(locals.user, "Edit Book")) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in"
-        })
+export const PATCH: RequestHandler = applyDecorators(
+    [AuthDecorator(["Edit Book"])],
+    async ({ request, locals }) => {
+        const userId = locals.user!.id
+        const data = await request.json()
+        const parsingResult = ReadingStateUpdateSchema.safeParse(data)
+
+        if (!parsingResult.success) {
+            return json({
+                status: HttpCodes.ClientError.BadRequest,
+                message: "Invalid Request"
+            }, {
+                status: HttpCodes.ClientError.BadRequest
+            })
+        }
+
+        return defaultApiMethodResponse(
+            await api.readingState.PATCH(parsingResult.data, userId)
+        )
     }
-
-    const data = await request.json()
-    const clearedData = clearEmptyFields(data)
-    const parsingResult = ReadingStateUpdateSchema.safeParse(clearedData)
-
-    if (!parsingResult.success) {
-        error(HttpCodes.ClientError.BadRequest, {
-            message: "Invalid Request"
-        })
-    }
-
-    const parsedData = parsingResult.data
-
-    try {
-        await db.auth.readingState.updateUserReadingState(parsedData.bookId, locals.user.id, parsedData.state)
-        await db.activityLog.logActivity(locals.user.id, ActivityType.READING_STATE_UPDATED, {
-            bookId: parsedData.bookId,
-            userId: locals.user.id,
-            state: parsedData.state
-        })
-        return json({
-            status: 200,
-            message: "Successfully Updated Reading State"
-        })
-    } catch (error) {
-        return json({
-            status: 500,
-            message: "Error Updating Reading State"
-        })
-    }
-
-}
+)

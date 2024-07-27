@@ -1,30 +1,23 @@
 <script lang="ts">
-    import type PublishDateSchema from "$lib/validation/publish-date";
-    import type { z } from "zod";
+    import type { Infer, ValidationErrors } from "sveltekit-superforms";
+    import NumberInput from "../NumberInput.svelte";
+    import type { BookCreateSchema } from "$lib/validation/book/book-form";
+    import type { DateObject } from "$lib/validation/book/publish-date";
 
-    export let day: number | undefined | null = undefined
-    export let month: number | undefined | null = undefined
-    export let year: number | undefined | null = undefined
 
-    type FormattedError = z.inferFormattedError<typeof PublishDateSchema>
-    export let errors: FormattedError | undefined = undefined
+    export let dateObject: DateObject = {}
+
+    type PublishDateError = ValidationErrors<Infer<BookCreateSchema>>["publish_date"]
+    export let errors: PublishDateError | undefined = undefined
 </script>
 
+<!-- svelte-ignore a11y-label-has-associated-control -->
 <label class="label">
     <span>Publish Date</span>
     <div class="flex gap-8">
-        <div class="w-full space-y-1">
-            <p>Day</p>
-            <input class="input" type="number" name="publish_date.day" value={day ?? ""}/>
-        </div>
-        <div class="w-full space-y-1">
-            <p>Month</p>
-            <input class="input" type="number" name="publish_date.month" value={month ?? ""}/>
-        </div>
-        <div class="w-full space-y-1">
-            <p>Year</p>
-            <input class="input" type="number" name="publish_date.year" value={year ?? ""}/>
-        </div>
+        <NumberInput text="Day" bind:value={dateObject.day} class="w-full" />
+        <NumberInput text="Month" bind:value={dateObject.month} class="w-full" />
+        <NumberInput text="Year" bind:value={dateObject.year} class="w-full" />
     </div>
     {#if errors?._errors && errors._errors.length != 0}
         <p class="text-red-600">{errors?._errors[0]}</p>

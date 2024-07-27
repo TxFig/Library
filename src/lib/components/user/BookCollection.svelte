@@ -1,112 +1,100 @@
 <script lang="ts">
     import type { BookCollectionWithBooks } from "$lib/server/database/books/collection";
-    import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
-    import { getModalStore, getToastStore, popup, type ModalSettings, type PopupSettings } from "@skeletonlabs/skeleton";
+    import { getToastStore, popup, type PopupSettings } from "@skeletonlabs/skeleton";
+    import DeleteCollectionButton from "./DeleteCollectionButton.svelte";
+    import type { ApiJsonResponse } from "$lib/server/api";
+    import HttpCodes from "$lib/utils/http-codes";
+    import type { BookCollectionPatchMethodReturn } from "$lib/server/api/book-collection/PATCH";
 
+
+    const toastStore = getToastStore()
 
     export let collection: BookCollectionWithBooks
     export let onDelete: () => void
 
 
-    const modalStore = getModalStore()
-    const toastStore = getToastStore()
-
     const collectionOptionPopup: PopupSettings = {
         event: "click",
         target: `CollectionOptionPopup-${collection.id}`,
-        placement: "right"
+        placement: "right",
     }
 
-
-    let collectionName = collection.name
-    const editCollectionModal: ModalSettings = {
-        type: "prompt",
-        title: "Update Collection",
-        body: "Provide the new collection name in the field below.",
-        value: collectionName,
-        valueAttr: { type: "text", minlength: 3, maxlength: 10, required: true },
-        response: (response: false | string) => {
-            if (response) {
-                editCollection(response)
-            }
-        },
+    let newName: string = collection.name
+    function onCancel() {
+        isEditing = false
+        newName = collection.name
     }
 
-    async function editCollection(newName: string) {
+    async function onNameSet() {
         const response = await fetch(`/api/book-collection/${collection.id}`, {
             method: "PATCH",
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({ name: newName })
         })
 
-        if (response.status == HttpCodes.Success) {
-            collectionName = newName
+        const json: ApiJsonResponse<BookCollectionPatchMethodReturn> = await response.json()
+        if (json.status === HttpCodes.Success) {
+            collection.name = newName
+            isEditing = false
         }
-        else
+        else {
             toastStore.trigger({
-                message: "Failed to update collection",
-                background: "variant-filled-error"
-            })
-    }
-
-    function onEditCollection() {
-        modalStore.trigger(editCollectionModal)
-    }
-
-    const deleteCollectionModal: ModalSettings = {
-        type: "confirm",
-        title: "Delete Collection Confirmation",
-        body: "Are you sure you want to delete this collection?",
-        async response(response: boolean) {
-            if (response) {
-                await deleteCollection()
-            }
-        },
-    }
-
-    function onDeleteCollection() {
-        modalStore.trigger(deleteCollectionModal)
-    }
-
-    async function deleteCollection() {
-        const response = await fetch(`/api/book-collection/${collection.id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-
-        if (response.status == HttpCodes.Success) {
-            onDelete()
-        } else {
-            toastStore.trigger({
-                message: "Failed to delete collection",
-                background: "variant-filled-error"
+                message: json.message,
+                background: "variant-filled-error",
             })
         }
-
     }
 
+    function onKeyPress(event: KeyboardEvent) {
+        if (event.key === "Enter") {
+            event.preventDefault()
+            onNameSet()
+        }
+    }
+
+    let isEditing = false
 </script>
 
 <fieldset class="border border-surface-600 px-4 py-1 rounded-token relative">
     <legend class="px-2 flex gap-2 items-center">
-        <span>{collectionName}</span>
-        <button class="btn-icon btn-icon-sm variant-soft-surface aspect-auto" use:popup={collectionOptionPopup}>
+        {#if isEditing}
+            <input
+                type="text"
+                class="
+                    focus:ring-transparent bg-transparent
+                    border-0 border-b focus:!border-b-primary-400
+                    w-40 text-sm duration-300 transition-colors
+                "
+                placeholder="Name..."
+                bind:value={newName}
+                on:keypress={onKeyPress}
+                autofocus
+            />
+            <button class="btn-icon btn-icon-sm variant-soft-success" on:click={onNameSet}>
+                <Icon icon="tabler:check" width="16" height="16" />
+            </button>
+            <button class="btn-icon btn-icon-sm variant-soft-error" on:click={onCancel}>
+                <Icon icon="tabler:x" width="16" height="16" />
+            </button>
+        {:else}
+            <span>{collection.name}</span>
+        {/if}
+        <button class="btn-icon btn-icon-sm variant-soft-surface aspect-auto" use:popup={collectionOptionPopup} disabled={isEditing}>
             <Icon icon="tabler:dots" width="18" height="18" />
         </button>
         <div class="card p-4 variant-glass-surface z-10" data-popup={`CollectionOptionPopup-${collection.id}`}>
             <div class="arrow variant-filled-surface" />
             <div class="flex gap-2">
-                <button class="btn-icon variant-ghost-secondary" on:click={onEditCollection}>
+                <button class="btn-icon variant-ghost-secondary" on:click={() => isEditing = true}>
                     <Icon icon="mdi:pencil" width="16" height="16"/>
                 </button>
-                <button class="btn-icon variant-ghost-error" on:click={onDeleteCollection}>
-                    <Icon icon="mdi:delete" width="16" height="16"/>
-                </button>
+                <!-- <button class="btn-icon variant-ghost-tertiary">
+                    <Icon icon="mdi:eye" width="16" height="16"/>
+                </button> -->
+                <DeleteCollectionButton {collection} {onDelete} />
             </div>
         </div>
     </legend>

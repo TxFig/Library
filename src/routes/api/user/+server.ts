@@ -1,16 +1,39 @@
 import type { RequestHandler } from "./$types"
-import { error } from "@sveltejs/kit"
+import { json } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
-import methods from "./index"
-import { hasPermission } from "$lib/utils/permissions"
+import { applyDecorators } from "$lib/decorators"
+import AuthDecorator from "$lib/decorators/auth"
+import api, { defaultApiMethodResponse } from "$lib/server/api"
+import { superValidate } from "sveltekit-superforms"
+import { zod } from "sveltekit-superforms/adapters"
+import { UserCreateSchema } from "$lib/validation/auth/user"
 
 
-export const POST: RequestHandler = async ({ request, locals }) => {
-    if (!locals.user || !hasPermission(locals.user, "Admin")) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in to create users"
-        })
+export const GET: RequestHandler = applyDecorators(
+    [AuthDecorator(["View Book"])],
+    async () => defaultApiMethodResponse(
+        await api.user.GET()
+    )
+)
+
+export const POST: RequestHandler = applyDecorators(
+    [AuthDecorator(["Admin"])],
+    async ({ request, locals }) => {
+        const formData= await request.formData()
+        const userId = locals.user!.id
+        const form = await superValidate(formData, zod(UserCreateSchema))
+
+        if (!form.valid) {
+            return json({
+                message: "Invalid Form Data",
+                errors: form.errors
+            }, {
+                status: HttpCodes.ClientError.BadRequest
+            })
+        }
+
+        return defaultApiMethodResponse(
+            await api.user.POST(form, userId)
+        )
     }
-    const data = await request.json()
-    return methods.POST(locals.user, data)
-}
+)

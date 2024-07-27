@@ -6,7 +6,7 @@
 
 </script>
 
-<div class="flex flex-col gap-8">
+<div class="flex flex-col gap-8 p-6">
     <p class="text-2xl">Successfully logged in</p>
     <div class="flex gap-4">
         <a href="/" class="btn variant-ghost-primary">Home</a>

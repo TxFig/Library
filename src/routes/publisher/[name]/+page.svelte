@@ -6,7 +6,7 @@
 
 </script>
 
-<div class="flex flex-col space-y-2">
+<div class="flex flex-col space-y-2 p-6">
     <h1 class="font-bold mb-5">{publisher.name}</h1>
     <h2>Books:</h2>
     <div
@@ -16,10 +16,12 @@
             gap-5 px-5 justify-items-center"
     >
         {#each publisher.books as book}
-        <a href={"/book/" + book.isbn} class="flex flex-col items-center justify-center">
-            {#if book.front_image}
+        {@const smallestImage = book.image.sort((a, b) => a.width - b.width)[0]}
+
+        <a href="/book/{book.isbn}" class="flex flex-col items-center justify-center">
+            {#if book.image.length > 0}
                 <img
-                    src={`/images/${book.front_image}`}
+                    src={`/images/${book.isbn}/${smallestImage.height}.webp`}
                     alt={book.title}
                     class="mb-1"
                 />

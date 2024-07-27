@@ -1,154 +1,43 @@
-import { error, json } from "@sveltejs/kit"
-import type { RequestHandler } from "./$types"
-import db from "$lib/server/database/"
+import type { RequestHandler } from "./$types";
+
+import { applyDecorators } from "$lib/decorators";
+import AuthDecorator from "$lib/decorators/auth";
+
 import HttpCodes from "$lib/utils/http-codes"
-import { HttpError } from "$lib/utils/custom-errors"
+import { json } from "@sveltejs/kit";
 
-import methods from "."
-import { parseISBN, parseOptionalISBN } from "$lib/validation/isbn"
-import type { EntireBook } from "$lib/server/database/books/book"
-import type { Book } from "@prisma/client"
-import { hasPermission } from "$lib/utils/permissions"
+import { superValidate } from "sveltekit-superforms";
+import { zod } from "sveltekit-superforms/adapters";
+import { BookCreateSchema } from "$lib/validation/book/book-form";
+
+import api, { defaultApiMethodResponse } from "$lib/server/api"
 
 
-// Create Book
-export const POST: RequestHandler = async ({ request, locals }) => {
-    if (!locals.user || !hasPermission(locals.user, "Create Book")) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in to create books"
-        })
-    }
+export const GET: RequestHandler = applyDecorators(
+    [AuthDecorator(["View Book"])],
+    async () => defaultApiMethodResponse(
+        await api.book.GET()
+    )
+)
 
-    let formData: FormData
+export const POST: RequestHandler = applyDecorators(
+    [AuthDecorator(["Create Book"])],
+    async ({ request, locals }) => {
+        const formData = await request.formData()
+        const userId = locals.user!.id
+        const form = await superValidate(formData, zod(BookCreateSchema))
 
-    try {
-        formData = await request.formData()
-    } catch {
-        error(HttpCodes.ClientError.BadRequest, {
-            message: "No Data Provided"
-        })
-    }
-
-    try {
-        await methods.POST(locals.user, formData)
-    }
-    catch (err) {
-        if (err instanceof HttpError) {
-            error(err.httpCode, err.message)
-        }
-    }
-
-    return json({
-        message: "Successfully Created Book"
-    }, {
-        status: HttpCodes.Success
-    })
-}
-
-// Retrieve Book
-export const GET: RequestHandler = async ({ url }) => {
-    const isbnString = url.searchParams.get("isbn")
-    let isbn: string | null | undefined
-
-    try {
-        isbn = parseOptionalISBN(isbnString)
-    } catch (err) {
-        if (err instanceof HttpError) {
-            error(err.httpCode, err.message)
-        }
-    }
-
-    if (isbn) {
-        let book: EntireBook | null
-        try {
-            book = await db.books.book.getEntireBookByISBN(isbn)
-        } catch (err) {
-            error(HttpCodes.ServerError.InternalServerError, {
-                message: `Error retrieving book (isbn = ${isbn}) from database`
+        if (!form.valid) {
+            return json({
+                message: "Invalid Form Data",
+                errors: form.errors
+            }, {
+                status: HttpCodes.ClientError.BadRequest
             })
         }
-        if (!book) {
-            error(HttpCodes.ClientError.NotFound, {
-                message: "Book Not Found"
-            })
-        }
-        return json(book)
+
+        return defaultApiMethodResponse(
+            await api.book.POST(form, userId)
+        )
     }
-
-    let allBooks: Book[]
-    try {
-        allBooks = await db.books.book.getAllBooks()
-    } catch (err) {
-        error(HttpCodes.ServerError.InternalServerError, {
-            message: "Error retrieving all books from database"
-        })
-    }
-    return json(allBooks)
-}
-
-// Update Book
-export const PATCH: RequestHandler = async ({ request, locals }) => {
-    if (!locals.user || !hasPermission(locals.user, "Edit Book")) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in to edit books"
-        })
-    }
-
-    let formData: FormData
-
-    try {
-        formData = await request.formData()
-    } catch {
-        error(HttpCodes.ClientError.BadRequest, {
-            message: "No Data Provided"
-        })
-    }
-
-    try {
-        await methods.PATCH(locals.user, formData)
-    }
-    catch (err) {
-        if (err instanceof HttpError) {
-            error(err.httpCode, err.message)
-        }
-    }
-
-    return json({
-        message: "Successfully Updated Book"
-    }, {
-        status: HttpCodes.Success
-    })
-}
-
-// Delete Book
-export const DELETE: RequestHandler = async ({ url, locals }) => {
-    if (!locals.user || !hasPermission(locals.user, "Delete Book")) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in"
-        })
-    }
-
-    const isbnString = url.searchParams.get("isbn")
-    let isbn: string
-
-    try {
-        isbn = parseISBN(isbnString)
-    } catch (err) {
-        if (err instanceof HttpError) {
-            error(err.httpCode, err.message)
-        }
-    }
-
-    try {
-        await db.books.book.deleteBook(isbn!)
-        await db.activityLog.logActivity(locals.user.id, "BOOK_DELETED", {
-            isbn: isbn!
-        })
-    } catch (err) {
-        error(HttpCodes.ServerError.InternalServerError, {
-            message: "Error deleting book in database"
-        })
-    }
-
-    return json({ message: `Successfully deleted book, isbn ${isbnString}` })
-}
+)

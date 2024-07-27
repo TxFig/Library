@@ -45,7 +45,9 @@ enum ActivityType {
 //
 
 model User {
-  id             Int     @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
+  opaqueId String @unique
+
   email          String  @unique
   username       String  @unique
   profilePicture Boolean @default(false)
@@ -117,7 +119,7 @@ model PermissionGroup {
 model Book {
   id Int @id @default(autoincrement())
 
-  isbn            String  @unique
+  isbn            String  @unique // also acts as opaque id
   title           String
   subtitle        String?
   number_of_pages Int?
@@ -127,8 +129,7 @@ model Book {
   isbn10 String? @unique
   isbn13 String? @unique
 
-  front_image Boolean @default(false)
-  back_image  Boolean @default(false)
+  image Image[]
 
   location   Location? @relation(fields: [locationId], references: [id])
   locationId Int?
@@ -146,6 +147,18 @@ model Book {
   public  Boolean @default(false)
 
   bookCollections BookCollection[]
+}
+
+model Image {
+  id Int @id @default(autoincrement())
+
+  bookId Int
+  Book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  width  Int
+  height Int
+
+  createdAt DateTime @default(now())
 }
 
 model PublishDate {

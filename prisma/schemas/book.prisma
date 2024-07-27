@@ -1,23 +1,21 @@
 import { UserBookReadingState } from "reading-state"
 import { User } from "auth"
-import { Book, Book, PublishDate } from "..\schema"
 
 
 model Book {
     id Int @id @default(autoincrement())
 
-    isbn            String  @unique
+    isbn            String  @unique // also acts as opaque id
     title           String
     subtitle        String?
     number_of_pages Int?
 
-    publish_date  PublishDate?
+    publish_date PublishDate?
 
     isbn10 String? @unique
     isbn13 String? @unique
 
-    front_image Boolean @default(false)
-    back_image  Boolean @default(false)
+    image Image[]
 
     location   Location? @relation(fields: [locationId], references: [id])
     locationId Int?
@@ -37,8 +35,20 @@ model Book {
     bookCollections BookCollection[]
 }
 
+model Image {
+    id Int @id @default(autoincrement())
+
+    bookId Int
+    Book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+    width  Int
+    height Int
+
+    createdAt DateTime @default(now())
+}
+
 model PublishDate {
-    id    Int    @id @default(autoincrement())
+    id    Int  @id @default(autoincrement())
     year  Int
     month Int?
     day   Int?

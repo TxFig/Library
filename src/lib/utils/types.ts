@@ -8,3 +8,5 @@ export type ReplaceFields<
     Obj,
     Fields extends { [key in keyof Obj]?: any }
 > = Omit<Obj, keyof Fields> & Fields
+
+export type Implements<T, U extends T> = U

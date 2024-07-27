@@ -4,6 +4,7 @@ function isObjectEmpty(object: GenericObject): boolean {
     return Object.keys(object).length == 0
 }
 
+/** @deprecated */
 function clearEmptyFields<Object extends GenericObject>(object: Object): Partial<Object> {
     let newObject: GenericObject = {}
 

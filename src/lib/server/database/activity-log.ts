@@ -1,28 +1,28 @@
 import type { Activity, ActivityType, ReadingState } from "@prisma/client"
 import { prisma } from "."
-import { type BookCreateData, type BookUpdateData } from "$lib/validation/book-form"
-import { type UserCreateData, type UserUpdateData } from "$lib/validation/auth/user"
+import { type UserCreateFormData, type UserUpdateFormData } from "$lib/validation/auth/user"
+import type { BookCreateFormData, BookUpdateFormData } from "$lib/validation/book/book-form"
 
 
 export function getEntireActivityLog(): Promise<Activity[]> {
     return prisma.activity.findMany()
 }
 
-type MetadataSchemas = {
-    BOOK_ADDED: BookCreateData,
-    BOOK_UPDATED: BookUpdateData,
+type MetadataDataTypes = {
+    BOOK_ADDED: BookCreateFormData,
+    BOOK_UPDATED: BookUpdateFormData,
     BOOK_DELETED: { isbn: string },
     BOOK_BORROWED: never, // TODO
-    USER_CREATED: UserCreateData,
-    USER_UPDATED: UserUpdateData,
-    USER_DELETED: { userId: number },
+    USER_CREATED: UserCreateFormData,
+    USER_UPDATED: UserUpdateFormData,
+    USER_DELETED: { opaqueId: string },
     READING_STATE_UPDATED: { bookId: number, userId: number, state: ReadingState }
 }
 
 export async function logActivity<Type extends ActivityType>(
     userId: number,
     type: Type,
-    metadata: MetadataSchemas[Type]
+    metadata: MetadataDataTypes[Type]
 ): Promise<Activity> {
     return await prisma.activity.create({
         data: {

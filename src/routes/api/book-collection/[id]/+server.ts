@@ -1,71 +1,60 @@
 import HttpCodes from "$lib/utils/http-codes"
 import { error, json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
-import db from "$lib/server/database/"
+import { applyDecorators } from "$lib/decorators"
+import AuthDecorator from "$lib/decorators/auth"
+import { z } from "zod"
+import ParseParamsDecorator from "$lib/decorators/parse-params"
+import api, { defaultApiMethodResponse } from "$lib/server/api"
+import { BookCollectionCreateSchema } from "$lib/validation/book-collection/collection"
 
 
-export const DELETE: RequestHandler = async ({ locals, params }) => {
-    if (!locals.user) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in"
-        })
-    }
-
-    const collectionId = params.id
-    const collectionIdNumber = Number(collectionId)
-    if (!collectionId || !Number.isInteger(collectionIdNumber)) {
-        return error(HttpCodes.ClientError.BadRequest, {
-            message: "Collection id is required",
-        })
-    }
-
-    try {
-        await db.books.collection.deleteCollection(collectionIdNumber, locals.user.id)
-        return json({
-            message: "Collection deleted"
-        }, {
-            status: HttpCodes.Success
-        })
-    } catch (err) {
-        return error(HttpCodes.ServerError.InternalServerError, {
-            message: "Failed to delete collection",
-        })
-    }
+const CollectionIdParamSchema = {
+    schema: z.coerce.number().int().positive().finite().safe(),
+    onError: () => error(HttpCodes.ClientError.BadRequest, {
+        message: "Invalid collection id"
+    })
 }
 
-export const PATCH: RequestHandler = async ({ locals, params, request }) => {
-    if (!locals.user) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in"
-        })
-    }
+export const PATCH: RequestHandler = applyDecorators(
+    [
+        AuthDecorator(["View Book"]),
+        ParseParamsDecorator({ id: CollectionIdParamSchema })
+    ],
+    async ({ locals, params, request }) => {
+        const userId = locals.user!.id
+        const collectionId = Number(params.id)
+        const body = await request.json()
+        const { name } = body
 
-    const collectionId = params.id
-    const collectionIdNumber = Number(collectionId)
-    if (!collectionId || !Number.isInteger(collectionIdNumber)) {
-        return error(HttpCodes.ClientError.BadRequest, {
-            message: "Collection id is required",
-        })
-    }
+        const parsingResult = BookCollectionCreateSchema.safeParse(body)
+        if (!parsingResult.success) {
+            return json({
+                message: "Invalid Form Data",
+                errors: parsingResult.error.flatten()
+            }, {
+                status: HttpCodes.ClientError.BadRequest
+            })
+        }
 
-    const body = await request.json()
-    const { name } = body
-    if (!name) {
-        return error(HttpCodes.ClientError.BadRequest, {
-            message: "Name is required",
-        })
+        return defaultApiMethodResponse(
+            await api.bookCollection.PATCH(collectionId, userId, name)
+        )
     }
+)
 
-    try {
-        await db.books.collection.updateCollection(collectionIdNumber, locals.user.id, name)
-        return json({
-            message: "Collection updated"
-        }, {
-            status: HttpCodes.Success
-        })
-    } catch (err) {
-        return error(HttpCodes.ServerError.InternalServerError, {
-            message: "Failed to update collection",
-        })
+
+export const DELETE: RequestHandler = applyDecorators(
+    [
+        AuthDecorator(["View Book"]),
+        ParseParamsDecorator({ id: CollectionIdParamSchema })
+    ],
+    async ({ locals, params }) => {
+        const userId = locals.user!.id
+        const collectionId = Number(params.id)
+
+        return defaultApiMethodResponse(
+            await api.bookCollection.DELETE(collectionId, userId)
+        )
     }
-}
+)

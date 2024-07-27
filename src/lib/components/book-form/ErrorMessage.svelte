@@ -1,6 +1,6 @@
 <script lang="ts">
-    export let errors: { _errors: string[] } | undefined = undefined
-    $: message = errors?._errors[0] ?? undefined
+    export let errors: string[] | undefined = undefined
+    $: message = errors?.[0] ?? undefined
 </script>
 
 {#if message}

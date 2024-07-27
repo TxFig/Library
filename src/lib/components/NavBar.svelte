@@ -15,25 +15,24 @@
             },
         }
     }
-
 </script>
 
 <AppBar>
     <svelte:fragment slot="lead">
-        <a class="btn" href="/">
-            <Icon icon="clarity:library-line" width="32" height="32" />
-            <span class="font-bold text-2xl">Library</span>
+        <a class="btn variant-outline sm:ring-0" href="/">
+            <Icon icon="clarity:library-line" width="24" height="24" />
+            <span class="font-bold text-2xl hidden sm:block">Library</span>
         </a>
     </svelte:fragment>
 
     <svelte:fragment slot="trail">
         <a class="btn variant-ghost-primary" href="/book/scan">
             <Icon icon="mdi:barcode-scan" width="24" height="24" />
-            <span class="hidden md:block">Scan Book</span>
+            <span class="hidden sm:block">Scan Book</span>
         </a>
         <a class="btn variant-outline" href="/book/create">
             <Icon icon="mdi:book-plus-outline" width="24" height="24" />
-            <span class="hidden md:block">Create Book</span>
+            <span class="hidden sm:block">Create Book</span>
         </a>
 
         <div class="w-[1px] h-10 bg-surface-600"></div>

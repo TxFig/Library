@@ -4,7 +4,9 @@ import { UserBookReadingState } from "reading-state"
 
 
 model User {
-    id             Int     @id @default(autoincrement())
+    id       Int    @id @default(autoincrement())
+    opaqueId String @unique
+
     email          String  @unique
     username       String  @unique
     profilePicture Boolean @default(false)
@@ -21,9 +23,10 @@ model User {
 
     userSettings UserSettings?
 
-    books Book[]
+    books           Book[]
     bookCollections BookCollection[]
 }
+
 
 
 model UserSettings {

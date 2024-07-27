@@ -1,5 +1,6 @@
-import type { BookCreateDataWithImageFiles } from "$lib/validation/book-form"
-import type { DateObjectWithYear } from "$lib/validation/publish-date"
+import type { BookCreateFormData } from "$lib/validation/book/book-form"
+import type { DateObjectWithYear } from "$lib/validation/book/publish-date"
+import fetchImageAsFile from "./fetch-image-as-file"
 
 
 export interface OpenLibraryBookData {
@@ -10,7 +11,7 @@ export interface OpenLibraryBookData {
     authors?: { url: string; name: string }[]
     number_of_pages?: number
     identifiers?: { [key: string]: string[] } // e.g. { "isbn_13": ["01234567890123"] }
-    classifications?: { [key: string]: string[] }[] // ?
+    classifications?: { [key: string]: string[] }
     publishers?: { name: string }[] // e.g. { "name": "O'Reilly Media" }
     publish_date?: string // e,g, "March 31, 1999" | "2019"
     subjects?: { name: string; url: string }[] // e.g. { "name": "Mathematics", "url": "https://openlibrary.org/subjects/mathematics" }
@@ -25,7 +26,7 @@ export interface OpenLibraryBookData {
         formats: {}
         borrow_url: string
         checkedout: boolean
-    }[] // ?
+    }[]
     cover?: {
         small?: string
         medium?: string
@@ -34,7 +35,7 @@ export interface OpenLibraryBookData {
 }
 
 const openLibraryISBN_URL = "https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:"
-export async function getOpenLibraryBook(isbn: string): Promise<BookCreateDataWithImageFiles | null> {
+export async function getOpenLibraryBook(isbn: string): Promise<BookCreateFormData | null> {
     const url = openLibraryISBN_URL + isbn
     const response = await fetch(url)
     const json = await response.json()
@@ -49,25 +50,32 @@ function capitalizeFirstLetter(string: string): string {
     return string[0].toUpperCase() + string.substring(1)
 }
 
-async function fetchImageContent(url: string): Promise<File> {
-    const res = await fetch(url)
-    const arrayBuffer = await res.arrayBuffer()
-    return new File([arrayBuffer], "")
-}
+const openLibraryPublishDateRegex = /^(?:(January|February|March|April|May|June|July|August|September|October|November|December)?(?:\s+(\d{1,2}))?(?:,?\s*)?(\d{4}))$/
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+function openLibraryDateToDateObject(date: string): DateObjectWithYear | undefined {
+    const match = date.match(openLibraryPublishDateRegex)
+    if (!match) return undefined
 
-function openLibraryDateToDateObject(date: string): DateObjectWithYear {
-    const dateJsObject = new Date(date)
-    return {
-        year: dateJsObject.getFullYear(),
-        month: dateJsObject.getMonth(),
-        day: dateJsObject.getDate()
+    const [_, month, day, year] = match
+    const dateObj: DateObjectWithYear = {
+        year: Number(year),
+        month: undefined,
+        day: undefined
     }
+
+    if (month)
+        dateObj.month = months.indexOf(month) + 1
+
+    if (day)
+        dateObj.day = Number(day)
+
+    return dateObj
 }
 
 async function parseOpenLibraryData(
     isbn: string,
     json: { [isbnTag: string]: OpenLibraryBookData }
-): Promise<BookCreateDataWithImageFiles> {
+): Promise<BookCreateFormData> {
     const data = Object.values(json)[0]
 
     const authors = data.authors?.map(author => author.name) ?? []
@@ -91,29 +99,29 @@ async function parseOpenLibraryData(
         : null
 
     const imageURL = data.cover?.large ?? data.cover?.medium ?? data.cover?.small ?? null
-    const imageFile = imageURL ? await fetchImageContent(imageURL) : null
+    const imageFile = imageURL ? await fetchImageAsFile(imageURL) ?? undefined : undefined
 
     const publishDate = data.publish_date ?
         openLibraryDateToDateObject(data.publish_date)
-    : null
+    : undefined
 
     return {
         title: data.title,
-        subtitle: data.subtitle ?? null,
-        number_of_pages: data.number_of_pages ?? null,
+        subtitle: data.subtitle ?? undefined,
+        number_of_pages: data.number_of_pages ?? undefined,
         publish_date: publishDate,
 
         isbn: isbn,
         isbn13: isbn13,
         isbn10: isbn10,
 
-        front_image: imageFile,
-        back_image: null,
+        image: imageFile,
 
         authors,
         publishers,
         subjects,
-        location: null,
-        language: null
+        location: undefined,
+        language: undefined,
+        public: true
     }
 }

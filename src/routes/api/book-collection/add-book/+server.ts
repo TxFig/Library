@@ -1,34 +1,31 @@
 import HttpCodes from "$lib/utils/http-codes"
-import { error, json } from "@sveltejs/kit"
+import { json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
-import db from "$lib/server/database/"
+import { applyDecorators } from "$lib/decorators"
+import AuthDecorator from "$lib/decorators/auth"
+import { ISBNSchema } from "$lib/validation/book/isbn"
+import api, { defaultApiMethodResponse } from "$lib/server/api"
+import { invalidate } from "$app/navigation"
 
 
-export const POST: RequestHandler = async ({ request, locals }) => {
-    if (!locals.user) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in"
-        })
+export const POST: RequestHandler = applyDecorators(
+    [AuthDecorator(["View Book"])],
+    async ({ request, locals }) => {
+        const userId = locals.user!.id
+        const body = await request.json()
+        const { collectionName, isbn } = body
+
+        const parsingResultISBN = ISBNSchema.safeParse(isbn)
+        if (!collectionName || typeof collectionName !== "string" || !parsingResultISBN.success) {
+            return json({
+                message: "Invalid Request"
+            }, {
+                status: HttpCodes.ClientError.BadRequest
+            })
+        }
+
+        return defaultApiMethodResponse(
+            await api.bookCollection.addBook.POST(userId, collectionName, isbn)
+        )
     }
-
-    const body = await request.json()
-    const { collectionName, isbn } = body
-    if (!collectionName || !isbn) {
-        return error(HttpCodes.ClientError.BadRequest, {
-            message: "Collection name and isbn are required",
-        })
-    }
-
-    try {
-        await db.books.collection.addBookToCollection(collectionName, isbn)
-        return json({}, {
-            status: HttpCodes.Success
-        })
-    } catch (err) {
-        return json({
-            message: "Failed to add book to collection"
-        }, {
-            status: HttpCodes.ServerError.InternalServerError
-        })
-    }
-}
+)

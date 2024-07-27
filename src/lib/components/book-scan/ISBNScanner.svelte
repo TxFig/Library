@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { page } from "$app/stores";
     import Quagga from "@ericblade/quagga2"
     import type { QuaggaJSConfigObject } from "@ericblade/quagga2"
 
@@ -16,9 +17,13 @@
     })
 
     export let deviceId: string | undefined = undefined
-    $: if (deviceId) QuaggaInit(deviceId)
+    $: if (
+        deviceId &&
+        $page.data.user &&
+        window.navigator.mediaDevices
+    ) QuaggaInit(deviceId)
 
-    function QuaggaInit(deviceId: string): void {
+    export function QuaggaInit(deviceId: string): void {
         Quagga.stop()
         Quagga.init(
             generateQuaggaConfig(deviceId),
@@ -99,12 +104,12 @@
         if (isbn && onDetected) await onDetected(isbn)
     })
 
-    let externalClasses: string
+    let externalClasses: string = ""
     export { externalClasses as class }
 
 </script>
 
-<div id="input-target" class={`relative max-w-full max-h-full ${externalClasses}`}></div>
+<div id="input-target" class={`relative ${externalClasses}`}></div>
 
 <style>
     :global(#input-target > video, #input-target > canvas) {

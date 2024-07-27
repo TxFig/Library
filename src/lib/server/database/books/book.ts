@@ -1,10 +1,16 @@
-import type { Book, Location, Language, Author, Publisher, Subject, PublishDate, User, UserBookReadingState } from "@prisma/client"
+import type {
+    Book, Location, Language, Author, Publisher, Subject, PublishDate,
+    User, UserBookReadingState, Image
+} from "@prisma/client"
 import { prisma } from ".."
-import type { BookCreateData, BookUpdateData } from "$lib/validation/book-form"
-import { deleteImagesFolder } from "$lib/utils/images"
+import type { BookCreateFormData, BookUpdateFormData } from "$lib/validation/book/book-form"
+import { deleteImagesFolder, generateResizedImages } from "$lib/utils/images"
+import type { ReplaceFields } from "$lib/utils/types"
+import isObjectEmpty, { isObjectNotEmpty } from "$lib/utils/is-object-empty"
 
 
 export type EntireBook = Book & {
+    image: Image[]
     publish_date: PublishDate | null
     authors: Author[]
     publishers: Publisher[]
@@ -16,6 +22,7 @@ export type EntireBook = Book & {
 }
 
 export const EntireBookInclude = {
+    image: true,
     publish_date: true,
     authors: true,
     publishers: true,
@@ -26,94 +33,179 @@ export const EntireBookInclude = {
     owner: true
 }
 
+type BookCreateDatabaseData = {
+    book: Omit<Book, "id" | "ownerId" | "locationId" | "languageId">
+    publish_date: Omit<PublishDate, "id" | "bookId"> | null,
+    location: Omit<Location, "id"> | null,
+    language: Omit<Language, "id"> | null,
+    authors: Omit<Author, "id">[],
+    publishers: Omit<Publisher, "id">[],
+    subjects: Omit<Subject, "id">[],
+    image: BookImageInput[],
+    // owner: Omit<User, "id"> | null
+}
+export type BookImageInput = Omit<Image, "id" | "bookId" | "createdAt">
 
-export async function createBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookCreateData): Promise<EntireBook> {
-    return await prisma.book.create({
+type BookUpdateDatabaseData = ReplaceFields<BookCreateDatabaseData, {
+    book: ReplaceFields<BookCreateDatabaseData["book"], {
+        title: string | undefined
+    }>
+}>
+
+async function BookCreateFormDataToDatabaseData(book: BookCreateFormData): Promise<BookCreateDatabaseData> {
+    const imageSizes = book.image ?
+        await generateResizedImages(book.isbn, book.image)
+    : []
+
+    return {
+        book: {
+            isbn: book.isbn,
+            title: book.title,
+            subtitle: book.subtitle ?? null,
+            number_of_pages: book.number_of_pages ?? null,
+            isbn10: book.isbn10 ?? null,
+            isbn13: book.isbn13 ?? null,
+            public: book.public
+        },
+        publish_date: book.publish_date ? {
+            year: book.publish_date.year,
+            month: book.publish_date.month ?? null,
+            day: book.publish_date.day ?? null
+        } : null,
+        location: book.location ? { value: book.location } : null,
+        language: book.language ? { value: book.language } : null,
+        authors: book.authors.map(author => ({ name: author })),
+        publishers: book.publishers.map(publisher => ({ name: publisher })),
+        subjects: book.subjects.map(subject => ({ value: subject })),
+        image: imageSizes
+    }
+}
+
+
+export async function createBook(formData: BookCreateFormData): Promise<EntireBook> {
+    const data = await BookCreateFormDataToDatabaseData(formData)
+    const { book, publish_date, location, language, authors, publishers, subjects, image } = data
+
+
+    const returnBook = await prisma.book.create({
         data: {
             ...book,
             publish_date: publish_date ? {
-                create: {
-                    ...publish_date
-                }
+                create: publish_date
             } : undefined,
             location: location ? {
                 connectOrCreate: {
-                    where: { value: location },
-                    create: { value: location }
+                    where: location,
+                    create: location
                 }
             } : undefined,
             language: language ? {
                 connectOrCreate: {
-                    where: { value: language },
-                    create: { value: language }
+                    where: language,
+                    create: language
                 }
             } : undefined,
-            authors: authors ? {
+            authors: {
                 connectOrCreate: authors.map(author => ({
-                    where: { name: author },
-                    create: { name: author }
+                    where: author,
+                    create: author
                 }))
-            } : undefined,
-            publishers: publishers ? {
+            },
+            publishers: {
                 connectOrCreate: publishers.map(publisher => ({
-                    where: { name: publisher },
-                    create: { name: publisher }
+                    where: publisher,
+                    create: publisher
                 }))
-            } : undefined,
-            subjects: subjects ? {
+            },
+            subjects: {
                 connectOrCreate: subjects.map(subject => ({
-                    where: { value: subject },
-                    create: { value: subject }
+                    where: subject,
+                    create: subject
                 }))
-            } : undefined
+            }
         },
         include: EntireBookInclude
     })
+
+    if (image.length > 0) {
+        await prisma.image.createMany({
+            data: image.map(img => ({
+                bookId: returnBook.id,
+                ...img
+            }))
+        })
+    }
+
+    return returnBook
 }
 
-export async function updateBook({ publish_date, location, language, authors, publishers, subjects, ...book }: BookUpdateData): Promise<EntireBook> {
-    return await prisma.book.update({
+export async function updateBook(formData: BookUpdateFormData): Promise<EntireBook> {
+    const data: BookUpdateDatabaseData = await BookCreateFormDataToDatabaseData({
+        ...formData,
+        title: formData.title ?? ""
+    })
+    data.book.title ||= undefined
+
+    const { book, publish_date, location, language, authors, publishers, subjects, image } = data
+
+    const returnBook = await prisma.book.update({
         where: { isbn: book.isbn },
         data: {
             ...book,
             publish_date: publish_date ? {
-                create: {
-                    ...publish_date
-                }
+                update: publish_date
             } : undefined,
             location: location ? {
                 connectOrCreate: {
-                    where: { value: location },
-                    create: { value: location }
+                    where: location,
+                    create: location
                 }
             } : undefined,
             language: language ? {
                 connectOrCreate: {
-                    where: { value: language },
-                    create: { value: language }
+                    where: language,
+                    create: language
                 }
             } : undefined,
-            authors: authors ? {
+            authors:  {
                 connectOrCreate: authors.map(author => ({
-                    where: { name: author },
-                    create: { name: author }
+                    where: author,
+                    create: author
                 }))
-            } : undefined,
-            publishers: publishers ? {
+            },
+            publishers: {
                 connectOrCreate: publishers.map(publisher => ({
-                    where: { name: publisher },
-                    create: { name: publisher }
+                    where: publisher,
+                    create: publisher
                 }))
-            } : undefined,
-            subjects: subjects ? {
+            },
+            subjects: {
                 connectOrCreate: subjects.map(subject => ({
-                    where: { value: subject },
-                    create: { value: subject }
+                    where: subject,
+                    create: subject
                 }))
-            } : undefined
+            }
         },
         include: EntireBookInclude
     })
+
+    await prisma.image.deleteMany({
+        where: {
+            bookId: returnBook.id,
+        }
+    })
+
+    if (image.length > 0) {
+        await prisma.image.createMany({
+            data: image.map(img => ({
+                bookId: returnBook.id,
+                ...img
+            }))
+        })
+    }
+
+
+    return returnBook
 }
 
 export async function deleteBook(isbn: string): Promise<void> {
@@ -123,6 +215,7 @@ export async function deleteBook(isbn: string): Promise<void> {
             authors:    { include: { books: true } },
             publishers: { include: { books: true } },
             subjects:   { include: { books: true } },
+            image: true
         }
     })
 
@@ -166,33 +259,17 @@ export async function deleteBook(isbn: string): Promise<void> {
         }
     })
 
-    //* --- Delete subjects from this book who don't have any other books
-    // Filter subjects who don't have any other book besides the one being removed
-    const booklessSubjects = book.subjects.filter(
-        subject => subject.books.filter(
-            subjectBook => subjectBook.isbn != isbn
-        ).length == 0
-    )
-    const booklessSubjectsIDs = booklessSubjects.map(subject => subject.id)
-
-    // Delete all bookless subjects
-    await prisma.subject.deleteMany({
-        where: {
-            id: { in: booklessSubjectsIDs }
-        }
-    })
-
-    if (book.front_image || book.back_image) {
+    if (book.image.length > 0) {
         deleteImagesFolder(book.isbn)
     }
 }
 
 
 export async function doesBookExist(isbn: string): Promise<boolean> {
-    const book = await prisma.book.findUnique({
+    const count = await prisma.book.count({
         where: { isbn }
     })
-    return Boolean(book)
+    return count !== 0
 }
 
 

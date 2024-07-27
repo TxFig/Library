@@ -1,30 +1,48 @@
 <script lang="ts">
-    export let name: string
-    export let value: string | undefined = undefined
-    export let min: number | undefined = undefined
-    export let max: number | undefined = undefined
+    import filterRegex from "$lib/utils/filter-regex";
+
+    export let text: string
+    export let required: boolean = false
+    export let name: string | undefined = undefined
+    export let value: number | undefined | null = undefined
     export let placeholder: string | undefined = undefined
 
-    const onlyDigitsRegex = /^[0-9X]*$/
-    const nonDigitsRegex = /[^0-9X]/g
-    function handleInput() {
-        if (!value || onlyDigitsRegex.test(value)) return
+    export let min: number | undefined = undefined
+    export let max: number | undefined = undefined
 
-        value = value.replace(nonDigitsRegex, "")
+    export let allowedRegex: RegExp = /^[0-9]*$/
+    function handleInput() {
+        if (!value) return
+
+        const validValue = filterRegex(allowedRegex, value.toString())
+        value = validValue !== "" ? Number(validValue) : undefined
     }
 
-    // for external use
-    export let inputElement: HTMLInputElement
+    let externalClasses: string = ""
+    export { externalClasses as class }
+
+    export let errors: string[] | undefined = undefined
 </script>
 
-<input
-    class="input"
-    type="text"
-    {name} {min} {max}
-    bind:value
-    on:input={handleInput}
-    placeholder={placeholder}
+<label class="label {externalClasses}">
+    <span>
+        {text}
+        {#if required}
+            <sup class="text-red-500">*</sup>
+        {/if}
+    </span>
+    <input
+        class="input"
+        type="text"
+        {name} {min} {max}
+        bind:value
+        on:input={handleInput}
+        placeholder={placeholder}
+        autocomplete="off"
 
-    bind:this={inputElement}
-    autocomplete="off"
-/>
+        on:change
+        on:input
+
+        aria-invalid={errors ? "true" : undefined}
+    />
+</label>

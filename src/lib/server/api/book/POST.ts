@@ -1,0 +1,57 @@
+import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms"
+import type { BookCreateSchema } from "$lib/validation/book/book-form"
+import db from "$lib/server/database/"
+import type { EntireBook } from "$lib/server/database/books/book"
+import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
+import type { Implements } from "$lib/utils/types"
+import type { InternalApiMethodReturn } from ".."
+
+
+export type SuperFormCreateBook = SuperValidated<
+    Infer<BookCreateSchema>,
+    App.Superforms.Message,
+    InferIn<BookCreateSchema>
+>
+
+export type BookPostMethodReturn = Implements<InternalApiMethodReturn, {
+    success: true
+    message: string,
+    data: EntireBook
+} | {
+    success: false
+    code: HttpErrorCodesValues,
+    message: string,
+}>
+
+export async function POST(form: SuperFormCreateBook, userId: number): Promise<BookPostMethodReturn> {
+    const { data } = form
+
+    const doesBookExist = await db.books.book.doesBookExist(data.isbn)
+    if (doesBookExist) {
+        return {
+            code: HttpCodes.ClientError.Conflict,
+            message: "Book Already Exists",
+            success: false
+        }
+    }
+
+    try {
+        const book = await db.books.book.createBook(data)
+        await db.activityLog.logActivity(userId, "BOOK_ADDED", data)
+
+        return {
+            message: "Book Created Successfully",
+            success: true,
+            data: book
+        }
+    } catch (err) {
+        return {
+            success: false,
+            code: HttpCodes.ServerError.InternalServerError,
+            message: "Error creating book in database"
+        }
+    }
+}
+
+
+export default POST

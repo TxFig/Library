@@ -3,20 +3,13 @@ import { error } from "@sveltejs/kit"
 
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
-import { parseISBN } from "$lib/validation/isbn"
-import { HttpError } from "$lib/utils/custom-errors"
+import { ISBNSchema } from "$lib/validation/book/isbn"
+import { applyDecorators } from "$lib/decorators"
+import { ParseParamsDecorator } from "$lib/decorators/parse-params"
 
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-    const { isbn: isbnString } = params
-
-    let isbn: string
-    try {
-        isbn = parseISBN(isbnString)
-    } catch (err) {
-        if (err instanceof HttpError) error(err.httpCode, err.message)
-        else error(HttpCodes.ServerError.InternalServerError, "Internal Server Error")
-    }
+const load: PageServerLoad = async ({ params, locals }) => {
+    const { isbn } = params
 
     const book = await db.books.book.getEntireBookByISBN(isbn)
     if (!book) {
@@ -27,9 +20,22 @@ export const load: PageServerLoad = async ({ params, locals }) => {
         await db.auth.readingState.getBookReadingState(book.id, locals.user.id)
     : null
 
+    const user = locals.user
+
     return {
+        user,
         book,
         readingState,
-        user: locals.user ? await db.auth.user.getUserById(locals.user.id) : null
     }
 }
+
+const decoratedLoad = applyDecorators([
+    ParseParamsDecorator({
+        isbn: {
+            schema: ISBNSchema,
+            onError: () => error(HttpCodes.ClientError.BadRequest, "Invalid ISBN")
+        }
+    })
+], load)
+
+export { decoratedLoad as load }
