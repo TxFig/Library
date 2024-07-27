@@ -12,7 +12,6 @@
     import LoadingModal from "./LoadingModal.svelte";
 
 
-    let deviceId: string | undefined = undefined
     let ISBNScannerComponent: ISBNScanner
 
     const toastStore = getToastStore()
@@ -26,8 +25,8 @@
             if (confirm) {
                 window.location.href = `/book/create/?isbn=${isbn}`
             } else {
-                if (ISBNScannerComponent && deviceId) {
-                    ISBNScannerComponent.QuaggaInit(deviceId)
+                if (ISBNScannerComponent) {
+                    ISBNScannerComponent.Restart()
                 }
             }
         },
@@ -101,7 +100,7 @@
 {#if $page.data.user}
     {#if mediaDevicesAvailable}
         <div class="flex flex-col items-center h-full gap-4 p-6">
-            <ISBNScanner {deviceId} class="h-5/6" {onDetected} bind:this={ISBNScannerComponent} />
+            <ISBNScanner class="h-5/6" {onDetected} bind:this={ISBNScannerComponent} />
             <ManualInsertISBN onSubmit={onDetected}/>
         </div>
     {:else}

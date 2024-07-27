@@ -44,7 +44,7 @@
     <div class="flex flex-col gap-12 p-12 border border-surface-600 rounded-xl">
         <div class="flex items-center justify-center gap-2">
             <Icon icon="clarity:library-line" width="32" height="32" />
-            <span class="font-bold text-3xl hidden sm:block">Library</span>
+            <span class="font-bold text-3xl">Library</span>
         </div>
 
         <form

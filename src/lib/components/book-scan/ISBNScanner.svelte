@@ -24,13 +24,15 @@
         window.navigator.mediaDevices
     ) QuaggaInit(deviceId)
 
-    export function QuaggaInit(deviceId: string): void {
+    function QuaggaInit(deviceId: string): void {
         Quagga.stop()
         Quagga.init(
             generateQuaggaConfig(deviceId),
             QuaggaInitCallback
         )
     }
+
+    export const Restart = () => deviceId && QuaggaInit(deviceId)
 
     function QuaggaInitCallback(err: any): void {
         if (err) {
@@ -82,7 +84,7 @@
 
     :global(#input-target > button) {
         position: absolute;
-        bottom: 20%; right: 3%;
+        bottom: 5%; right: 5%;
         z-index: 1;
     }
 </style>
