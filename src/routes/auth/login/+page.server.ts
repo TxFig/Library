@@ -41,8 +41,9 @@ export const actions: Actions = {
         }
 
         const redirectPath = url.searchParams.get("redirect") ?? undefined
-        const error = await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, redirectPath)
-        if (error) {
+        try {
+            await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, redirectPath)
+        } catch (error) {
             return fail(HttpCodes.ServerError.InternalServerError, {
                 error: undefined,
                 message: "Error sending email"

@@ -4,13 +4,14 @@ import { error, redirect } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
 import { env } from "$env/dynamic/private"
 import { UserCreateSchema } from "$lib/validation/auth/user"
+import { fail, message, superValidate } from "sveltekit-superforms"
+import { zod } from "sveltekit-superforms/adapters"
 
 
 export const load: PageServerLoad = async () => {
-    const usersCount = await db.auth.user.getUserCount()
-
-    if (usersCount > 0) {
-        redirect(HttpCodes.SeeOther, "/admin")
+    const initialSetup = await db.config.getInitialSetup()
+    if (initialSetup) {
+        redirect(HttpCodes.Found, "/admin")
     }
 
     if (env.ADMIN_EMAIL) {
@@ -20,42 +21,68 @@ export const load: PageServerLoad = async () => {
             permissionGroup: "Admin"
         })
 
-        const err = await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, "/admin")
-        if (err) error(HttpCodes.ServerError.InternalServerError, {
-            error: undefined,
-            message: "Error sending confirmation email"
-        })
+        try {
+            await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, "/admin")
+            await db.config.setInitialSetup(true)
+        } catch (err) {
+            error(HttpCodes.ServerError.InternalServerError, {
+                error: undefined,
+                message: "Error sending confirmation email"
+            })
+        }
 
-        return { providedAdminEmail: true }
+        return {
+            providedAdminEmail: true,
+            form: await superValidate(zod(UserCreateSchema))
+        }
     }
 
-    return { providedAdminEmail: false }
+    return {
+        providedAdminEmail: false,
+        form: await superValidate(zod(UserCreateSchema))
+    }
 }
 
 
 export const actions = {
     default: async ({ request }) => {
         const formData = await request.formData()
-        const email = formData.get("email")
-        const username = formData.get("username")
+        formData.set("permissionGroup", "Admin")
 
-        const parsingResult = UserCreateSchema.safeParse({
-            email, username,
-            permissionGroup: "Admin"
-        })
-
-        if (!parsingResult.success) {
-            return { error: "Invalid email or username", data: { email, username } }
+        const form = await superValidate(formData, zod(UserCreateSchema))
+        if (!form.valid) {
+            return fail(HttpCodes.ClientError.BadRequest, { form })
         }
 
-        const user = await db.auth.user.createUser(parsingResult.data)
+        try {
+            const user = await db.auth.user.getUserByEmail(form.data.email)
+            if (user) {
+                return message(form, {
+                    type: "error",
+                    text: "Confirmation email already sent"
+                })
+            }
+        } catch (err) {
+            error(HttpCodes.ServerError.InternalServerError, {
+                message: "Internal Server Error"
+            })
+        }
 
-        const err = await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, "/admin")
-        if (err) error(HttpCodes.ServerError.InternalServerError, {
-            error: undefined,
-            message: "Error sending confirmation email"
+        const user = await db.auth.user.createUser(form.data)
+
+        try {
+            await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, "/admin")
+            await db.config.setInitialSetup(true)
+        } catch (err) {
+            return message(form, {
+                type: "error",
+                text: "Error sending confirmation email"
+            })
+        }
+
+        return message(form, {
+            type: "success",
+            text: "User created successfully"
         })
-
-        return { error: undefined, data: { email, username } }
     }
 }

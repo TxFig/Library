@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ErrorMessage from "$lib/components/book-form/ErrorMessage.svelte";
+    import ErrorMessage from "$lib/components/ErrorMessage.svelte";
     import TextInput from "$lib/components/TextInput.svelte";
     import type { SuperFormCreateUser } from "$lib/server/api/user/POST";
     import type { EntireUser } from "$lib/server/database/auth/user";

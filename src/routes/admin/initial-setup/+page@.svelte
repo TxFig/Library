@@ -1,26 +1,26 @@
 <script lang="ts">
-    import { enhance } from "$app/forms";
-    import type { SubmitFunction } from "@sveltejs/kit";
-    import type { ActionData, PageData } from "./$types"
+    import type { PageData } from "./$types"
     import { getToastStore } from "@skeletonlabs/skeleton";
+    import { superForm } from "sveltekit-superforms";
+    import TextInput from "$lib/components/TextInput.svelte";
+    import ErrorMessage from "$lib/components/ErrorMessage.svelte";
 
     export let data: PageData
     const { providedAdminEmail } = data
 
-    export let form: ActionData
-    $: error = form?.error
-    $: formData = form?.data
+
+    const { enhance, form, errors } = superForm(data.form, {
+        onUpdate({ form: { message } }) {
+            if (message) {
+                toastStore.trigger({
+                    message: message.text,
+                    background: message.type === "error" ? "variant-filled-error" : "variant-filled-success"
+                })
+            }
+        },
+    })
 
     const toastStore = getToastStore()
-
-    const submitFunction: SubmitFunction = () => ({ result }) => {
-        if (result.type == "success") {
-            toastStore.trigger({
-                message: "Confirmation email sent",
-                background: "variant-filled-success"
-            })
-        }
-    }
 
 </script>
 
@@ -30,18 +30,15 @@
         <p>Confirmation email sent</p>
     {:else}
         <p class="text-xl">Create Admin User Form:</p>
-        <form class="flex flex-col gap-4" method="post" use:enhance={submitFunction}>
-            <label class="label">
-                <span>Email</span>
-                <input class="input" type="text" name="email" placeholder="Enter email..." value={formData?.email ?? ""} />
-            </label>
-            <label class="label">
-                <span>Username</span>
-                <input class="input" type="text" name="username" placeholder="Enter username..." value={formData?.username ?? ""} />
-            </label>
-            {#if error}
-                <p class="text-red-500">{error}</p>
-            {/if}
+        <form class="flex flex-col gap-4" method="post" use:enhance>
+            <div>
+                <TextInput text="Email" bind:value={$form.email} errors={$errors.email} placeholder="Enter email..." required name="email" />
+                <ErrorMessage errors={$errors.email} />
+            </div>
+            <div>
+                <TextInput text="Username" bind:value={$form.username} errors={$errors.username} placeholder="Enter username..." required name="username" />
+                <ErrorMessage errors={$errors.username} />
+            </div>
             <button class="btn variant-ghost-primary w-fit">Create Admin User</button>
         </form>
     {/if}

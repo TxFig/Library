@@ -24,13 +24,6 @@
                 selected={$page.url.pathname === "/admin/activity"}
             >Activity Log</TabAnchor>
             <svelte:fragment slot="panel">
-                <!-- {#if tabSet === 0}
-                    <UsersTab {users} {allPermissionGroups}/>
-                {:else if tabSet === 1}
-                    <PermissionGroupsTab permissionGroups={allPermissionGroups} permissions={allPermissions}/>
-                {:else if tabSet === 2}
-                    <ActivityLogTab {entireActivityLog}/>
-                {/if} -->
                 <slot />
             </svelte:fragment>
         </TabGroup>

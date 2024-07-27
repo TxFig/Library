@@ -79,7 +79,25 @@ async function seedSubjects() {
     })
 }
 
+async function seedAppConfig() {
+    await prisma.appConfig.create({
+        data: {
+            initialSetup: false
+        }
+    })
+
+    await prisma.appSettings.create({
+        data: {
+            public: false
+        }
+    })
+}
+
 async function main() {
+    const appConfigCount = await prisma.appConfig.count()
+    if (appConfigCount == 0)
+        await seedAppConfig()
+
     const permissionCount = await prisma.permission.count()
     if (permissionCount == 0)
         await seedPermissionsAndPermissionGroups()

@@ -9,22 +9,18 @@ import { env } from "$env/dynamic/private"
 export async function sendConfirmationEmailAndSaveRequest(
     user: User,
     redirectPath: string = "/"
-): Promise<Error | undefined> {
-    try {
-        const token = uuidv4()
+): Promise<void> {
+    const token = uuidv4()
 
-        await sendConfirmationEmail(user.email, token, redirectPath)
+    await sendConfirmationEmail(user.email, token, redirectPath)
 
-        await prisma.emailConfirmationRequest.create({
-            data: {
-                token,
-                expireDate: generateExpirationDate(+env.EMAIL_CONFIRMATION_EXPIRATION_TIME),
-                userId: user.id
-            }
-        })
-    } catch (error) {
-        return error as Error
-    }
+    await prisma.emailConfirmationRequest.create({
+        data: {
+            token,
+            expireDate: generateExpirationDate(+env.EMAIL_CONFIRMATION_EXPIRATION_TIME),
+            userId: user.id
+        }
+    })
 }
 
 type EmailConfirmationAndUser = EmailConfirmationRequest & {

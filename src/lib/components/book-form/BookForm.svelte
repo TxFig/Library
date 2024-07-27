@@ -7,7 +7,7 @@
     import NumberInput from "../NumberInput.svelte";
     import TextInput from "../TextInput.svelte";
     import AutocompleteInputChip from "./AutocompleteInputChip.svelte";
-    import ErrorMessage from "./ErrorMessage.svelte";
+    import ErrorMessage from "../ErrorMessage.svelte";
     import ImageInput from "./ImageInput.svelte";
     import ListBoxInput from "./ListBoxInput.svelte";
     import PublishDate from "./PublishDate.svelte";

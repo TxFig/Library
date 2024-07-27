@@ -217,6 +217,22 @@ model BookCollection {
 }
 
 //
+// config.prisma
+//
+
+model AppConfig {
+  id Int @id @default(autoincrement())
+
+  initialSetup Boolean @default(false)
+}
+
+model AppSettings {
+  id Int @id @default(autoincrement())
+
+  public Boolean @default(false)
+}
+
+//
 // reading-state.prisma
 //
 
