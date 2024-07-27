@@ -2,7 +2,7 @@
     import ISBNScanner from "$lib/components/book-scan/ISBNScanner.svelte";
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
     import { page } from "$app/stores";
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import ManualInsertISBN from "./ManualInsertISBN.svelte";
     import { validateISBN } from "$lib/validation/book/isbn";
     import { getModalStore, getToastStore, type ModalSettings } from "@skeletonlabs/skeleton";
@@ -35,7 +35,7 @@
     const FetchingBookDataAlert: ModalSettings = {
         type: "component",
         component: {
-            ref : LoadingModal
+            ref: LoadingModal
         }
     }
 
@@ -45,7 +45,6 @@
             message: string
         } = await response.json()
         modalStore.close()
-        fetchingBookData = false
 
         if (
             response.status === HttpCodes.ClientError.Conflict ||
@@ -66,7 +65,7 @@
             response.status === HttpCodes.Success ||
             response.status === HttpCodes.ClientError.Conflict
         ) {
-            goto(`/book/${isbn}/`)
+            await goto(`/book/${isbn}/`)
         }
 
         if (response.status === HttpCodes.ClientError.NotFound) {
@@ -74,18 +73,18 @@
                 BookNotAvailableInOpenLibraryAlert(isbn)
             )
         }
+
+        fetchingBookData = false
     }
 
     let fetchingBookData = false
     async function onDetected(isbn: string) {
-        if (fetchingBookData) return
-        if (!validateISBN(isbn)) return
-
+        if (fetchingBookData || !validateISBN(isbn)) return
         fetchingBookData = true
+
         modalStore.trigger(FetchingBookDataAlert)
         await Quagga.stop()
-
-        fetchBookData(isbn)
+        await fetchBookData(isbn)
     }
 
     let mediaDevicesAvailable = true
@@ -94,6 +93,10 @@
             mediaDevicesAvailable = false
             return
         }
+    })
+
+    onDestroy(async () => {
+        await Quagga.stop()
     })
 </script>
 

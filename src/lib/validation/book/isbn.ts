@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const formISBNRegex = /^[0-9X]*$/
 const allSpacesAndHyphensRegex = /[-\s]/g
-const ISBNFormatRegex = /^(?:[0-9]{9}[0-9X]|[0-9]{13})$/
+const ISBNFormatRegex = /^978(?:[0-9]{7}[0-9X]|[0-9]{10})$/
 
 export function validateISBN(isbn: string): boolean {
     isbn = isbn.replace(allSpacesAndHyphensRegex, "")
