@@ -1,10 +1,6 @@
 import { z } from "zod"
+import { EmailSchema } from "../utils"
 
-
-export const EmailSchema = z
-    .string()
-    .min(1, "Required")
-    .email("Invalid Email")
 
 export const UserCreateSchema = z.object({
     email: EmailSchema,

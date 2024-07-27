@@ -1,7 +1,7 @@
 import db from "$lib/server/database/";
 import { fail, type Actions } from "@sveltejs/kit";
 import HttpCodes from "$lib/utils/http-codes"
-import { EmailSchema } from "$lib/validation/auth/user";
+import { EmailSchema } from "$lib/validation/utils";
 import isDateExpired from "$lib/utils/is-date-expired";
 
 

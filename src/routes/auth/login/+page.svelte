@@ -2,8 +2,8 @@
     import { enhance } from "$app/forms"
     import { page } from "$app/stores"
     import { getToastStore } from "@skeletonlabs/skeleton"
-    import type { ActionData, SubmitFunction } from "./$types"
-    import { EmailSchema } from "$lib/validation/auth/user";
+    import type { SubmitFunction } from "./$types"
+    import { EmailSchema } from "$lib/validation/utils";
     import TextInput from "$lib/components/TextInput.svelte";
 
 

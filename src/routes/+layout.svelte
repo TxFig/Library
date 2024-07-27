@@ -21,6 +21,10 @@
             elemPage.scrollTop = 0
         }
     })
+
+    import type { LayoutData } from "./$types";
+    import LoginRequired from "$lib/components/LoginRequired.svelte";
+    export let data: LayoutData
 </script>
 
 <svelte:head>
@@ -29,7 +33,11 @@
 
 <Modal />
 <Toast zIndex="z-[1000]" />
-<AppShell slotPageContent="h-full">
-    <NavBar slot="header" />
-    <slot />
-</AppShell>
+{#if !data.publicAccess && data.user}
+    <AppShell slotPageContent="h-full">
+        <NavBar slot="header" />
+        <slot />
+    </AppShell>
+{:else}
+    <LoginRequired />
+{/if}
