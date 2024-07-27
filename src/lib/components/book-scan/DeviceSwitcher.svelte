@@ -9,8 +9,6 @@
         devices[selectedIndex].deviceId
     : undefined
 
-    $: console.log(devices, selectedIndex, deviceSelectedId)
-
     onMount(async () => {
         devices = (await navigator.mediaDevices.enumerateDevices())
             .filter((device) => device.kind === "videoinput")
