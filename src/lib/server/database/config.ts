@@ -1,3 +1,4 @@
+import type { AppSettings } from "@prisma/client"
 import { prisma } from "."
 
 
@@ -20,8 +21,27 @@ export async function setInitialSetup(initialSetup: boolean) {
     })
 }
 
+export async function getSettings() {
+    const settings = await prisma.appSettings.findFirst({
+        where: { id: 1 }
+    })
+    if (!settings) {
+        throw new Error("Config not found")
+    }
+    return settings
+}
+
+export async function setSettings(settings: Omit<AppSettings, "id">) {
+    await prisma.appSettings.update({
+        where: { id: 1 },
+        data: settings
+    })
+}
+
 
 export default {
     getInitialSetup,
-    setInitialSetup
+    setInitialSetup,
+    getSettings,
+    setSettings
 }

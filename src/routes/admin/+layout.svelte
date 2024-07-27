@@ -23,6 +23,10 @@
                 href="/admin/activity"
                 selected={$page.url.pathname === "/admin/activity"}
             >Activity Log</TabAnchor>
+            <TabAnchor
+                href="/admin/settings"
+                selected={$page.url.pathname === "/admin/settings"}
+            >App Settings</TabAnchor>
             <svelte:fragment slot="panel">
                 <slot />
             </svelte:fragment>
