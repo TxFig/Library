@@ -33,7 +33,7 @@
 
 <Modal />
 <Toast zIndex="z-[1000]" />
-{#if data.publicAccess || !data.user}
+{#if data.publicAccess || data.user}
     <AppShell slotPageContent="h-full">
         <NavBar slot="header" />
         <slot />
