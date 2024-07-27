@@ -88,7 +88,7 @@ async function seedAppConfig() {
 
     await prisma.appSettings.create({
         data: {
-            public: false
+            public: true
         }
     })
 }
