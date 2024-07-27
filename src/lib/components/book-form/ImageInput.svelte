@@ -26,8 +26,7 @@
         })
     }
 
-    async function onImageChange() {
-        file = files[0]
+    async function onImageChange(file: File) {
         const url = await getDataURLImage(file)
         src = url ?? ""
         srcError = false
@@ -36,6 +35,8 @@
     export let src: string = ""
     let files: FileList
     export let file: File | undefined = undefined
+
+    $: file && onImageChange(file)
 
     export let title: string
     export let name: string
@@ -48,7 +49,7 @@
             if (url.protocol === "http:" || url.protocol === "https:") {
                 src = imageUrl
                 srcError = false
-                file = await fetchImageAsFile(imageUrl)
+                file = await fetchImageAsFile(imageUrl, "image/webp") ?? undefined
             }
         } catch (e) {
             srcError = true
@@ -62,22 +63,25 @@
 </script>
 
 
-<div class="flex flex-col space-y-2 w-full">
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="label">{title}</label>
-    <FileDropzone name={name} accept="image/*" on:change={onImageChange} bind:files={files}>
-        <svelte:fragment slot="lead">
-            <div class="flex justify-center">
-                <Icon icon="uil:image-upload" color="white" width="32" height="32" />
-            </div>
-        </svelte:fragment>
-    </FileDropzone>
-    <TextInput text="Image URL" bind:value={imageUrl} on:input={handleImageUrlInput} />
-    {#if src}
-        <img src={src} alt={title} class="w-full" on:error={handleImageError} />
-    {/if}
-    {#if srcError}
-        <p class="text-red-600">Invalid Image</p>
-    {/if}
-    <p></p>
+<div class="flex flex-col md:flex-row gap-8 w-full">
+    <div class="flex flex-col gap-2 md:w-4/5">
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="label">{title}</label>
+        <FileDropzone name={name} accept="image/*" bind:files={files} on:change={() => file = files[0]}>
+            <svelte:fragment slot="lead">
+                <div class="flex justify-center">
+                    <Icon icon="uil:image-upload" color="white" width="32" height="32" />
+                </div>
+            </svelte:fragment>
+        </FileDropzone>
+        <TextInput text="Image URL" bind:value={imageUrl} on:input={handleImageUrlInput} />
+        {#if srcError}
+            <p class="text-red-600">Invalid Image</p>
+        {/if}
+    </div>
+    <div class="flex items-center justify-center w-full md:w-1/5">
+        {#if src}
+            <img src={src} alt={title} class="h-full object-contain" on:error={handleImageError} />
+        {/if}
+    </div>
 </div>

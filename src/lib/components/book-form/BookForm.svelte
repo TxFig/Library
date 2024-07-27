@@ -1,9 +1,9 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { BookCreateSchema } from "$lib/validation/book/book-form";
+    import type { SuperFormCreateBook } from "$lib/server/api/book/POST";
     import type { Author, Language, Location, Publisher, Subject } from "@prisma/client";
     import { getToastStore } from "@skeletonlabs/skeleton";
-    import SuperDebug, { superForm, type Infer, type InferIn, type SuperValidated } from "sveltekit-superforms";
+    import SuperDebug, { superForm } from "sveltekit-superforms";
     import NumberInput from "../NumberInput.svelte";
     import TextInput from "../TextInput.svelte";
     import AutocompleteInputChip from "./AutocompleteInputChip.svelte";
@@ -11,13 +11,10 @@
     import ImageInput from "./ImageInput.svelte";
     import ListBoxInput from "./ListBoxInput.svelte";
     import PublishDate from "./PublishDate.svelte";
+    import { formISBNRegex } from "$lib/validation/book/isbn";
 
 
-    export let data: SuperValidated<
-        Infer<BookCreateSchema>,
-        App.Superforms.Message,
-        InferIn<BookCreateSchema>
-    >
+    export let data: SuperFormCreateBook
     export let allAuthors: Author[]
     export let allPublishers: Publisher[]
     export let allSubjects: Subject[]
@@ -55,11 +52,12 @@
         }
     })
 
-    const ISBNRegex = /^[0-9X]*$/
+    export let image: File | undefined = undefined
+    $: $form.image = image
 </script>
 
 
-<SuperDebug data={$form} />
+<!-- <SuperDebug data={$form} /> -->
 
 <form
     method="post"
@@ -72,7 +70,7 @@
             text="ISBN"
             name="isbn"
             bind:value={$form.isbn}
-            allowedRegex={ISBNRegex}
+            allowedRegex={formISBNRegex}
             errors={$errors.isbn}
             required
         />
@@ -133,10 +131,7 @@
         bind:selectedOptions={$form.subjects}
     />
 
-    <div class="flex gap-6">
-        <ImageInput title="Front Image" name="front_image" bind:file={$form.front_image} />
-        <ImageInput title="Back Image" name="back_image" bind:file={$form.back_image} />
-    </div>
+    <ImageInput title="Image" name="image" bind:file={$form.image} />
 
     <ListBoxInput
         title="Book Location"

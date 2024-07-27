@@ -4,10 +4,10 @@ import db from "$lib/server/database/"
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
 
-import type { ApiMethodReturn } from ".."
+import type { InternalApiMethodReturn } from ".."
 
 
-type BookGetMethodReturn = Implements<ApiMethodReturn, {
+type BookGetMethodReturn = Implements<InternalApiMethodReturn, {
     data: EntireBook | EntireBook[],
     success: true
 } | {

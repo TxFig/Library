@@ -12,9 +12,9 @@ function getPrismaClientInstance() {
     if (dev) {
         global.prismaClient ??= new PrismaClient()
         return global.prismaClient
-    } else {
-        return new PrismaClient()
     }
+
+    return new PrismaClient()
 }
 
 export async function close() {

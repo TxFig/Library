@@ -1,51 +1,35 @@
 import type { RequestHandler } from "./$types";
-import db from "$lib/server/database/"
-import { error, json } from "@sveltejs/kit";
+import { json } from "@sveltejs/kit";
 import { HttpCodes } from "$lib/utils/http-codes"
-import type { BookCollectionWithBooks } from "$lib/server/database/books/collection";
+import { applyDecorators } from "$lib/decorators";
+import AuthDecorator from "$lib/decorators/auth";
+import { superValidate } from "sveltekit-superforms";
+import { zod } from "sveltekit-superforms/adapters";
+import { BookCollectionCreateSchema } from "$lib/validation/book-collection/collection";
+import api, { defaultApiMethodResponse } from "$lib/server/api";
 
 
-export type BookCollectionPostResponse = {
-    status: HttpCodes["ClientError"]["BadRequest"] | HttpCodes["ClientError"]["Conflict"]
-    message: string
-} | {
-    status: HttpCodes["Success"]
-    createdBookCollection: BookCollectionWithBooks
-}
-export const POST: RequestHandler = async ({ locals, request }) => {
-    if (!locals.user) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in"
-        })
+export const POST: RequestHandler = applyDecorators(
+    [AuthDecorator(["View Book"])],
+
+    async ({ locals, request }) => {
+        const userId = locals.user!.id
+        // const formData = await request.formData()
+        const json = await request.json()
+
+        const form = await superValidate(json, zod(BookCollectionCreateSchema))
+
+        if (!form.valid) {
+            return json({
+                message: "Invalid Form Data",
+                errors: form.errors
+            }, {
+                status: HttpCodes.ClientError.BadRequest
+            })
+        }
+
+        return defaultApiMethodResponse(
+            await api.bookCollection.POST(form, userId)
+        )
     }
-
-    const data = await request.json()
-    const name = data.name
-    if (!name || typeof name !== "string") {
-        return json({
-            message: "Name is required",
-            status: HttpCodes.ClientError.BadRequest
-        }, {
-            status: HttpCodes.ClientError.BadRequest
-        })
-    }
-
-
-    const isNameAvailable = await db.books.collection.isNameAvailable(name, locals.user.id)
-    if (!isNameAvailable) {
-        return json({
-            message: "Collection name already exists",
-            status: HttpCodes.ClientError.Conflict
-        }, {
-            status: HttpCodes.ClientError.Conflict
-        })
-    }
-
-    const createdBookCollection = await db.books.collection.createCollection(name, locals.user.id)
-    return json({
-        createdBookCollection,
-        status: HttpCodes.Success
-    }, {
-        status: HttpCodes.Success
-    })
-}
+)

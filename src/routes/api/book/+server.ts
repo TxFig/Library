@@ -10,25 +10,14 @@ import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { BookCreateSchema } from "$lib/validation/book/book-form";
 
-import API from "$lib/server/api"
+import api, { defaultApiMethodResponse } from "$lib/server/api"
 
 
 export const GET: RequestHandler = applyDecorators(
     [AuthDecorator(["View Book"])],
-    async () => {
-        const methodReturn = await API.book.GET()
-        if (methodReturn.success) {
-            return json(methodReturn.data, {
-                status: HttpCodes.Success
-            })
-        } else {
-            return json({
-                message: methodReturn.message
-            }, {
-                status: methodReturn.code
-            })
-        }
-    }
+    async () => defaultApiMethodResponse(
+        await api.book.GET()
+    )
 )
 
 export const POST: RequestHandler = applyDecorators(
@@ -47,20 +36,8 @@ export const POST: RequestHandler = applyDecorators(
             })
         }
 
-        const methodReturn = await API.book.POST(form, userId)
-        if (methodReturn.success) {
-            return json({
-                message: methodReturn.message,
-                data: methodReturn.data
-            }, {
-                status: HttpCodes.Success
-            })
-        } else {
-            return json({
-                message: methodReturn.message
-            }, {
-                status: methodReturn.code
-            })
-        }
+        return defaultApiMethodResponse(
+            await api.book.POST(form, userId)
+        )
     }
 )

@@ -22,14 +22,6 @@ export function AuthDecorator(permissions?: PermissionName[]) {
             }
 
             return target(event)
-            // return target({
-            //     ...event,
-            //     locals: {
-            //         ...event.locals,
-            //         user: event.locals.user,
-            //         session: event.locals.session
-            //     }
-            // })
         }
     }
 }

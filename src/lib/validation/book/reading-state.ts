@@ -12,6 +12,5 @@ export const ReadingStateUpdateSchema = z.object({
     state: StateSchema,
     bookId: z.number()
 })
-
-
-export type ReadingStateUpdateSchema = z.infer<typeof ReadingStateUpdateSchema>
+export type ReadingStateUpdateSchema = typeof ReadingStateUpdateSchema
+export type ReadingStateUpdateData = z.infer<ReadingStateUpdateSchema>

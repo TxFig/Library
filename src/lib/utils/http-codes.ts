@@ -6,6 +6,7 @@ export const HttpCodes = {
     Success: 200,
 
     // Redirection
+    Found: 302,
     SeeOther: 303,
 
     ClientError: {
@@ -23,8 +24,11 @@ export const HttpCodes = {
 
 export type HttpCodes = typeof HttpCodes
 
-type ClientError = HttpCodes["ClientError"]
-type ServerError = HttpCodes["ServerError"]
-export type HttpErrorCodesValues = Values<ClientError> | Values<ServerError>
+export type ClientError = HttpCodes["ClientError"]
+export type ClientErrorValues = Values<ClientError>
+export type ServerError = HttpCodes["ServerError"]
+export type ServerErrorValues = Values<ServerError>
+
+export type HttpErrorCodesValues = ClientErrorValues | ServerErrorValues
 
 export default HttpCodes

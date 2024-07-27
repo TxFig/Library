@@ -1,6 +1,6 @@
 import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
-import API from "$lib/server/api"
+import api, { defaultApiMethodResponse } from "$lib/server/api"
 import { json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
 import HttpCodes from "$lib/utils/http-codes"
@@ -8,7 +8,6 @@ import { ISBNSchema } from "$lib/validation/book/isbn"
 import { superValidate } from "sveltekit-superforms"
 import { zod } from "sveltekit-superforms/adapters"
 import { BookUpdateSchema } from "$lib/validation/book/book-form"
-import db from "$lib/server/database/"
 import { ParseParamsDecorator } from "$lib/decorators/parse-params"
 
 
@@ -23,20 +22,9 @@ const ISBNParamSchema = {
 
 export const GET: RequestHandler = applyDecorators(
     [AuthDecorator(["View Book"]), ParseParamsDecorator({ isbn: ISBNParamSchema })],
-    async ({ params }) => {
-        const methodReturn = await API.book.GET(params.isbn)
-        if (methodReturn.success) {
-            return json(methodReturn.data, {
-                status: HttpCodes.Success
-            })
-        } else {
-            return json({
-                message: methodReturn.message
-            }, {
-                status: methodReturn.code
-            })
-        }
-    }
+    async ({ params }) => defaultApiMethodResponse(
+        await api.book.GET(params.isbn)
+    )
 )
 
 export const PATCH: RequestHandler = applyDecorators(
@@ -44,6 +32,8 @@ export const PATCH: RequestHandler = applyDecorators(
     async ({ request, locals, params }) => {
         const formData = await request.formData()
         const userId = locals.user!.id
+        formData.set("isbn", params.isbn)
+
         const form = await superValidate(formData, zod(BookUpdateSchema))
 
         if (!form.valid) {
@@ -55,43 +45,15 @@ export const PATCH: RequestHandler = applyDecorators(
             })
         }
 
-        form.data.isbn = params.isbn
-        const methodReturn = await API.book.PATCH(form, userId)
-        if (methodReturn.success) {
-            return json({
-                message: methodReturn.message,
-                data: methodReturn.data
-            }, {
-                status: HttpCodes.Success
-            })
-        } else {
-            return json({
-                message: methodReturn.message
-            }, {
-                status: methodReturn.code
-            })
-        }
+        return defaultApiMethodResponse(
+            await api.book.PATCH(form, userId)
+        )
     }
 )
 
 export const DELETE: RequestHandler = applyDecorators(
     [AuthDecorator(["Delete Book"]), ParseParamsDecorator({ isbn: ISBNParamSchema })],
-    async ({ locals, params }) => {
-        const userId = locals.user!.id
-
-        try {
-            await db.books.book.deleteBook(params.isbn)
-            await db.activityLog.logActivity(userId, "BOOK_DELETED", {
-                isbn: params.isbn
-            })
-        } catch (err) {
-            return json({
-                message: "Error deleting book in database"
-            }, {
-                status: HttpCodes.ServerError.InternalServerError
-            })
-        }
-
-        return json({ message: `Successfully deleted book, isbn ${params.isbn}` })
-    }
+    async ({ locals, params }) => defaultApiMethodResponse(
+        await api.book.DELETE(params.isbn, locals.user!.id)
+    )
 )

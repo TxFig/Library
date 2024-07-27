@@ -28,11 +28,8 @@
 </svelte:head>
 
 <Modal />
-<Toast />
-<AppShell>
+<Toast zIndex="z-[1000]" />
+<AppShell slotPageContent="h-full">
     <NavBar slot="header" />
-    <div class="p-6 h-full">
-        <slot />
-    </div>
-    <slot name="footer" />
+    <slot />
 </AppShell>

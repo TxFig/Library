@@ -1,38 +1,30 @@
 import { SettingsUpdateSchema } from "$lib/validation/auth/settings"
-import { error, json } from "@sveltejs/kit"
+import { json } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
-import db from "$lib/server/database/"
 import type { RequestHandler } from "./$types"
+import { applyDecorators } from "$lib/decorators"
+import AuthDecorator from "$lib/decorators/auth"
+import api, { defaultApiMethodResponse } from "$lib/server/api"
 
 
-export const PATCH: RequestHandler = async ({ request, locals }) => {
-    if (!locals.user) {
-        error(HttpCodes.ClientError.Unauthorized, {
-            message: "Need to be logged in"
-        })
+export const PATCH: RequestHandler = applyDecorators(
+    [AuthDecorator(["View Book"])],
+    async ({ request, locals }) => {
+        const userId = locals.user!.id
+        const data = await request.json()
+        const parsingResult = SettingsUpdateSchema.safeParse(data)
+
+        if (!parsingResult.success) {
+            return json({
+                status: HttpCodes.ClientError.BadRequest,
+                message: "Invalid Request"
+            }, {
+                status: HttpCodes.ClientError.BadRequest
+            })
+        }
+
+        return defaultApiMethodResponse(
+            await api.settings.PATCH(parsingResult.data, userId)
+        )
     }
-
-    const data = await request.json()
-    const parsingResult = SettingsUpdateSchema.safeParse(data)
-
-    if (!parsingResult.success) {
-        error(HttpCodes.ClientError.BadRequest, {
-            message: "Invalid Request"
-        })
-    }
-
-    const parsedData = parsingResult.data
-
-    try {
-        await db.auth.settings.updateUserSettings(locals.user.id, parsedData)
-        return json({
-            status: HttpCodes.Success,
-            message: "Successfully Updated Settings"
-        })
-    } catch (error) {
-        return json({
-            status: HttpCodes.ServerError.InternalServerError,
-            message: "Error Updating Settings"
-        })
-    }
-}
+)

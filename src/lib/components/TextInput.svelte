@@ -15,7 +15,7 @@
         value = filterRegex(allowedRegex, value)
     }
 
-    let externalClasses: string | undefined = undefined
+    let externalClasses: string = ""
     export { externalClasses as class }
 
     export let errors: string[] | undefined = undefined

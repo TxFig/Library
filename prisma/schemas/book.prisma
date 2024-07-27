@@ -39,7 +39,7 @@ model Image {
     id Int @id @default(autoincrement())
 
     bookId Int
-    Book      Book     @relation(fields: [bookId], references: [id])
+    Book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
     width  Int
     height Int

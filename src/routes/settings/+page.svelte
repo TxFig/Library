@@ -2,7 +2,7 @@
     import { SlideToggle, getToastStore } from "@skeletonlabs/skeleton";
     import type { PageData } from "./$types";
     import HttpCodes from "$lib/utils/http-codes"
-    import type { SettingsUpdateInput } from "$lib/validation/auth/settings";
+    import type { SettingsUpdateData } from "$lib/validation/auth/settings";
 
 
     export let data: PageData
@@ -13,7 +13,7 @@
 
     let readingStateVisibility: boolean = user?.userSettings?.visibleReadingState ?? true
 
-    async function updateUserSettings(settings: SettingsUpdateInput) {
+    async function updateUserSettings(settings: SettingsUpdateData) {
         const response = await fetch("/api/settings/", {
             method: "PATCH",
             headers: {
@@ -35,7 +35,7 @@
     }
 </script>
 
-<div class="w-full h-full flex flex-col items-center justify-start py-10">
+<div class="w-full h-full flex flex-col items-center justify-start p-10">
     <div class="flex flex-col gap-4">
         <p class="text-2xl">Your Settings</p>
         <div class="flex gap-4">

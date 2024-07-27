@@ -8,7 +8,7 @@ export type Decorator<Event extends RequestEvent, Return> = (target: TargetFunct
 export function applyDecorators<Event extends RequestEvent, Return>(
     decorators: Decorator<Event, Return>[],
     target: TargetFunction<Event, Return>
-): TargetFunction<Event, Return> {
+): typeof target {
     return decorators.reduceRight(
         (decorated, decorator) => decorator(decorated),
         target

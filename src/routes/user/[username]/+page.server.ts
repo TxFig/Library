@@ -1,5 +1,5 @@
 import db from "$lib/server/database/"
-import { error, fail } from "@sveltejs/kit"
+import { error } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
 
 
@@ -15,6 +15,6 @@ export const load = async ({ params, locals }) => {
 
     return {
         pageUser: user,
-        isCurrentUser
+        isCurrentUser,
     }
 }

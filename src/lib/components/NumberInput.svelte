@@ -18,7 +18,7 @@
         value = validValue !== "" ? Number(validValue) : undefined
     }
 
-    let externalClasses: string | undefined = undefined
+    let externalClasses: string = ""
     export { externalClasses as class }
 
     export let errors: string[] | undefined = undefined

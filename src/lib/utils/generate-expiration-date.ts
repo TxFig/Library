@@ -1,6 +1,6 @@
-export function generateExpirationDate(time: number): Date {
+export function generateExpirationDate(timeSeconds: number): Date {
     const now = new Date()
-    now.setSeconds(now.getSeconds() + time)
+    now.setSeconds(now.getSeconds() + timeSeconds)
     return now
 }
 

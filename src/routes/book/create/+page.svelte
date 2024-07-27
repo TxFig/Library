@@ -9,7 +9,7 @@
 </script>
 
 {#if data.user}
-    <div class="space-y-4">
+    <div class="space-y-4 p-6">
         <h2 class="h2">Book Creation</h2>
         <BookForm
             data={data.form}

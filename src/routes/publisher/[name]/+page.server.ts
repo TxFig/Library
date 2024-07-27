@@ -7,7 +7,7 @@ import HttpCodes from "$lib/utils/http-codes"
 
 export const load: PageServerLoad = async ({ params }) => {
     const { name } = params
-    const publisher = await db.books.publisher.getPublisherWithBooksByName(name)
+    const publisher = await db.books.publisher.getPublisherWithBooksByName(name, { image: true })
 
     if (!publisher) {
         error(HttpCodes.ClientError.NotFound, "Publisher Doesn't Exists")

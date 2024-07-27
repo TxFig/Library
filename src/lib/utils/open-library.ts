@@ -1,4 +1,4 @@
-import type { BookCreateDataWithImageFiles } from "$lib/validation/book/book-form"
+import type { BookCreateFormData } from "$lib/validation/book/book-form"
 import type { DateObjectWithYear } from "$lib/validation/book/publish-date"
 import fetchImageAsFile from "./fetch-image-as-file"
 
@@ -35,7 +35,7 @@ export interface OpenLibraryBookData {
 }
 
 const openLibraryISBN_URL = "https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:"
-export async function getOpenLibraryBook(isbn: string): Promise<BookCreateDataWithImageFiles | null> {
+export async function getOpenLibraryBook(isbn: string): Promise<BookCreateFormData | null> {
     const url = openLibraryISBN_URL + isbn
     const response = await fetch(url)
     const json = await response.json()
@@ -50,19 +50,32 @@ function capitalizeFirstLetter(string: string): string {
     return string[0].toUpperCase() + string.substring(1)
 }
 
-function openLibraryDateToDateObject(date: string): DateObjectWithYear {
-    const dateJsObject = new Date(date)
-    return {
-        year: dateJsObject.getFullYear(),
-        month: dateJsObject.getMonth(),
-        day: dateJsObject.getDate()
+const openLibraryPublishDateRegex = /^(?:(January|February|March|April|May|June|July|August|September|October|November|December)?(?:\s+(\d{1,2}))?(?:,?\s*)?(\d{4}))$/
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+function openLibraryDateToDateObject(date: string): DateObjectWithYear | undefined {
+    const match = date.match(openLibraryPublishDateRegex)
+    if (!match) return undefined
+
+    const [_, month, day, year] = match
+    const dateObj: DateObjectWithYear = {
+        year: Number(year),
+        month: undefined,
+        day: undefined
     }
+
+    if (month)
+        dateObj.month = months.indexOf(month) + 1
+
+    if (day)
+        dateObj.day = Number(day)
+
+    return dateObj
 }
 
 async function parseOpenLibraryData(
     isbn: string,
     json: { [isbnTag: string]: OpenLibraryBookData }
-): Promise<BookCreateDataWithImageFiles> {
+): Promise<BookCreateFormData> {
     const data = Object.values(json)[0]
 
     const authors = data.authors?.map(author => author.name) ?? []
@@ -86,7 +99,7 @@ async function parseOpenLibraryData(
         : null
 
     const imageURL = data.cover?.large ?? data.cover?.medium ?? data.cover?.small ?? null
-    const imageFile = imageURL ? await fetchImageAsFile(imageURL) : undefined
+    const imageFile = imageURL ? await fetchImageAsFile(imageURL) ?? undefined : undefined
 
     const publishDate = data.publish_date ?
         openLibraryDateToDateObject(data.publish_date)
@@ -102,13 +115,13 @@ async function parseOpenLibraryData(
         isbn13: isbn13,
         isbn10: isbn10,
 
-        front_image: imageFile,
-        back_image: undefined,
+        image: imageFile,
 
         authors,
         publishers,
         subjects,
         location: undefined,
-        language: undefined
+        language: undefined,
+        public: true
     }
 }

@@ -1,8 +1,6 @@
 import { z } from "zod"
-import { HttpError } from "$lib/utils/custom-errors"
-import HttpCodes from "$lib/utils/http-codes"
 
-
+export const formISBNRegex = /^[0-9X]*$/
 const allSpacesAndHyphensRegex = /[-\s]/g
 const ISBNFormatRegex = /^(?:[0-9]{9}[0-9X]|[0-9]{13})$/
 
@@ -45,6 +43,3 @@ export const ISBNSchema = z
     .min(1, "ISBN Required")
     .refine(validateISBN, "Invalid ISBN")
     .transform(value => value.replace(allSpacesAndHyphensRegex, ""))
-
-export const ISBNOptionalSchema = ISBNSchema
-    .nullish()

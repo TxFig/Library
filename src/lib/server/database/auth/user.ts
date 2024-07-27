@@ -1,6 +1,6 @@
 import type { Book, BookCollection, EmailConfirmationRequest, Permission, PermissionGroup, User, UserBookReadingState, UserSettings } from "@prisma/client"
 import { prisma } from ".."
-import type { UserCreateData, UserUpdateData } from "$lib/validation/auth/user"
+import type { UserCreateFormData, UserUpdateFormData } from "$lib/validation/auth/user"
 import { v4 as uuidv4 } from "uuid"
 import type { Prisma } from "@prisma/client"
 
@@ -41,39 +41,10 @@ export const EntireUserInclude = {
     }
 }
 
-const UserIncludeBase: Prisma.UserInclude = {}
-const UserIncludeAll: Prisma.UserInclude = {
-    permissionGroup: {
-        include: {
-            permissions: true
-        }
-    },
-    userBookReadingState: {
-        include: {
-            book: true
-        }
-    },
-    emailConfirmationRequest: true,
-    userSettings: true,
-    books: true,
-    bookCollections: {
-        include: {
-            books: true
-        }
-    }
-}
-
-export function _getUserById(id: number, include: Prisma.UserInclude = UserIncludeBase) {
-    return prisma.user.findUnique({
-        where: { id },
-        include
-    })
-}
-
-
-export async function createUser(data: UserCreateData): Promise<EntireUser> {
+export async function createUser(data: UserCreateFormData): Promise<EntireUser> {
     const { permissionGroup, ...user } = data
     const opaqueId = uuidv4()
+
     return await prisma.user.create({
         data: {
             ...user,
@@ -93,10 +64,11 @@ export async function createUser(data: UserCreateData): Promise<EntireUser> {
     })
 }
 
-export async function updateUser(id: number, data: UserUpdateData): Promise<EntireUser> {
+export async function updateUser(opaqueId: string, data: UserUpdateFormData): Promise<EntireUser> {
     const { permissionGroup, ...user } = data
+
     return await prisma.user.update({
-        where: { id },
+        where: { opaqueId },
         data: {
             ...user,
             permissionGroup: {
@@ -109,10 +81,9 @@ export async function updateUser(id: number, data: UserUpdateData): Promise<Enti
     })
 }
 
-
-export async function deleteUser(id: number): Promise<EntireUser> {
+export async function deleteUser(opaqueId: string): Promise<EntireUser> {
     return await prisma.user.delete({
-        where: { id },
+        where: { opaqueId },
         include: EntireUserInclude
     })
 }
@@ -157,8 +128,22 @@ export async function getUserById(id: number): Promise<EntireUser | null> {
     })
 }
 
+export async function getEntireUserByOpaqueId(opaqueId: string): Promise<EntireUser | null> {
+    return await prisma.user.findUnique({
+        where: { opaqueId },
+        include: EntireUserInclude
+    })
+}
+
 export async function getUserCount(): Promise<number> {
     return await prisma.user.count()
+}
+
+export async function doesUserExist(where: Prisma.UserWhereUniqueInput): Promise<boolean> {
+    return await prisma.user.findFirst({
+        where,
+        select: { id: true }
+    }) !== null
 }
 
 
@@ -172,6 +157,8 @@ export default {
     getUserByUsername,
     getUserBySessionToken,
     getUserById,
+    getEntireUserByOpaqueId,
 
-    getUserCount
+    getUserCount,
+    doesUserExist
 }
