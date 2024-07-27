@@ -9,13 +9,16 @@
     const { providedAdminEmail } = data
 
 
+    let successfulCreation = false
     const { enhance, form, errors } = superForm(data.form, {
         onUpdate({ form: { message } }) {
-            if (message) {
-                toastStore.trigger({
-                    message: message.text,
-                    background: message.type === "error" ? "variant-filled-error" : "variant-filled-success"
-                })
+            if (!message) return
+            toastStore.trigger({
+                message: message.text,
+                background: message.type === "error" ? "variant-filled-error" : "variant-filled-success"
+            })
+            if (message.type === "success") {
+                successfulCreation = true
             }
         },
     })
@@ -30,7 +33,7 @@
         <p>Confirmation email sent</p>
     {:else}
         <p class="text-xl">Create Admin User Form:</p>
-        <form class="flex flex-col gap-4" method="post" use:enhance>
+        <form class="flex flex-col gap-4" method="post" use:enhance inert={successfulCreation}>
             <div>
                 <TextInput text="Email" bind:value={$form.email} errors={$errors.email} placeholder="Enter email..." required name="email" />
                 <ErrorMessage errors={$errors.email} />

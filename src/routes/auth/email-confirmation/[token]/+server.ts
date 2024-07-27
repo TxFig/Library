@@ -24,6 +24,10 @@ export const GET: RequestHandler = async ({ params, cookies, url }) => {
         throw redirect(HttpCodes.SeeOther, "/auth/login/")
     }
 
+    const initialSetup = await db.config.getInitialSetup()
+    if (!initialSetup) {
+        await db.config.setInitialSetup(true)
+    }
     await db.auth.emailConfirmation.deleteEmailConfirmationRequestByToken(token)
 
     const { token: sessionToken, expireDate } = await db.auth.session.createSession(emailConfirmationRequest.userId)

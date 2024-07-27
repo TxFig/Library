@@ -23,7 +23,6 @@ export const load: PageServerLoad = async () => {
 
         try {
             await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, "/admin")
-            await db.config.setInitialSetup(true)
         } catch (err) {
             error(HttpCodes.ServerError.InternalServerError, {
                 error: undefined,
@@ -72,8 +71,8 @@ export const actions = {
 
         try {
             await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, "/admin")
-            await db.config.setInitialSetup(true)
         } catch (err) {
+            console.log(err)
             return message(form, {
                 type: "error",
                 text: "Error sending confirmation email"
@@ -82,7 +81,7 @@ export const actions = {
 
         return message(form, {
             type: "success",
-            text: "User created successfully"
+            text: "Confirmation email sent"
         })
     }
 }
