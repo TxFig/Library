@@ -29,7 +29,10 @@
         />
         <button
             class="btn variant-ghost-secondary"
-            on:click={() => onSubmit(manualInsertISBN)}
+            on:click={() => {
+                onSubmit(manualInsertISBN)
+                manualInsertISBN = ""
+            }}
         >
             <Icon icon="material-symbols:add" width="24" height="24" />
             <span>Submit</span>

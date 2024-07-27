@@ -1,5 +1,4 @@
 <script lang="ts">
-    import DeviceSelector from "$lib/components/book-scan/DeviceSelector.svelte";
     import ISBNScanner from "$lib/components/book-scan/ISBNScanner.svelte";
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
     import { page } from "$app/stores";
@@ -81,13 +80,7 @@
     let fetchingBookData = false
     async function onDetected(isbn: string) {
         if (fetchingBookData) return
-        if (!validateISBN(isbn)) {
-            toastStore.trigger({
-                message: "Invalid ISBN",
-                background: "variant-filled-error",
-            })
-            return
-        }
+        if (!validateISBN(isbn)) return
 
         fetchingBookData = true
         modalStore.trigger(FetchingBookDataAlert)
@@ -109,7 +102,6 @@
     {#if mediaDevicesAvailable}
         <div class="flex flex-col items-center h-full gap-4 p-6">
             <ISBNScanner {deviceId} class="h-5/6" {onDetected} bind:this={ISBNScannerComponent} />
-            <DeviceSelector bind:deviceSelected={deviceId}/>
             <ManualInsertISBN onSubmit={onDetected}/>
         </div>
     {:else}
