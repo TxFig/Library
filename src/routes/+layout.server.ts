@@ -1,4 +1,4 @@
-import type { Actions, LayoutServerLoad } from "./$types"
+import type { LayoutServerLoad } from "./$types"
 import db from "$lib/server/database/"
 
 

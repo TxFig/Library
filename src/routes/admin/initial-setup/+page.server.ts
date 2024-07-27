@@ -15,6 +15,20 @@ export const load: PageServerLoad = async () => {
     }
 
     if (env.ADMIN_EMAIL) {
+        try {
+            const user = await db.auth.user.getUserByEmail(env.ADMIN_EMAIL)
+            if (user) {
+                return {
+                    providedEmail: true,
+                    form: await superValidate(zod(UserCreateSchema))
+                }
+            }
+        } catch (err) {
+            error(HttpCodes.ServerError.InternalServerError, {
+                message: "Internal Server Error"
+            })
+        }
+
         const user = await db.auth.user.createUser({
             email: env.ADMIN_EMAIL,
             username: "Admin",
