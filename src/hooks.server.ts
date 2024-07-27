@@ -1,4 +1,4 @@
-import { SESSION_COOKIE_NAME } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 import db from "$lib/server/database/"
 import isDateExpired from "$lib/utils/is-date-expired";
 import type { Handle } from "@sveltejs/kit"
@@ -7,13 +7,13 @@ import { validate as validateUUID } from "uuid"
 
 export const handle: Handle = async ({ event, resolve }) => {
     async function resolveWithoutUserAndSession() {
-        event.cookies.delete(SESSION_COOKIE_NAME, { path: "/" })
+        event.cookies.delete(env.SESSION_COOKIE_NAME, { path: "/" })
         event.locals.user = null
         event.locals.session = null
         return await resolve(event)
     }
 
-    const sessionToken = event.cookies.get(SESSION_COOKIE_NAME)
+    const sessionToken = event.cookies.get(env.SESSION_COOKIE_NAME)
 
     if (
         !sessionToken ||

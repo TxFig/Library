@@ -2,7 +2,7 @@ import type { PageServerLoad } from "./$types"
 import db from "$lib/server/database/"
 import { error, redirect } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
-import { ADMIN_EMAIL } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 import { UserCreateSchema } from "$lib/validation/auth/user"
 
 
@@ -13,9 +13,9 @@ export const load: PageServerLoad = async () => {
         redirect(HttpCodes.SeeOther, "/admin")
     }
 
-    if (ADMIN_EMAIL) {
+    if (env.ADMIN_EMAIL) {
         const user = await db.auth.user.createUser({
-            email: ADMIN_EMAIL,
+            email: env.ADMIN_EMAIL,
             username: "Admin",
             permissionGroup: "Admin"
         })

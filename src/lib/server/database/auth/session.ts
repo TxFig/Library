@@ -1,4 +1,4 @@
-import { SESSION_EXPIRATION_TIME } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 import generateExpirationDate from "$lib/utils/generate-expiration-date"
 import type { Session } from "@prisma/client"
 import { v4 as uuidv4 } from "uuid"
@@ -8,7 +8,7 @@ import { EntireUserInclude, type EntireUser } from "./user"
 
 export async function createSession(userId: number): Promise<Session> {
     const token = uuidv4()
-    const expireDate = generateExpirationDate(+SESSION_EXPIRATION_TIME)
+    const expireDate = generateExpirationDate(+env.SESSION_EXPIRATION_TIME)
 
     return await prisma.session.create({
         data: {

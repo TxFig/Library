@@ -1,4 +1,4 @@
-import { IMAGES_PATH } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 import fs from "fs"
 import path from "path"
 import sharp from "sharp"
@@ -30,7 +30,7 @@ export async function generateResizedImages(isbn: string, file: File): Promise<B
     const heights = resizeHeights.filter(height => height <= size.height)
     const generatedSizes: BookImageInput[] = []
 
-    const folder = path.join(IMAGES_PATH, isbn)
+    const folder = path.join(env.IMAGES_PATH, isbn)
     if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder, { recursive: true })
     } else {
@@ -56,7 +56,7 @@ export async function generateResizedImages(isbn: string, file: File): Promise<B
     return generatedSizes
 }
 
-export function deleteImagesFolder(isbn: string): void {
-    const folder = path.join(IMAGES_PATH, isbn)
+export async function deleteImagesFolder(isbn: string) {
+    const folder = path.join(env.IMAGES_PATH, isbn)
     fs.rmSync(folder, { recursive: true, force: true })
 }

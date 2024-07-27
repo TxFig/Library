@@ -4,7 +4,7 @@ import { validate } from "uuid"
 import db from "$lib/server/database/";
 import HttpCodes from "$lib/utils/http-codes";
 import isDateExpired from "$lib/utils/is-date-expired";
-import { SESSION_COOKIE_NAME } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { dev } from "$app/environment";
 
 
@@ -27,7 +27,7 @@ export const GET: RequestHandler = async ({ params, cookies, url }) => {
     await db.auth.emailConfirmation.deleteEmailConfirmationRequestByToken(token)
 
     const { token: sessionToken, expireDate } = await db.auth.session.createSession(emailConfirmationRequest.userId)
-    cookies.set(SESSION_COOKIE_NAME, sessionToken, {
+    cookies.set(env.SESSION_COOKIE_NAME, sessionToken, {
         path: "/",
         expires: expireDate,
         secure: !dev
