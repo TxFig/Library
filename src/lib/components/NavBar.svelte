@@ -2,6 +2,7 @@
     import { AppBar, popup, type PopupSettings } from "@skeletonlabs/skeleton"
     import Icon from "@iconify/svelte"
     import { page } from "$app/stores";
+    import { hasPermission } from "$lib/utils/permissions";
 
 
     const authPopup: PopupSettings = {
@@ -52,6 +53,13 @@
                         <Icon icon="material-symbols:settings" width="24" height="24"/>
                         <span>Settings</span>
                     </a>
+                    {#if hasPermission($page.data.user, "Admin")}
+                        <hr>
+                        <a href="/admin" class="btn variant-outline-tertiary">
+                            <Icon icon="eos-icons:admin-outlined" width="24" height="24"/>
+                            <span>Admin Panel</span>
+                        </a>
+                    {/if}
                     <hr>
                     <a href="/auth/sign-out?redirectPath={$page.url.pathname}" class="btn variant-outline-error">
                         <Icon icon="ph:sign-out" width="24" height="24"/>
