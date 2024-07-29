@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from "$lib/validation/book/file";
     import Icon from "@iconify/svelte"
     import { FileDropzone, getToastStore } from "@skeletonlabs/skeleton"
     import TextInput from "../TextInput.svelte";
     import fetchImageAsFile from "$lib/utils/fetch-image-as-file";
+    import FileSchema from "$lib/validation/book/file";
 
 
     const toastStore = getToastStore()
@@ -11,9 +11,10 @@
 
     async function getDataURLImage(image: File): Promise<string | null> {
         if (!image) return null
-        if (image.size > MAX_IMAGE_SIZE_BYTES) {
+        const parsedFile = FileSchema.safeParse(image)
+        if (!parsedFile.success) {
             toastStore.trigger({
-                message: `Image size can not exceeded ${MAX_IMAGE_SIZE_MB} MB`,
+                message: parsedFile.error.errors[0].message,
                 background: "variant-filled-error"
             })
             return null

@@ -1,9 +1,7 @@
 import { z } from "zod"
+import { env } from "$env/dynamic/public"
+import prettyBytes from "pretty-bytes"
 
-
-const MBToBytes = (mb: number) => mb * 1000000
-export const MAX_IMAGE_SIZE_MB = 16
-export const MAX_IMAGE_SIZE_BYTES = MBToBytes(MAX_IMAGE_SIZE_MB)
 
 const ACCEPTED_IMAGE_TYPES = [
     "image/jpeg",
@@ -14,8 +12,8 @@ const ACCEPTED_IMAGE_TYPES = [
 
 const FileSchema = z.instanceof(File)
     .refine(
-        (file) => file.size <= MAX_IMAGE_SIZE_BYTES,
-        `Image size can not exceeded ${MAX_IMAGE_SIZE_MB} MB`
+        (file) => file.size <= Number(env.PUBLIC_MAX_IMAGE_UPLOAD_SIZE),
+        `Image size can not exceeded ${prettyBytes(Number(env.PUBLIC_MAX_IMAGE_UPLOAD_SIZE))}`
     )
     .refine(
         (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
