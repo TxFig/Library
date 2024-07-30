@@ -23,6 +23,7 @@
         <h2 class="h2">Book Editing</h2>
         <BookForm
             data={data.form}
+            editing={true}
             image={image}
             allAuthors={data.allAuthors}
             allPublishers={data.allPublishers}

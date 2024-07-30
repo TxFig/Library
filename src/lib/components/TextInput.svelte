@@ -6,6 +6,7 @@
     export let value: string | undefined | null = undefined
     export let required: boolean = false
     export let placeholder: string | undefined = undefined
+    export let disabled: boolean = false
 
 
     export let allowedRegex: RegExp | undefined = undefined
@@ -40,6 +41,7 @@
 
         on:change
         on:input
+        disabled={disabled}
 
         aria-invalid={hasErrors ? "true" : undefined}
     />

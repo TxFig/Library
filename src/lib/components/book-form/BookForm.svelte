@@ -15,6 +15,7 @@
 
 
     export let data: SuperFormCreateBook
+    export let editing: boolean = false
     export let allAuthors: Author[]
     export let allPublishers: Publisher[]
     export let allSubjects: Subject[]
@@ -73,6 +74,7 @@
             allowedRegex={formISBNRegex}
             errors={$errors.isbn}
             required
+            disabled={editing}
         />
         <ErrorMessage errors={$errors.isbn}/>
     </div>
