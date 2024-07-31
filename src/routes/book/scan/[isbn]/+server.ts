@@ -1,13 +1,13 @@
 import { json, error } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
 
-import { getOpenLibraryBook } from "$lib/utils/open-library"
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
 import { ISBNSchema } from "$lib/validation/book/isbn"
 import { applyDecorators } from "$lib/decorators"
 import { ParseParamsDecorator } from "$lib/decorators/parse-params"
 import AuthDecorator from "$lib/decorators/auth"
+import { fetchBookData } from "$lib/external-book-apis/fetchBookData"
 
 
 export const POST: RequestHandler = applyDecorators(
@@ -31,7 +31,7 @@ export const POST: RequestHandler = applyDecorators(
             })
         }
 
-        const data = await getOpenLibraryBook(isbn)
+        const data = await fetchBookData(isbn)
 
         if (!data) {
             return json({
