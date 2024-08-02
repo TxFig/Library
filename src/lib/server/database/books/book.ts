@@ -1,6 +1,7 @@
-import type {
-    Book, Location, Language, Author, Publisher, Subject, PublishDate,
-    User, UserBookReadingState, Image
+import {
+    type Book, type Location, type Language, type Author, type Publisher, type Subject, type PublishDate,
+    type User, type UserBookReadingState, type Image,
+    PrismaClient
 } from "@prisma/client"
 import { prisma } from ".."
 import type { BookCreateFormData, BookUpdateFormData } from "$lib/validation/book/book-form"
@@ -139,6 +140,55 @@ export async function createBook(formData: BookCreateFormData): Promise<EntireBo
     return returnBook
 }
 
+async function deleteBooklessFields() {
+    await prisma.author.deleteMany({
+        where: {
+            books: {
+                none: {
+                    isbn: undefined
+                }
+            }
+        }
+    })
+    await prisma.publisher.deleteMany({
+        where: {
+            books: {
+                none: {
+                    isbn: undefined
+                }
+            }
+        }
+    })
+    await prisma.subject.deleteMany({
+        where: {
+            books: {
+                none: {
+                    isbn: undefined
+                }
+            }
+        }
+    })
+    await prisma.location.deleteMany({
+        where: {
+            books: {
+                none: {
+                    isbn: undefined
+                }
+            }
+        }
+    })
+    await prisma.language.deleteMany({
+        where: {
+            books: {
+                none: {
+                    isbn: undefined
+                }
+            }
+        }
+    })
+}
+
+
 export async function updateBook(formData: BookUpdateFormData): Promise<EntireBook> {
     const data: BookUpdateDatabaseData = await BookCreateFormDataToDatabaseData({
         ...formData,
@@ -153,7 +203,10 @@ export async function updateBook(formData: BookUpdateFormData): Promise<EntireBo
         data: {
             ...book,
             publish_date: publish_date ? {
-                update: publish_date
+                upsert: {
+                    create: publish_date,
+                    update: publish_date
+                }
             } : undefined,
             location: location ? {
                 connectOrCreate: {
@@ -167,19 +220,22 @@ export async function updateBook(formData: BookUpdateFormData): Promise<EntireBo
                     create: language
                 }
             } : undefined,
-            authors:  {
+            authors: {
+                set: [],
                 connectOrCreate: authors.map(author => ({
                     where: author,
                     create: author
                 }))
             },
             publishers: {
+                set: [],
                 connectOrCreate: publishers.map(publisher => ({
                     where: publisher,
                     create: publisher
                 }))
             },
             subjects: {
+                set: [],
                 connectOrCreate: subjects.map(subject => ({
                     where: subject,
                     create: subject
@@ -188,6 +244,8 @@ export async function updateBook(formData: BookUpdateFormData): Promise<EntireBo
         },
         include: EntireBookInclude
     })
+
+    deleteBooklessFields()
 
     await prisma.image.deleteMany({
         where: {
@@ -212,55 +270,23 @@ export async function deleteBook(isbn: string): Promise<void> {
     const book = await prisma.book.findUnique({
         where: { isbn },
         include: {
-            authors:    { include: { books: true } },
-            publishers: { include: { books: true } },
-            subjects:   { include: { books: true } },
             image: true
         }
     })
-
-    if (!book) {
-        return
-        // TODO: throw error
-    }
+    if (!book) return
 
     // Delete book row
     await prisma.book.delete({ where: { isbn } })
 
-    //* --- Delete authors from this book who don't have any other books
-    // Filter authors who don't have any other book besides the one being removed
-    const booklessAuthors = book.authors.filter(
-        author => author.books.filter(
-            authorBook => authorBook.isbn != isbn
-        ).length == 0
-    )
-    const booklessAuthorsIDs = booklessAuthors.map(author => author.id)
-
-    // Delete all bookless authors
-    await prisma.author.deleteMany({
-        where: {
-            id: { in: booklessAuthorsIDs }
-        }
-    })
-
-    //* --- Delete publishers from this book who don't have any other books
-    // Filter publishers who don't have any other book besides the one being removed
-    const booklessPublishers = book.publishers.filter(
-        publisher => publisher.books.filter(
-            publisherBook => publisherBook.isbn != isbn
-        ).length == 0
-    )
-    const booklessPublishersIDs = booklessPublishers.map(publisher => publisher.id)
-
-    // Delete all bookless publishers
-    await prisma.publisher.deleteMany({
-        where: {
-            id: { in: booklessPublishersIDs }
-        }
-    })
+    deleteBooklessFields()
 
     if (book.image.length > 0) {
         deleteImagesFolder(book.isbn)
+        await prisma.image.deleteMany({
+            where: {
+                bookId: book.id,
+            }
+        })
     }
 }
 
