@@ -7,7 +7,7 @@ import { ISBNSchema } from "$lib/validation/book/isbn"
 import { applyDecorators } from "$lib/decorators"
 import { ParseParamsDecorator } from "$lib/decorators/parse-params"
 import AuthDecorator from "$lib/decorators/auth"
-import { fetchBookData } from "$lib/external-book-apis/fetchBookData"
+import { fetchBookData } from "$lib/external-book-apis"
 
 
 export const POST: RequestHandler = applyDecorators(

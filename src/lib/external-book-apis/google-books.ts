@@ -1,8 +1,16 @@
 import fetchImageAsFile from "$lib/utils/fetch-image-as-file";
-import type { BookCreateFormData } from "$lib/validation/book/book-form";
 import type { DateObjectWithYear } from "$lib/validation/book/publish-date";
+import type { ExternalBookData } from ".";
 import type { GoogleBooksBookData, GoogleBooksSearchResult, ImageLinks } from "./google-books-types";
 
+
+
+export async function getParsedGoogleBooksBook(isbn: string): Promise<ExternalBookData | null> {
+    const book = await getGoogleBooksBook(isbn)
+    if (!book) return null
+
+    return await parseGoogleBookBookData(isbn, book)
+}
 
 const generateFetchUrl =
     (isbn: string) => `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
@@ -38,7 +46,7 @@ async function fetchCoverImage(imageLinks: ImageLinks): Promise<File | undefined
     return undefined
 }
 
-export async function parseGoogleBookBookData(isbn: string, book: GoogleBooksBookData): Promise<BookCreateFormData> {
+export async function parseGoogleBookBookData(isbn: string, book: GoogleBooksBookData): Promise<ExternalBookData> {
     const publish_date = parseGoogleBooksDate(book.volumeInfo.publishedDate)
 
     const isbn10 = book.volumeInfo.industryIdentifiers.find(
@@ -69,6 +77,5 @@ export async function parseGoogleBookBookData(isbn: string, book: GoogleBooksBoo
         authors,
         publishers,
         subjects,
-        public: true
     }
 }

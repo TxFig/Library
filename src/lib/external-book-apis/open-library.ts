@@ -1,9 +1,16 @@
 import fetchImageAsFile from "$lib/utils/fetch-image-as-file";
 import { isObjectNotEmpty } from "$lib/utils/is-object-empty";
-import type { BookCreateFormData } from "$lib/validation/book/book-form";
 import type { DateObjectWithYear } from "$lib/validation/book/publish-date";
+import type { ExternalBookData } from ".";
 import type { Cover, OpenLibraryBookData, OpenLibrarySearchResult } from "./open-library-types";
 
+
+export async function getParsedOpenLibraryBook(isbn: string): Promise<ExternalBookData | null> {
+    const book = await getOpenLibraryBook(isbn)
+    if (!book) return null
+
+    return await parseOpenLibraryBookData(isbn, book)
+}
 
 const generateFetchUrl =
     (isbn: string) => `https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:${isbn}`
@@ -19,10 +26,6 @@ export async function getOpenLibraryBook(isbn: string): Promise<OpenLibraryBookD
     }
 
     return Object.values(json)[0]
-}
-
-function capitalizeFirstLetter(string: string): string {
-    return string[0].toUpperCase() + string.substring(1)
 }
 
 async function fetchCoverImage(cover: Cover): Promise<File | undefined> {
@@ -57,8 +60,7 @@ function parseOpenLibraryDate(date: string): DateObjectWithYear | undefined {
     return dateObj
 }
 
-export async function parseOpenLibraryBookData(isbn: string, book: OpenLibraryBookData): Promise<BookCreateFormData> {
-
+export async function parseOpenLibraryBookData(isbn: string, book: OpenLibraryBookData): Promise<ExternalBookData> {
     const publish_date = book.publish_date ?
         parseOpenLibraryDate(book.publish_date)
     : undefined
@@ -77,10 +79,7 @@ export async function parseOpenLibraryBookData(isbn: string, book: OpenLibraryBo
 
     const authors = book.authors?.map(author => author.name) ?? []
     const publishers = book.publishers?.map(publisher => publisher.name) ?? []
-    const subjects = book.subjects
-        ?.filter(subject => !subject.name.includes(":"))
-        .map(subject => capitalizeFirstLetter(subject.name))
-        ?? []
+    const subjects = book.subjects?.map(publisher => publisher.name) ?? []
 
     return {
         isbn,
@@ -93,6 +92,5 @@ export async function parseOpenLibraryBookData(isbn: string, book: OpenLibraryBo
         authors,
         publishers,
         subjects,
-        public: true,
     }
 }
