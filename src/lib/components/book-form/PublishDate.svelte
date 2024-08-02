@@ -5,7 +5,9 @@
     import type { DateObject } from "$lib/validation/book/publish-date";
 
 
-    export let dateObject: DateObject = {}
+    export let dateObject: DateObject | undefined = undefined
+    let data: DateObject = dateObject ?? {}
+    $: dateObject = data
 
     type PublishDateError = ValidationErrors<Infer<BookCreateSchema>>["publish_date"]
     export let errors: PublishDateError | undefined = undefined
@@ -15,9 +17,9 @@
 <label class="label">
     <span>Publish Date</span>
     <div class="flex gap-8">
-        <NumberInput text="Day" bind:value={dateObject.day} class="w-full" />
-        <NumberInput text="Month" bind:value={dateObject.month} class="w-full" />
-        <NumberInput text="Year" bind:value={dateObject.year} class="w-full" />
+        <NumberInput text="Day" bind:value={data.day} class="w-full" />
+        <NumberInput text="Month" bind:value={data.month} class="w-full" />
+        <NumberInput text="Year" bind:value={data.year} class="w-full" />
     </div>
     {#if errors?._errors && errors._errors.length != 0}
         <p class="text-red-600">{errors?._errors[0]}</p>
