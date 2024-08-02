@@ -17,9 +17,9 @@
     const toastStore = getToastStore()
     const modalStore = getModalStore()
 
-    const BookNotAvailableInOpenLibraryAlert: (isbn: string) => ModalSettings = (isbn) => ({
+    const BookNotAvailableInExternalApis: (isbn: string) => ModalSettings = (isbn) => ({
         type: "confirm",
-        title: "Book Not Available in OpenLibrary",
+        title: "Book not available in external APIs.",
         buttonTextConfirm: "Manually Add Book",
         response(confirm: boolean) {
             if (confirm) {
@@ -70,7 +70,7 @@
 
         if (response.status === HttpCodes.ClientError.NotFound) {
             modalStore.trigger(
-                BookNotAvailableInOpenLibraryAlert(isbn)
+                BookNotAvailableInExternalApis(isbn)
             )
         }
 

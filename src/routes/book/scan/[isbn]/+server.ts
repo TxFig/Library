@@ -35,7 +35,7 @@ export const POST: RequestHandler = applyDecorators(
 
         if (!data) {
             return json({
-                message: "Book not available in OpenLibrary."
+                message: "Book not available in external APIs."
             }, {
                 status: HttpCodes.ClientError.NotFound
             })
