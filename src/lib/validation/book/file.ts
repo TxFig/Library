@@ -14,7 +14,7 @@ const DEFAULT_MAX_IMAGE_UPLOAD_SIZE = 16_000_000
 
 const FileSchema = z.instanceof(File)
     .refine(
-        (file) => file.size <= Number(env.PUBLIC_MAX_IMAGE_UPLOAD_SIZE),
+        (file) => file.size <= Number(env.PUBLIC_MAX_IMAGE_UPLOAD_SIZE) || DEFAULT_MAX_IMAGE_UPLOAD_SIZE,
         `Image size can not exceeded ${prettyBytes(Number(env.PUBLIC_MAX_IMAGE_UPLOAD_SIZE) || DEFAULT_MAX_IMAGE_UPLOAD_SIZE)}`
     )
     .refine(
