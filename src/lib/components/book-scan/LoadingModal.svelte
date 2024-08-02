@@ -1,5 +1,9 @@
 <script lang="ts">
     import { getModalStore, ProgressRadial } from "@skeletonlabs/skeleton";
+    import type { SvelteComponent } from "svelte";
+
+    export let parent: SvelteComponent
+
 
     const modalStore = getModalStore()
 </script>

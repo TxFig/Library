@@ -3,13 +3,13 @@
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
     import { page } from "$app/stores";
     import { onDestroy, onMount } from "svelte";
-    import ManualInsertISBN from "./ManualInsertISBN.svelte";
+    import ManualInsertISBN from "$lib/components/book-scan/ManualInsertISBN.svelte";
     import { validateISBN } from "$lib/validation/book/isbn";
     import { getModalStore, getToastStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import HttpCodes from "$lib/utils/http-codes";
     import { goto } from "$app/navigation"
     import Quagga from "@ericblade/quagga2";
-    import LoadingModal from "./LoadingModal.svelte";
+    import LoadingModal from "$lib/components/book-scan/LoadingModal.svelte";
 
 
     let ISBNScannerComponent: ISBNScanner

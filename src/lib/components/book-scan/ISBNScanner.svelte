@@ -1,7 +1,7 @@
 <script lang="ts">
     import { page } from "$app/stores";
     import Quagga from "@ericblade/quagga2"
-    import type { QuaggaJSConfigObject } from "@ericblade/quagga2"
+    import type { QuaggaJSConfigObject, QuaggaJSResultObject } from "@ericblade/quagga2"
     import DeviceSwitcher from "./DeviceSwitcher.svelte";
 
 
@@ -57,9 +57,18 @@
     type OnDetected = (isbn: string) => void | Promise<void>
     export let onDetected: OnDetected | undefined = undefined
 
+    let lastCodeDetected: string | undefined = undefined
     Quagga.onDetected(async (result) => {
-        const isbn = result.codeResult.code
-        if (isbn && onDetected) await onDetected(isbn)
+        if (!result.codeResult.code || lastCodeDetected === result.codeResult.code) return
+        lastCodeDetected = result.codeResult.code
+
+        setTimeout(async () => {
+            console.log("Detected book", result.codeResult.code)
+            const isbn = result.codeResult.code
+            if (isbn && onDetected) {
+                await onDetected(isbn)
+            }
+        }, 100)
     })
 
     let externalClasses: string = ""
