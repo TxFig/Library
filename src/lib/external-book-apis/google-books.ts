@@ -47,7 +47,9 @@ async function fetchCoverImage(imageLinks: ImageLinks): Promise<File | undefined
 }
 
 export async function parseGoogleBookBookData(isbn: string, book: GoogleBooksBookData): Promise<ExternalBookData> {
-    const publish_date = parseGoogleBooksDate(book.volumeInfo.publishedDate)
+    const publish_date = book.volumeInfo.publishedDate ?
+        parseGoogleBooksDate(book.volumeInfo.publishedDate)
+    : undefined
 
     const isbn10 = book.volumeInfo.industryIdentifiers.find(
         (identifier) => identifier.type === "ISBN_10"

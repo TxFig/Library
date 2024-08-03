@@ -18,7 +18,7 @@ export interface GoogleBooksBookData {
 export interface VolumeInfo {
     title: string
     authors?: string[]
-    publishedDate: string
+    publishedDate?: string
     description?: string
     industryIdentifiers: IndustryIdentifier[]
     readingModes: ReadingModes
