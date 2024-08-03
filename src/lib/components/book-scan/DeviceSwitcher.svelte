@@ -12,6 +12,10 @@
     onMount(async () => {
         devices = (await navigator.mediaDevices.enumerateDevices())
             .filter((device) => device.kind === "videoinput")
+
+        if (devices.length > 1) {
+            selectedIndex = 1
+        }
     })
 
     function incrementIndex() {
