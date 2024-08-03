@@ -3,6 +3,9 @@
     import Quagga from "@ericblade/quagga2"
     import type { QuaggaJSConfigObject, QuaggaJSResultObject } from "@ericblade/quagga2"
     import DeviceSwitcher from "./DeviceSwitcher.svelte";
+    import { onDestroy } from "svelte";
+
+
 
 
     const generateQuaggaConfig: (deviceId?: string) => QuaggaJSConfigObject = (deviceId) => ({
@@ -48,18 +51,18 @@
     type OnDetected = (isbn: string) => void | Promise<void>
     export let onDetected: OnDetected | undefined = undefined
 
-    let lastCodeDetected: string | undefined = undefined
-    Quagga.onDetected(async (result) => {
-        if (!result.codeResult.code || lastCodeDetected === result.codeResult.code) return
-        lastCodeDetected = result.codeResult.code
+    async function onDetect(result: QuaggaJSResultObject) {
+        const isbn = result.codeResult.code
+        if (isbn && onDetected) {
+            await onDetected(isbn)
+        }
+    }
 
-        setTimeout(async () => {
-            console.log("Detected book", result.codeResult.code)
-            const isbn = result.codeResult.code
-            if (isbn && onDetected) {
-                await onDetected(isbn)
-            }
-        }, 100)
+    Quagga.onDetected(onDetect)
+
+    onDestroy(async () => {
+        await Quagga.stop()
+        Quagga.offDetected(onDetect)
     })
 
     let externalClasses: string = ""

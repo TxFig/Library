@@ -94,10 +94,6 @@
             return
         }
     })
-
-    onDestroy(async () => {
-        await Quagga.stop()
-    })
 </script>
 
 {#if $page.data.user}
