@@ -146,7 +146,7 @@
             </a>
             {:else if item.type == "publisher"}
                 <a href={"/publisher/" + item.name} class="flex flex-col items-center justify-center">
-                    <Icon icon="gis:globe-user" color="#fbe7d1" width="150" class="mb-1"/>
+                    <Icon icon="mdi:office-building" color="#fbe7d1" width="150" class="mb-1"/>
                     <span class="!no-underline hover:!underline">{item.name}</span>
                 </a>
             {/if}
