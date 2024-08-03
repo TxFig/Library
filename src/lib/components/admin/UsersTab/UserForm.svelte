@@ -90,7 +90,7 @@
     </div>
     <label class="label flex flex-col">
         <span>Permission Group <sup class="text-red-500">*</sup></span>
-        <button class="btn variant-filled w-48 justify-between" use:popup={permissionGroupCombobox}>
+        <button class="btn variant-filled w-48 justify-between" use:popup={permissionGroupCombobox} type="button">
             <span class="capitalize">{$form.permissionGroup || "Select"}</span>
             <Icon icon="tabler:caret-down-filled" width="24" height="24" />
         </button>
