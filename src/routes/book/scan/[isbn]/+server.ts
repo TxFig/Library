@@ -21,8 +21,6 @@ export const POST: RequestHandler = applyDecorators(
         })
     ],
     async ({ params, locals }) => {
-        console.log("Scanning book...", Date.now())
-
         const { isbn } = params
         const userId = locals.user!.id
 
