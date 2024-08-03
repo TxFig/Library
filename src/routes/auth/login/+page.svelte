@@ -50,6 +50,7 @@
                 placeholder="email@example.com"
                 value={$page.url.searchParams.get("email") ?? ""}
                 required
+                type="email"
             />
             {#if error}
                 <p class="text-red-600">{error}</p>

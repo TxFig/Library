@@ -7,6 +7,7 @@
     export let required: boolean = false
     export let placeholder: string | undefined = undefined
     export let disabled: boolean = false
+    export let type: "text" | "email" = "text"
 
 
     export let allowedRegex: RegExp | undefined = undefined
@@ -32,7 +33,7 @@
     </span>
     <input
         class="input {hasErrors ? "input-error !bg-error-900" : ""}"
-        type="text"
+        {...{type}}
         name={name}
         bind:value={value}
         autocomplete="off"

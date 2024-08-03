@@ -41,7 +41,7 @@
 </script>
 
 <div class="flex items-center justify-center h-full">
-    <div class="flex flex-col gap-12 p-12 border border-surface-600 rounded-xl">
+    <div class="flex flex-col gap-12 p-6 sm:p-12 border border-surface-600 rounded-xl">
         <div class="flex items-center justify-center gap-2">
             <Icon icon="clarity:library-line" width="32" height="32" />
             <span class="font-bold text-3xl">Library</span>
@@ -57,6 +57,7 @@
             <div>
                 <TextInput
                     text="Email"
+                    type="email"
                     placeholder="Email..."
                     name="email"
                     required
@@ -67,7 +68,7 @@
             </div>
             <button class="btn variant-filled-primary w-full">
                 <Icon icon="ph:sign-in" width="24" height="24" />
-                <span class="hidden md:block">Log In</span>
+                <span>Log In</span>
             </button>
         </form>
     </div>
