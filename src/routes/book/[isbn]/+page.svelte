@@ -70,6 +70,7 @@
                     <ChipArray
                         data={book.subjects.map(subjects => subjects.value)}
                         variant="variant-ringed-secondary"
+                        href="/subject"
                     />
                 </div>
             {/if}

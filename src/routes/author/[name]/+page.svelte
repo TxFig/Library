@@ -7,7 +7,7 @@
 </script>
 
 <div class="flex flex-col space-y-2 p-6">
-    <h1 class="font-bold mb-5">{author.name}</h1>
+    <h1 class="font-bold mb-5 text-2xl">{author.name}</h1>
     <h2>Books:</h2>
     <div
         class="

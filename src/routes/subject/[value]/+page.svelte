@@ -1,13 +1,13 @@
 <script lang="ts">
     import Icon from "@iconify/svelte"
-    import type { PageData } from "./$types"
-    export let data: PageData
-    const { publisher } = data
+    import type { PageData } from "./$types";
 
+    export let data: PageData
+    const { subject } = data
 </script>
 
 <div class="flex flex-col space-y-2 p-6">
-    <h1 class="font-bold mb-5 text-2xl">{publisher.name}</h1>
+    <h1 class="font-bold mb-5 text-2xl">{subject.value}</h1>
     <h2>Books:</h2>
     <div
         class="
@@ -15,7 +15,7 @@
             grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10
             gap-5 px-5 justify-items-center"
     >
-        {#each publisher.books as book}
+        {#each subject.books as book}
         {@const smallestImage = book.image.sort((a, b) => a.width - b.width)[0]}
 
         <a href="/book/{book.isbn}" class="flex flex-col items-center justify-center">
