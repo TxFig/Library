@@ -9,7 +9,10 @@
         inputStream: {
             target: "#input-target",
             constraints: {
-                deviceId
+                deviceId,
+                facingMode: "environment",
+                width: { ideal: 4096 },
+                height: { ideal: 4096 }
             }
         },
         decoder: {
@@ -40,18 +43,6 @@
             return
         }
         Quagga.start()
-
-        /*
-        const track = Quagga.CameraAccess.getActiveTrack()
-        const capabilities = track?.getCapabilities()
-        const maxWidth = capabilities?.width?.max
-        const maxHeight = capabilities?.height?.max
-
-        track?.applyConstraints({
-            width: { ideal: maxWidth },
-            height: { ideal: maxHeight }
-        })
-        */
     }
 
     type OnDetected = (isbn: string) => void | Promise<void>
