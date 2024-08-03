@@ -72,6 +72,7 @@ export async function parseGoogleBookBookData(isbn: string, book: GoogleBooksBoo
         isbn,
         title: book.volumeInfo.title,
         subtitle: book.volumeInfo.subtitle,
+        number_of_pages: book.volumeInfo.pageCount,
         publish_date,
         isbn10,
         isbn13,

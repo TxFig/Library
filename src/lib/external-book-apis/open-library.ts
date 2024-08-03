@@ -85,6 +85,7 @@ export async function parseOpenLibraryBookData(isbn: string, book: OpenLibraryBo
         isbn,
         title: book.title,
         subtitle: book.subtitle,
+        number_of_pages: book.number_of_pages,
         publish_date,
         isbn10,
         isbn13,
