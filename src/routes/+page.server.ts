@@ -14,7 +14,5 @@ export const load: PageServerLoad = async () => {
         books: await db.books.book.getAllBooks(),
         authors: await db.books.author.getAllAuthors(),
         publishers: await db.books.publisher.getAllPublishers(),
-        languages: await db.books.language.getAllLanguages(),
-        locations: await db.books.location.getAllLocations()
     }
 }

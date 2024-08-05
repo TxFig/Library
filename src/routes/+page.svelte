@@ -8,7 +8,7 @@
 
 
     export let data: PageData
-    const { books, authors, publishers, languages, locations } = data
+    const { books, authors, publishers } = data
 
     type SearchItem =
         ({ type: "book" } & EntireBook) |
@@ -57,8 +57,6 @@
         author: true,
         publisher: true
     }
-
-    let languageFilter: string
 </script>
 
 <div class="p-6">
@@ -94,15 +92,6 @@
                     </span>
                 {/each}
             </div>
-            <!--
-                <select class="select w-fit" bind:value={languageFilter} on:change={search}>
-                    <option value="" selected hidden>Language</option>
-                    <option value="all">All</option>
-                    {#each languages as lang}
-                        <option value="{lang.id}">{lang.value}</option>
-                    {/each}
-                </select>
-            -->
         </div>
     </div>
 
