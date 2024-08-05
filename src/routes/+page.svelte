@@ -1,17 +1,14 @@
 <script lang="ts">
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types"
-    import FuzzySearch from "fuzzy-search"
     import type { Author, Publisher } from "@prisma/client";
     import type { EntireBook } from "$lib/server/database/books/book";
+    import { search } from "$lib/utils/search";
+    import type { FuseOptionKey } from "fuse.js"
 
 
     export let data: PageData
     const { books, authors, publishers, languages, locations } = data
-
-    function sortAlphabetically(arr: SearchItem[]): SearchItem[] {
-        return arr // TODO
-    }
 
     type SearchItem =
         ({ type: "book" } & EntireBook) |
@@ -34,22 +31,15 @@
     ]
     let results: SearchItem[] = allResults
 
-    const SEARCH_KEYS: (keyof EntireBook | keyof Author | keyof Publisher)[] = ["title", "isbn", "name"]
-
-    export async function search() {
-        const arr = allResults.filter(
-            item => filters[item.type]
-        )
-
-        if (searchQuery == "") {
-            results = sortAlphabetically(arr)
-            return
-        }
-
-        const searcher = new FuzzySearch(arr, SEARCH_KEYS, {
-            sort: true
+    const searchKeys: FuseOptionKey<SearchItem>[] = [
+        "title", "isbn", "isbn10", "isbn13", "name",
+        { name: "subjects.value", weight: 0.25 },
+        "language.value", "location.value"
+    ]
+    export async function onQueryChange() {
+        results = search(allResults, searchKeys, searchQuery, {
+            filter: (item) => filters[item.type]
         })
-        results = searcher.search(searchQuery)
     }
 
     let searchQuery: string = ""
@@ -57,7 +47,7 @@
 
     function filter(f: FilterKeys) {
         filters[f] = !filters[f]
-        search()
+        onQueryChange()
     }
 
     const filterKeys = ["book", "author", "publisher"] as const
@@ -80,7 +70,8 @@
             type="search"
             placeholder="Search books, authors, publishers, ..."
             bind:value={searchQuery}
-            on:input={search}
+            on:input={onQueryChange}
+            class="[&::-webkit-search-cancel-button]:invert"
         />
     </div>
 

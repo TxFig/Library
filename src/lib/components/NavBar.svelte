@@ -55,7 +55,7 @@
                     </a>
                     {#if hasPermission($page.data.user, "Admin")}
                         <hr>
-                        <a href="/admin" class="btn variant-outline-tertiary">
+                        <a href="/admin/users" class="btn variant-outline-tertiary">
                             <Icon icon="eos-icons:admin-outlined" width="24" height="24"/>
                             <span>Admin Panel</span>
                         </a>
