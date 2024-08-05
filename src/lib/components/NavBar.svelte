@@ -27,18 +27,18 @@
     </svelte:fragment>
 
     <svelte:fragment slot="trail">
-        <a class="btn variant-ghost-primary" href="/book/scan">
-            <Icon icon="mdi:barcode-scan" width="24" height="24" />
-            <span class="hidden sm:block">Scan Book</span>
-        </a>
-        <a class="btn variant-outline" href="/book/create">
-            <Icon icon="mdi:book-plus-outline" width="24" height="24" />
-            <span class="hidden sm:block">Create Book</span>
-        </a>
-
-        <div class="w-[1px] h-10 bg-surface-600"></div>
-
         {#if $page.data.user}
+            <a class="btn variant-ghost-primary" href="/book/scan">
+                <Icon icon="mdi:barcode-scan" width="24" height="24" />
+                <span class="hidden sm:block">Scan Book</span>
+            </a>
+            <a class="btn variant-outline" href="/book/create">
+                <Icon icon="mdi:book-plus-outline" width="24" height="24" />
+                <span class="hidden sm:block">Create Book</span>
+            </a>
+
+            <div class="w-[1px] h-10 bg-surface-600"></div>
+
             <button class="btn-icon variant-outline" use:popup={authPopup}>
                 <Icon icon="material-symbols:person-sharp" width="32" height="32"/>
             </button>
