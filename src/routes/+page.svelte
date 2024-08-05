@@ -83,7 +83,7 @@
                 {#each filterKeys as f}
                     <!-- svelte-ignore a11y-no-static-element-interactions -->
                     <span
-                        class="chip {filters[f] ? 'variant-filled' : 'variant-soft'}"
+                        class="chip {filters[f] ? 'variant-filled' : 'variant-outline'}"
                         on:click={() => { filter(f) }}
                         on:keypress
                     >
