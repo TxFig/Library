@@ -64,7 +64,7 @@
     method="post"
     enctype="multipart/form-data"
     use:enhance
-    class="space-y-6"
+    class="space-y-6 !mb-24"
 >
     <div>
         <TextInput
@@ -150,7 +150,7 @@
         bind:selected={$form.language}
     />
 
-    <div class="flex justify-center !mt-16">
+    <div class="flex justify-center fixed bottom-4 w-full">
         <button type="submit" class="btn bg-primary-500 px-10 py-3">Submit</button>
     </div>
 </form>
