@@ -37,7 +37,11 @@
         "language.value", "location.value"
     ]
     export async function onQueryChange() {
-        results = search(allResults, searchKeys, searchQuery, {
+        results = search(allResults, searchQuery, {
+            keys: searchKeys,
+            threshold: 0.25,
+            distance: 10,
+            ignoreLocation: true,
             filter: (item) => filters[item.type]
         })
     }
