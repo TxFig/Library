@@ -17,10 +17,6 @@ function getPrismaClientInstance() {
     return new PrismaClient()
 }
 
-export async function close() {
-    await prisma.$disconnect()
-}
-
 
 import books from "./books"
 import auth from "./auth"
@@ -29,6 +25,5 @@ import config from "./config"
 export default {
     books,
     auth,
-    close,
     config
 }
