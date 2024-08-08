@@ -43,7 +43,6 @@ export const POST: RequestHandler = applyDecorators(
 
         try {
             await db.books.book.createBook(data)
-            await db.activityLog.logActivity(userId, "BOOK_ADDED", data)
 
             return json({
                 message: "Successfully Added Book"

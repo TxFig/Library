@@ -37,7 +37,6 @@ export async function POST(form: SuperFormCreateBook, userId: number): Promise<B
 
     try {
         const book = await db.books.book.createBook(data)
-        await db.activityLog.logActivity(userId, "BOOK_ADDED", data)
 
         return {
             message: "Book Created Successfully",

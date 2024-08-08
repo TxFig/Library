@@ -17,7 +17,6 @@ export type BookDeleteMethodReturn = Implements<InternalApiMethodReturn, {
 export async function DELETE(isbn: string, userId: number): Promise<BookDeleteMethodReturn> {
     try {
         await db.books.book.deleteBook(isbn)
-        await db.activityLog.logActivity(userId, "BOOK_DELETED", { isbn })
 
         return {
             message: "Book Deleted Successfully",

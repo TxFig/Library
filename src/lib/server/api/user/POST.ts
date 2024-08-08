@@ -37,7 +37,6 @@ export async function POST(form: SuperFormCreateUser, userId: number): Promise<U
 
     try {
         const createdUser = await db.auth.user.createUser(data)
-        await db.activityLog.logActivity(userId, "USER_CREATED", data)
 
         return {
             message: "User Created Successfully",

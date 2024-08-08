@@ -37,7 +37,6 @@ export async function PATCH(form: SuperFormUpdateUser, opaqueId: string, userId:
 
     try {
         const user = await db.auth.user.updateUser(opaqueId, data)
-        await db.activityLog.logActivity(userId, "USER_UPDATED", data)
 
         return {
             success: true,

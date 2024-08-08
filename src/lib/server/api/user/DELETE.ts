@@ -18,7 +18,6 @@ export type UserDeleteMethodReturn = Implements<InternalApiMethodReturn, {
 export async function DELETE(opaqueId: string, userId: number): Promise<UserDeleteMethodReturn> {
     try {
         const user = await db.auth.user.deleteUser(opaqueId)
-        await db.activityLog.logActivity(userId, "USER_DELETED", { opaqueId })
 
         return {
             message: "User Deleted Successfully",

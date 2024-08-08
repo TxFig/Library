@@ -37,7 +37,6 @@ export async function PATCH(form: SuperFormUpdateBook, userId: number): Promise<
 
     try {
         const book = await db.books.book.updateBook(data)
-        await db.activityLog.logActivity(userId, "BOOK_UPDATED", data)
 
         return {
             success: true,
