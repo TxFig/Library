@@ -13,17 +13,18 @@ const prisma = new PrismaClient()
 
 const app = express()
 
-app.use(async (req, res, next) => {
-    const message = `${req.method} ${req.url}`
-    console.log(message)
+app.use((req, res, next) => {
+    res.on("finish", async () => {
+        const message = `${req.method} ${req.url} ${res.statusCode}`
+        console.log(message)
 
-    await prisma.logEntry.create({
-        data: {
-            level: "http",
-            message,
-        }
+        await prisma.logEntry.create({
+            data: {
+                level: "http",
+                message,
+            }
+        })
     })
-
     next()
 })
 
