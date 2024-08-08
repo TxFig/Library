@@ -31,7 +31,7 @@ export async function generateResizedImages(isbn: string, file: File): Promise<B
     if (heights.length === 0) heights.push(size.height)
     const generatedSizes: BookImageInput[] = []
 
-    const folder = path.join(env.IMAGES_PATH, isbn)
+    const folder = path.join(env.STATIC, "images", isbn)
     if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder, { recursive: true })
     } else {
@@ -58,6 +58,6 @@ export async function generateResizedImages(isbn: string, file: File): Promise<B
 }
 
 export async function deleteImagesFolder(isbn: string) {
-    const folder = path.join(env.IMAGES_PATH, isbn)
+    const folder = path.join(env.STATIC, "images", isbn)
     fs.rmSync(folder, { recursive: true, force: true })
 }
