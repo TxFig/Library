@@ -3,10 +3,12 @@ dotenv.config()
 
 import { handler } from "./build/handler.js"
 import express from "express"
+import path from "path"
 
 
 const app = express()
 
+// @ts-ignore
 const imagesPath = path.join(process.env.STATIC, "images")
 app.use("/images", express.static(imagesPath))
 
