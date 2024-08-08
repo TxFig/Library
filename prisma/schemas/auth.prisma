@@ -1,5 +1,5 @@
 import { Book, BookCollection } from "book"
-import { Activity } from "activity"
+import { LogEntry } from "logging"
 import { UserBookReadingState } from "reading-state"
 
 
@@ -19,12 +19,12 @@ model User {
     permissionGroupId Int
     permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id])
 
-    activities Activity[]
-
     userSettings UserSettings?
 
     books           Book[]
     bookCollections BookCollection[]
+
+    LogEntry LogEntry[]
 }
 
 

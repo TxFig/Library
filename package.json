@@ -55,6 +55,6 @@
         "zod": "^3.22.4"
     },
     "prisma": {
-        "seed": "tsx prisma/seed.ts"
+        "seed": "tsx prisma/seeding/index.ts"
     }
 }

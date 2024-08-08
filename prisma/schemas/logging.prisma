@@ -1,0 +1,22 @@
+import { User } from "./auth"
+
+
+model LogEntry {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    message   String
+    level     LogLevel
+
+    userId   Int?
+    user     User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    metadata Json?
+}
+
+enum LogLevel {
+    debug
+    http
+    info
+    warn
+    error
+    fatal
+}
