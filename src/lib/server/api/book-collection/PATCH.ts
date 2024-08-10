@@ -1,4 +1,4 @@
-import type { BookCollectionWithBooks } from "$lib/server/database/books/collection"
+import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection"
 import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
 import type { InternalApiMethodReturn } from ".."
@@ -9,7 +9,7 @@ import log, { logError } from "$lib/logging"
 export type BookCollectionPatchMethodReturn = Implements<InternalApiMethodReturn, {
     success: true
     message: string,
-    data: BookCollectionWithBooks
+    data: BookCollectionWithEntireBooks
 } | {
     success: false
     code: HttpErrorCodesValues,

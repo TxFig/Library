@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { BookCollectionWithBooks } from "$lib/server/database/books/collection";
+    import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
     import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
     import { getModalStore, getToastStore, type ModalSettings } from "@skeletonlabs/skeleton";
 
 
-    export let collection: BookCollectionWithBooks
+    export let collection: BookCollectionWithEntireBooks
     export let onDelete: () => void
 
     const modalStore = getModalStore()

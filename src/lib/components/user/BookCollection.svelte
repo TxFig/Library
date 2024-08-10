@@ -1,16 +1,17 @@
 <script lang="ts">
-    import type { BookCollectionWithBooks } from "$lib/server/database/books/collection";
+    import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
     import Icon from "@iconify/svelte";
     import { getToastStore, popup, type PopupSettings } from "@skeletonlabs/skeleton";
     import DeleteCollectionButton from "./DeleteCollectionButton.svelte";
     import type { ApiJsonResponse } from "$lib/server/api";
     import HttpCodes from "$lib/utils/http-codes";
     import type { BookCollectionPatchMethodReturn } from "$lib/server/api/book-collection/PATCH";
+    import CollectionDisplay from "./CollectionDisplay.svelte";
 
 
     const toastStore = getToastStore()
 
-    export let collection: BookCollectionWithBooks
+    export let collection: BookCollectionWithEntireBooks
     export let onDelete: () => void
 
 
@@ -98,13 +99,5 @@
             </div>
         </div>
     </legend>
-    <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">
-        {#if collection.books.length === 0}
-            <p class="text-center text-surface-400">No books in this collection</p>
-        {:else}
-            {#each collection.books as book}
-                <a href={`/book/${book.isbn}`} class="snap-start shrink-0 card py-12 w-24 text-center">{book.title}</a>
-            {/each}
-        {/if}
-    </div>
+    <CollectionDisplay {collection} />
 </fieldset>

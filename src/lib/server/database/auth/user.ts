@@ -3,6 +3,7 @@ import { prisma } from ".."
 import type { UserCreateFormData, UserUpdateFormData } from "$lib/validation/auth/user"
 import { v4 as uuidv4 } from "uuid"
 import type { Prisma } from "@prisma/client"
+import { EntireBookInclude, type EntireBook } from "../books/book"
 
 
 export type EntireUser = User & {
@@ -10,13 +11,13 @@ export type EntireUser = User & {
         permissions: Permission[]
     }
     userBookReadingState: (UserBookReadingState & {
-        book: Book
+        book: EntireBook
     })[]
     emailConfirmationRequest: EmailConfirmationRequest | null
     userSettings: UserSettings | null
     books: Book[]
     bookCollections: (BookCollection & {
-        books: Book[]
+        books: EntireBook[]
     })[]
 }
 
@@ -28,7 +29,9 @@ export const EntireUserInclude = {
     },
     userBookReadingState: {
         include: {
-            book: true
+            book: {
+                include: EntireBookInclude
+            }
         }
     },
     emailConfirmationRequest: true,
@@ -36,7 +39,9 @@ export const EntireUserInclude = {
     books: true,
     bookCollections: {
         include: {
-            books: true
+            books: {
+                include: EntireBookInclude
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 import type { Book, BookCollection } from "@prisma/client";
 import { prisma } from "..";
+import { EntireBookInclude, type EntireBook } from "./book";
 
 
 export async function isNameAvailable(name: string, ownerId: number): Promise<boolean> {
@@ -21,10 +22,10 @@ export async function doesUserOwnCollection(id: number, ownerId: number): Promis
     }) !== null
 }
 
-export type BookCollectionWithBooks = BookCollection & {
-    books: Book[]
+export type BookCollectionWithEntireBooks = BookCollection & {
+    books: EntireBook[]
 }
-export async function createCollection(name: string, ownerId: number): Promise<BookCollectionWithBooks> {
+export async function createCollection(name: string, ownerId: number): Promise<BookCollectionWithEntireBooks> {
     const collection = await prisma.bookCollection.create({
         data: {
             name, ownerId
@@ -46,7 +47,7 @@ export async function deleteCollection(id: number, ownerId: number): Promise<voi
     })
 }
 
-export async function updateCollection(id: number, ownerId: number, name: string): Promise<BookCollectionWithBooks> {
+export async function updateCollection(id: number, ownerId: number, name: string): Promise<BookCollectionWithEntireBooks> {
     return await prisma.bookCollection.update({
         where: {
             id,
@@ -56,7 +57,9 @@ export async function updateCollection(id: number, ownerId: number, name: string
             name
         },
         include: {
-            books: true
+            books: {
+                include: EntireBookInclude
+            }
         }
     })
 }
@@ -76,13 +79,15 @@ export async function addBookToCollection(id: number, isbn: string): Promise<voi
     })
 }
 
-export async function getCollectionByName(name: string): Promise<BookCollectionWithBooks | null> {
+export async function getCollectionByName(name: string): Promise<BookCollectionWithEntireBooks | null> {
     return await prisma.bookCollection.findFirst({
         where: {
             name
         },
         include: {
-            books: true
+            books: {
+                include: EntireBookInclude
+            }
         }
     })
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageData } from "./$types";
-    import type { BookCollectionWithBooks } from "$lib/server/database/books/collection";
+    import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
     import BookCollection from "$lib/components/user/BookCollection.svelte";
     import BuiltInBookCollection from "$lib/components/user/BuiltInBookCollection.svelte";
     import Icon from "@iconify/svelte";
@@ -10,7 +10,7 @@
     const { pageUser, isCurrentUser } = data
 
 
-    const BooksReadingCollection: Omit<BookCollectionWithBooks, "id"> = {
+    const BooksReadingCollection: Omit<BookCollectionWithEntireBooks, "id"> = {
         name: "Books Reading",
         books: pageUser.userBookReadingState
             .filter(readingState => readingState.state === "READING")
@@ -18,7 +18,7 @@
 
         ownerId: pageUser.id
     }
-    const BooksReadCollection: Omit<BookCollectionWithBooks, "id"> = {
+    const BooksReadCollection: Omit<BookCollectionWithEntireBooks, "id"> = {
         name: "Books Read",
         books: pageUser.userBookReadingState
             .filter(readingState => readingState.state === "READ")
@@ -28,7 +28,7 @@
     }
 
     let bookCollections = pageUser.bookCollections
-    function onDeleteBookCollection(collection: BookCollectionWithBooks) {
+    function onDeleteBookCollection(collection: BookCollectionWithEntireBooks) {
         bookCollections = bookCollections.filter(bookCollection => bookCollection.id !== collection.id)
     }
 
@@ -37,7 +37,7 @@
         creatingCollection = false
     }
 
-    function onCreateCollection(newCollection: BookCollectionWithBooks) {
+    function onCreateCollection(newCollection: BookCollectionWithEntireBooks) {
         creatingCollection = false
         bookCollections = [newCollection, ...bookCollections]
     }

@@ -2,7 +2,7 @@
     import { page } from "$app/stores";
     import type { ApiJsonResponse } from "$lib/server/api";
     import type { BookCollectionPostMethodReturn } from "$lib/server/api/book-collection/POST";
-    import type { BookCollectionWithBooks } from "$lib/server/database/books/collection";
+    import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
     import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
     import { getToastStore } from "@skeletonlabs/skeleton";
@@ -10,7 +10,7 @@
 
     const toastStore = getToastStore()
 
-    export let onCreate: (newCollection: BookCollectionWithBooks) => void
+    export let onCreate: (newCollection: BookCollectionWithEntireBooks) => void
     export let onCancel: () => void
 
     let name: string = ""
