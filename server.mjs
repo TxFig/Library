@@ -11,6 +11,8 @@ import chalk from "chalk"
 
 const prisma = new PrismaClient()
 
+console.log(chalk.cyan("Library server starting..."))
+console.log()
 
 const app = express()
 
@@ -41,5 +43,5 @@ app.use(handler)
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
-    console.log(`Listening on port ${port}`)
+    console.log(chalk.gray(`Listening on port ${port}`))
 })
