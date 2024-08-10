@@ -20,9 +20,9 @@
                 selected={$page.url.pathname === "/admin/permission-groups"}
             >Permissions</TabAnchor>
             <TabAnchor
-                href="/admin/activity"
-                selected={$page.url.pathname === "/admin/activity"}
-            >Activity Log</TabAnchor>
+                href="/admin/logs"
+                selected={$page.url.pathname === "/admin/logs"}
+            >Logs</TabAnchor>
             <TabAnchor
                 href="/admin/settings"
                 selected={$page.url.pathname === "/admin/settings"}

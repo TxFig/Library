@@ -21,9 +21,11 @@ function getPrismaClientInstance() {
 import books from "./books"
 import auth from "./auth"
 import config from "./config"
+import logs from "./logs"
 
 export default {
     books,
     auth,
-    config
+    config,
+    logs
 }
