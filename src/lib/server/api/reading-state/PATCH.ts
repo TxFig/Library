@@ -19,7 +19,7 @@ export type ReadingStatePatchMethodReturn = Implements<InternalApiMethodReturn, 
 export async function PATCH(data: ReadingStateUpdateData, userId: number): Promise<ReadingStatePatchMethodReturn> {
     try {
         await db.auth.readingState.updateUserReadingState(data.bookId, userId, data.state)
-        await log("info", `User (${userId}) updated reading state for book: ${data.bookId}`, userId, data)
+        await log("info", `User updated reading state for book: ${data.bookId}`, userId, data)
 
         return {
             message: "Successfully Updated Reading State",
