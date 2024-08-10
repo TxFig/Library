@@ -3,6 +3,7 @@ import type { Implements } from "$lib/utils/types"
 import type { InternalApiMethodReturn } from ".."
 import db from "$lib/server/database/"
 import type { ReadingStateUpdateData } from "$lib/validation/book/reading-state"
+import log, { logError } from "$lib/logging"
 
 
 export type ReadingStatePatchMethodReturn = Implements<InternalApiMethodReturn, {
@@ -18,17 +19,15 @@ export type ReadingStatePatchMethodReturn = Implements<InternalApiMethodReturn, 
 export async function PATCH(data: ReadingStateUpdateData, userId: number): Promise<ReadingStatePatchMethodReturn> {
     try {
         await db.auth.readingState.updateUserReadingState(data.bookId, userId, data.state)
-        await db.activityLog.logActivity(userId, "READING_STATE_UPDATED", {
-            bookId: data.bookId,
-            userId: userId,
-            state: data.state
-        })
+        await log("info", `User updated reading state for book: ${data.bookId}`, userId, data)
+
         return {
             message: "Successfully Updated Reading State",
             success: true,
             data: data
         }
-    } catch (error) {
+    } catch (err) {
+        await logError(err, `Error updating reading state for book: ${data.bookId}`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

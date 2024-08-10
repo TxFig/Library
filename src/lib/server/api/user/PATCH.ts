@@ -5,6 +5,7 @@ import type { InternalApiMethodReturn } from "..";
 import db from "$lib/server/database/";
 import type { EntireUser } from "$lib/server/database/auth/user";
 import type { UserUpdateSchema } from "$lib/validation/auth/user";
+import log, { logError } from "$lib/logging";
 
 
 export type UserPatchMethodReturn = Implements<InternalApiMethodReturn, {
@@ -37,14 +38,15 @@ export async function PATCH(form: SuperFormUpdateUser, opaqueId: string, userId:
 
     try {
         const user = await db.auth.user.updateUser(opaqueId, data)
-        await db.activityLog.logActivity(userId, "USER_UPDATED", data)
+        await log("info", `User updated: ${user.id}`, userId, data)
 
         return {
             success: true,
             message: "User Updated Successfully",
             data: user
         }
-    } catch {
+    } catch (err) {
+        await logError(err, `Error updating user: ${opaqueId} in database`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

@@ -5,6 +5,7 @@ import db from "$lib/server/database/";
 import type { Implements } from "$lib/utils/types";
 import type { InternalApiMethodReturn } from "..";
 import type { EntireUser } from "$lib/server/database/auth/user";
+import log, { logError } from "$lib/logging";
 
 
 export type SuperFormCreateUser = SuperValidated<
@@ -37,7 +38,7 @@ export async function POST(form: SuperFormCreateUser, userId: number): Promise<U
 
     try {
         const createdUser = await db.auth.user.createUser(data)
-        await db.activityLog.logActivity(userId, "USER_CREATED", data)
+        await log("info", `User created: ${createdUser.id}`, userId, data)
 
         return {
             message: "User Created Successfully",
@@ -45,6 +46,7 @@ export async function POST(form: SuperFormCreateUser, userId: number): Promise<U
             data: createdUser
         }
     } catch (err) {
+        await logError(err, `Error creating user: ${data.email} in database`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

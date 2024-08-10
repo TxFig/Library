@@ -17,20 +17,15 @@ function getPrismaClientInstance() {
     return new PrismaClient()
 }
 
-export async function close() {
-    await prisma.$disconnect()
-}
-
 
 import books from "./books"
 import auth from "./auth"
-import activityLog from "./activity-log"
 import config from "./config"
+import logs from "./logs"
 
 export default {
     books,
     auth,
-    activityLog,
-    close,
-    config
+    config,
+    logs
 }

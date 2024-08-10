@@ -7,7 +7,7 @@ import { prisma } from ".."
 import type { BookCreateFormData, BookUpdateFormData } from "$lib/validation/book/book-form"
 import { deleteImagesFolder, generateResizedImages } from "$lib/utils/images"
 import type { ReplaceFields } from "$lib/utils/types"
-import isObjectEmpty, { isObjectNotEmpty } from "$lib/utils/is-object-empty"
+
 
 
 export type EntireBook = Book & {

@@ -3,6 +3,7 @@ import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
 import type { InternalApiMethodReturn } from ".."
 import db from "$lib/server/database/"
+import log, { logError } from "$lib/logging"
 
 
 export type BookCollectionPatchMethodReturn = Implements<InternalApiMethodReturn, {
@@ -26,12 +27,14 @@ export async function PATCH(collectionId: number, userId: number, name: string):
             }
         }
         const data = await db.books.collection.updateCollection(collectionId, userId, name)
+        await log("info", `Collection updated: ${collectionId}`, userId, data)
         return {
             message: "Successfully Updated Book Collection",
             success: true,
             data: data
         }
     } catch (error) {
+        await logError(error, `Error updating collection: ${collectionId} in database`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

@@ -17,30 +17,6 @@ datasource db {
 }
 
 //
-// activity.prisma
-//
-
-model Activity {
-  id        Int          @id @default(autoincrement())
-  createdAt DateTime     @default(now())
-  user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId    Int?
-  type      ActivityType
-  metadata  Json
-}
-
-enum ActivityType {
-  BOOK_ADDED
-  BOOK_UPDATED
-  BOOK_DELETED
-  BOOK_BORROWED
-  USER_CREATED
-  USER_UPDATED
-  USER_DELETED
-  READING_STATE_UPDATED
-}
-
-//
 // auth.prisma
 //
 
@@ -60,12 +36,12 @@ model User {
   permissionGroupId Int
   permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id])
 
-  activities Activity[]
-
   userSettings UserSettings?
 
   books           Book[]
   bookCollections BookCollection[]
+
+  LogEntry LogEntry[]
 }
 
 model UserSettings {
@@ -208,7 +184,7 @@ model Subject {
 
 model BookCollection {
   id   Int    @id @default(autoincrement())
-  name String @unique
+  name String
 
   books Book[]
 
@@ -230,6 +206,36 @@ model AppSettings {
   id Int @id @default(autoincrement())
 
   public Boolean @default(false)
+}
+
+model DatabaseInfo {
+  id Int @id @default(autoincrement())
+
+  version String
+}
+
+//
+// logging.prisma
+//
+
+model LogEntry {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  message   String
+  level     LogLevel
+
+  userId   Int?
+  user     User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  metadata Json?
+}
+
+enum LogLevel {
+  debug
+  http
+  info
+  warn
+  error
+  fatal
 }
 
 //

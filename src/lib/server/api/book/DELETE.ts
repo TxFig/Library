@@ -2,6 +2,7 @@ import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
 import type { InternalApiMethodReturn } from ".."
 import db from "$lib/server/database/"
+import log, { logError } from "$lib/logging"
 
 
 export type BookDeleteMethodReturn = Implements<InternalApiMethodReturn, {
@@ -17,7 +18,7 @@ export type BookDeleteMethodReturn = Implements<InternalApiMethodReturn, {
 export async function DELETE(isbn: string, userId: number): Promise<BookDeleteMethodReturn> {
     try {
         await db.books.book.deleteBook(isbn)
-        await db.activityLog.logActivity(userId, "BOOK_DELETED", { isbn })
+        await log("info", `Book deleted: ${isbn}`, userId, isbn)
 
         return {
             message: "Book Deleted Successfully",
@@ -25,6 +26,7 @@ export async function DELETE(isbn: string, userId: number): Promise<BookDeleteMe
             data: null
         }
     } catch (err) {
+        await logError(err, `Error deleting book: ${isbn} in database`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

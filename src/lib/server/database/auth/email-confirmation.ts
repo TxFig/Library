@@ -4,6 +4,7 @@ import { prisma } from ".."
 import { sendConfirmationEmail } from "$lib/utils/mail"
 import generateExpirationDate from "$lib/utils/generate-expiration-date"
 import { env } from "$env/dynamic/private"
+import log, { logError } from "$lib/logging"
 
 
 export async function sendConfirmationEmailAndSaveRequest(
@@ -12,15 +13,20 @@ export async function sendConfirmationEmailAndSaveRequest(
 ): Promise<void> {
     const token = uuidv4()
 
-    await sendConfirmationEmail(user.email, token, redirectPath)
-
-    await prisma.emailConfirmationRequest.create({
-        data: {
-            token,
-            expireDate: generateExpirationDate(+env.EMAIL_CONFIRMATION_EXPIRATION_TIME),
-            userId: user.id
-        }
-    })
+    try {
+        await sendConfirmationEmail(user.email, token, redirectPath)
+        await log("info", `Email confirmation request sent to: ${user.email}`, user.id)
+        await prisma.emailConfirmationRequest.create({
+            data: {
+                token,
+                expireDate: generateExpirationDate(+env.EMAIL_CONFIRMATION_EXPIRATION_TIME),
+                userId: user.id
+            }
+        })
+    } catch (err) {
+        await logError(err, `Error sending email confirmation request to: ${user.email}`, user.id)
+        throw err
+    }
 }
 
 type EmailConfirmationAndUser = EmailConfirmationRequest & {
