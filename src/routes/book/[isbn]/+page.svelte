@@ -7,7 +7,7 @@
     import Icon from "@iconify/svelte"
     import EditButton from "$lib/components/book-page/EditButton.svelte";
     import DeleteButton from "$lib/components/book-page/DeleteButton.svelte";
-    import AddToCollectionButton from "$lib/components/book-page/AddToCollectionButton.svelte";
+    import CollectionsButton from "$lib/components/book-page/CollectionsButton.svelte";
     import ReadingStateRadioGroup from "$lib/components/book-page/ReadingStateRadioGroup.svelte";
     import ChipArray from "$lib/components/book-page/ChipArray.svelte";
 
@@ -26,7 +26,8 @@
 <div class="flex justify-center w-full p-6 pb-24 md:h-full">
     <div class="flex flex-col md:flex-row justify-center items-center md:gap-4 gap-2 w-11/12 md:w-4/5">
         {#if book.image.length > 0}
-            <img src={`/images/${book.isbn}/${book.image[0].height}.webp`} alt={book.title} />
+            {@const largestImage = book.image.sort((a, b) => b.height - a.height)[0]}
+            <img src={`/images/${book.isbn}/${largestImage.height}.webp`} alt={book.title} />
         {:else}
             <Icon icon="material-symbols:book-outline" color="#fbe7d1" width="150" class="mb-1"/>
         {/if}
@@ -102,7 +103,7 @@
         <div class="flex flex-row-reverse items-center h-full gap-4">
             <DeleteButton isbn={book.isbn} />
             <EditButton isbn={book.isbn} />
-            <AddToCollectionButton isbn={book.isbn} />
+            <CollectionsButton isbn={book.isbn} />
         </div>
     </div>
 {/if}

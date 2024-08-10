@@ -4,7 +4,9 @@
     import CreateUserButton from "$lib/components/admin/UsersTab/CreateUserButton.svelte";
     import EditUserButton from "$lib/components/admin/UsersTab/EditUserButton.svelte";
     import DeleteUserButton from "$lib/components/admin/UsersTab/DeleteUserButton.svelte";
-    import { search } from "$lib/utils/search";
+    import { search, type SearchOptions } from "$lib/utils/search";
+    import SearchBar from "$lib/components/SearchBar.svelte";
+    import type { EntireUser } from "$lib/server/database/auth/user";
 
     export let data: PageData
     let {
@@ -15,33 +17,19 @@
     } = data
     const allUsers = users
 
-    let searchQuery: string = ""
-    const searchKeys = ["email", "username"]
-    function onQueryChange() {
-        users = search(allUsers, searchQuery, {
-            keys: searchKeys,
-            threshold: 0.25,
-            distance: 10,
-            ignoreLocation: true,
-        })
+    const searchOptions: SearchOptions<EntireUser> = {
+        keys: ["email", "username"]
     }
-
 </script>
 
 <div class="flex flex-col gap-4">
     <div class="flex justify-end gap-4">
-        <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-            <div class="input-group-shim">
-                <Icon icon="material-symbols:search-rounded" width="24" height="24" />
-            </div>
-            <input
-                type="search"
-                placeholder="Search users..."
-                bind:value={searchQuery}
-                on:input={onQueryChange}
-                class="[&::-webkit-search-cancel-button]:invert"
-            />
-        </div>
+        <SearchBar
+            allValues={allUsers}
+            bind:values={users}
+            options={searchOptions}
+            placeholder="Search users..."
+        />
         <CreateUserButton
             bind:users={users}
             {allPermissionGroups}

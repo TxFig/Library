@@ -15,13 +15,13 @@ export const POST: RequestHandler = applyDecorators(
     async ({ locals, request }) => {
         const userId = locals.user!.id
         // const formData = await request.formData()
-        const json = await request.json()
+        const data = await request.json()
 
-        const form = await superValidate(json, zod(BookCollectionCreateSchema))
+        const form = await superValidate(data, zod(BookCollectionCreateSchema))
 
         if (!form.valid) {
             return json({
-                message: "Invalid Form Data",
+                message: "Name is required",
                 errors: form.errors
             }, {
                 status: HttpCodes.ClientError.BadRequest

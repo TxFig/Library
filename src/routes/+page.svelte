@@ -3,8 +3,9 @@
     import type { PageData } from "./$types"
     import type { Author, Publisher } from "@prisma/client";
     import type { EntireBook } from "$lib/server/database/books/book";
-    import { search } from "$lib/utils/search";
+    import { search, type SearchOptions } from "$lib/utils/search";
     import type { FuseOptionKey } from "fuse.js"
+    import SearchBar from "$lib/components/SearchBar.svelte";
 
 
     export let data: PageData
@@ -36,22 +37,16 @@
         { name: "subjects.value", weight: 0.25 },
         "language.value", "location.value"
     ]
-    export async function onQueryChange() {
-        results = search(allResults, searchQuery, {
-            keys: searchKeys,
-            threshold: 0.25,
-            distance: 10,
-            ignoreLocation: true,
-            filter: (item) => filters[item.type]
-        })
+    const searchOptions: SearchOptions<SearchItem> = {
+        keys: searchKeys,
+        filter: (item) => filters[item.type]
     }
-
-    let searchQuery: string = ""
+    let searchBar: SearchBar<SearchItem>
     $: totalResults = results.length
 
     function filter(f: FilterKeys) {
         filters[f] = !filters[f]
-        onQueryChange()
+        searchBar.update()
     }
 
     const filterKeys = ["book", "author", "publisher"] as const
@@ -64,18 +59,13 @@
 </script>
 
 <div class="p-6">
-    <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-        <div class="input-group-shim">
-            <Icon icon="material-symbols:search-rounded" width="24" height="24" />
-        </div>
-        <input
-            type="search"
-            placeholder="Search books, authors, publishers, ..."
-            bind:value={searchQuery}
-            on:input={onQueryChange}
-            class="[&::-webkit-search-cancel-button]:invert"
-        />
-    </div>
+    <SearchBar
+        allValues={allResults}
+        bind:values={results}
+        options={searchOptions}
+        bind:this={searchBar}
+        placeholder="Search books, authors, publishers, ..."
+    />
 
     <div class="flex flex-col my-4 gap-1">
         <p>Filters:</p>

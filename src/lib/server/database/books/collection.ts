@@ -79,6 +79,21 @@ export async function addBookToCollection(id: number, isbn: string): Promise<voi
     })
 }
 
+export async function removeBookFromCollection(id: number, isbn: string): Promise<void> {
+    await prisma.bookCollection.update({
+        where: {
+            id
+        },
+        data: {
+            books: {
+                disconnect: {
+                    isbn
+                }
+            }
+        }
+    })
+}
+
 export async function getCollectionByName(name: string): Promise<BookCollectionWithEntireBooks | null> {
     return await prisma.bookCollection.findFirst({
         where: {
@@ -112,6 +127,7 @@ export default {
     deleteCollection,
     updateCollection,
     addBookToCollection,
+    removeBookFromCollection,
     getCollectionByName,
     doesCollectionHaveBook
 }

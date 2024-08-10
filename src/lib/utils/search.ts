@@ -1,7 +1,7 @@
 import Fuse, { type IFuseOptions } from "fuse.js"
 
 
-type SearchOptions<Item> = IFuseOptions<Item> & {
+export type SearchOptions<Item> = IFuseOptions<Item> & {
     filter?: (item: Item) => boolean
 }
 
