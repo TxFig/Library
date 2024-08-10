@@ -7,6 +7,7 @@ import express from "express"
 import path from "path"
 
 import { PrismaClient } from "@prisma/client"
+import chalk from "chalk"
 
 const prisma = new PrismaClient()
 
@@ -16,7 +17,11 @@ const app = express()
 app.use((req, res, next) => {
     res.on("finish", async () => {
         const message = `${req.method} ${req.url} ${res.statusCode}`
-        console.log(message)
+        console.log(
+            chalk.blue("http"),
+            chalk.green(`${req.method} ${req.url}`),
+            chalk.yellow(res.statusCode),
+        )
 
         await prisma.logEntry.create({
             data: {
