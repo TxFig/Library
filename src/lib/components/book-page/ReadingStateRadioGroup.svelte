@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { ReadingStateUpdateData } from "$lib/validation/book/reading-state";
     import Icon from "@iconify/svelte";
-    import type { ReadingState } from "@prisma/client";
-    import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
+    import { ReadingState } from "@prisma/client";
+    import { ListBox, ListBoxItem, popup, RadioGroup, RadioItem, type PopupSettings } from "@skeletonlabs/skeleton";
 
 
     export let readingState: ReadingState | null = null
@@ -23,40 +23,55 @@
             body: JSON.stringify(updateData),
         })
     }
+
+    const popupCombobox: PopupSettings = {
+        event: 'click',
+        target: 'popupCombobox',
+        placement: 'bottom',
+        closeQuery: '.listbox-item'
+    }
+
+    const labels = {
+        NOT_READ: "Not Read",
+        READING: "Currently Reading",
+        READ: "Already Read"
+    }
+
+    const icons = {
+        NOT_READ: "fa6-regular:eye-slash",
+        READING: "fa6-regular:bookmark",
+        READ: "fa6-regular:circle-check"
+    }
+
+    const states = Object.keys(ReadingState) as ReadingState[]
 </script>
 
 <div>
     <p>Reading State:</p>
-    <RadioGroup class="flex flex-col">
-        <RadioItem
-            bind:group={userBookReadingState}
-            name="userBookReadingState"
-            value={"NOT_READ"}
-            on:click={() => setReadingState("NOT_READ")}
-            class="flex items-center gap-2 pr-8"
-        >
-            <Icon icon="fa6-regular:eye-slash" width="16" height="16"/>
-            <span>Not Read</span>
-        </RadioItem>
-        <RadioItem
-            bind:group={userBookReadingState}
-            name="userBookReadingState"
-            value={"READING"}
-            on:click={() => setReadingState("READING")}
-            class="flex items-center gap-2 pr-8"
-        >
-            <Icon icon="fa6-regular:bookmark" width="16" height="16"/>
-            <span>Currently Reading</span>
-        </RadioItem>
-        <RadioItem
-            bind:group={userBookReadingState}
-            name="userBookReadingState"
-            value={"READ"}
-            on:click={() => setReadingState("READ")}
-            class="flex items-center gap-2 pr-8"
-        >
-            <Icon icon="fa6-regular:circle-check" width="16" height="16"/>
-            <span>Already Read</span>
-        </RadioItem>
-    </RadioGroup>
+
+    <button class="btn variant-filled w-52 justify-between" use:popup={popupCombobox}>
+        <div class="flex items-center gap-2">
+            <Icon icon={icons[userBookReadingState]} width="16" height="16"/>
+            <span>{labels[userBookReadingState]}</span>
+        </div>
+        <span>↓</span>
+    </button>
+
+    <div class="card shadow-xl py-2" data-popup="popupCombobox">
+        <ListBox rounded="rounded-none">
+            {#each states as readingState}
+            <ListBoxItem
+                bind:group={userBookReadingState}
+                on:click={() => setReadingState(readingState)}
+                name="userBookReadingState"
+                value={readingState}
+                regionDefault="flex items-center gap-2 pr-8"
+            >
+                <Icon icon={icons[readingState]} width="16" height="16"/>
+                <span>{labels[readingState]}</span>
+            </ListBoxItem>
+            {/each}
+        </ListBox>
+        <div class="arrow bg-surface-100-800-token" />
+    </div>
 </div>
