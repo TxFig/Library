@@ -31,4 +31,12 @@ export async function logError(error: unknown, message: string, userId?: number)
     }
 }
 
+export async function logFatal(error: unknown, message: string, userId?: number) {
+    if (error instanceof Error) {
+        await log("fatal", message, userId, error.stack)
+    } else {
+        await log("fatal", "Unknown error", userId, JSON.stringify(error))
+    }
+}
+
 export default log

@@ -1,16 +1,17 @@
 import { env } from "$env/dynamic/private"
+import { logFatal } from "$lib/logging";
 import db from "$lib/server/database/"
 import isDateExpired from "$lib/utils/is-date-expired";
-import type { Handle } from "@sveltejs/kit"
+import type { Handle, RequestEvent } from "@sveltejs/kit"
 import { validate as validateUUID } from "uuid"
 
 
-export const handle: Handle = async ({ event, resolve }) => {
+async function handleAuth(event: RequestEvent): Promise<RequestEvent> {
     async function resolveWithoutUserAndSession() {
         event.cookies.delete(env.SESSION_COOKIE_NAME, { path: "/" })
         event.locals.user = null
         event.locals.session = null
-        return await resolve(event)
+        return event
     }
 
     const sessionToken = event.cookies.get(env.SESSION_COOKIE_NAME)
@@ -31,5 +32,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     event.locals.user = user
     event.locals.session = session
-    return await resolve(event)
+    return event
+}
+
+export const handle: Handle = async ({ event, resolve }) => {
+    try {
+        const authEvent = await handleAuth(event)
+        return await resolve(authEvent)
+    } catch (err) {
+        await logFatal(err, "error handling request")
+        throw err
+    }
 }
