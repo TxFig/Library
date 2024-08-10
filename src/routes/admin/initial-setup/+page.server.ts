@@ -23,7 +23,7 @@ export const load: PageServerLoad = async () => {
                     form: await superValidate(zod(UserCreateSchema))
                 }
             }
-        } catch (err) {
+        } catch {
             error(HttpCodes.ServerError.InternalServerError, {
                 message: "Internal Server Error"
             })
@@ -37,7 +37,7 @@ export const load: PageServerLoad = async () => {
 
         try {
             await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, "/admin")
-        } catch (err) {
+        } catch {
             error(HttpCodes.ServerError.InternalServerError, {
                 error: undefined,
                 message: "Error sending confirmation email"
@@ -85,8 +85,7 @@ export const actions = {
 
         try {
             await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, "/admin")
-        } catch (err) {
-            console.log(err)
+        } catch {
             return message(form, {
                 type: "error",
                 text: "Error sending confirmation email"

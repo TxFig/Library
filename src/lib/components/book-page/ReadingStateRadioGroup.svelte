@@ -12,7 +12,7 @@
     async function setReadingState(state: ReadingState) {
         const updateData: ReadingStateUpdateData = {
             state,
-            bookId: bookId
+            bookId
         }
 
         await fetch(`/api/reading-state/`, {

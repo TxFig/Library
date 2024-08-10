@@ -2,6 +2,7 @@ import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes";
 import type { Implements } from "$lib/utils/types";
 import type { InternalApiMethodReturn } from "../..";
 import db from "$lib/server/database/"
+import log, { logError } from "$lib/logging";
 
 
 export type BookCollectionAddBookPostMethodReturn = Implements<InternalApiMethodReturn, {
@@ -44,12 +45,14 @@ export async function POST(userId: number, collectionName: string, isbn: string)
         }
 
         await db.books.collection.addBookToCollection(collection.id, isbn)
+        await log("info", `Book (${isbn}) added to collection: ${collection.id}`, userId)
         return {
             message: "Book Added Successfully",
             success: true,
             data: undefined
         }
     } catch (err) {
+        await logError(err, `Error adding book: ${isbn} to collection: ${collectionName} in database`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

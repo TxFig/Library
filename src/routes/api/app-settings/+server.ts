@@ -5,12 +5,14 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import HttpCodes from "$lib/utils/http-codes";
 import db from "$lib/server/database/";
+import log, { logError } from "$lib/logging";
 
 
 export const PATCH: RequestHandler = applyDecorators(
     [AuthDecorator(["Admin"])],
-    async ({ request }) => {
+    async ({ request, locals }) => {
         const data = await request.json()
+        const userId = locals.user!.id
 
         const parsingResult = AppSettingsSchema.safeParse(data)
         if (!parsingResult.success) {
@@ -23,10 +25,12 @@ export const PATCH: RequestHandler = applyDecorators(
 
         try {
             await db.config.setSettings(parsingResult.data)
+            await log("info", `Settings updated`, userId, data)
             return json({
                 message: "Settings updated"
             })
-        } catch {
+        } catch (err) {
+            await logError(err, `Error updating settings`, userId)
             return json({
                 message: "Error updating settings"
             }, {

@@ -5,6 +5,7 @@ import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms";
 import type { InternalApiMethodReturn } from "..";
 import type { BookUpdateSchema } from "$lib/validation/book/book-form";
 import db from "$lib/server/database/";
+import log, { logError } from "$lib/logging";
 
 
 export type BookPatchMethodReturn = Implements<InternalApiMethodReturn, {
@@ -37,13 +38,15 @@ export async function PATCH(form: SuperFormUpdateBook, userId: number): Promise<
 
     try {
         const book = await db.books.book.updateBook(data)
+        await log("info", `Book updated: ${book.isbn}`, userId, data)
 
         return {
             success: true,
             message: "Book Updated Successfully",
             data: book
         }
-    } catch {
+    } catch (err) {
+        await logError(err, `Error updating book: ${data.isbn} in database`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

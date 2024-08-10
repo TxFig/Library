@@ -5,6 +5,7 @@ import type { EntireBook } from "$lib/server/database/books/book"
 import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
 import type { InternalApiMethodReturn } from ".."
+import log, { logError } from "$lib/logging"
 
 
 export type SuperFormCreateBook = SuperValidated<
@@ -37,6 +38,7 @@ export async function POST(form: SuperFormCreateBook, userId: number): Promise<B
 
     try {
         const book = await db.books.book.createBook(data)
+        await log("info", `Book created: ${book.isbn}`, userId, data)
 
         return {
             message: "Book Created Successfully",
@@ -44,6 +46,7 @@ export async function POST(form: SuperFormCreateBook, userId: number): Promise<B
             data: book
         }
     } catch (err) {
+        await logError(err, `Error creating book: ${data.isbn} in database`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,
