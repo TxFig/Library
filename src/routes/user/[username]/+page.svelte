@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageData } from "./$types";
-    import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
+    import type { BookCollectionWithEntireBooks, BuiltInBookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
     import BookCollection from "$lib/components/user/BookCollection.svelte";
     import BuiltInBookCollection from "$lib/components/user/BuiltInBookCollection.svelte";
     import Icon from "@iconify/svelte";
@@ -10,7 +10,7 @@
     const { pageUser, isCurrentUser } = data
 
 
-    const BooksReadingCollection: Omit<BookCollectionWithEntireBooks, "id"> = {
+    const BooksReadingCollection: BuiltInBookCollectionWithEntireBooks = {
         name: "Books Reading",
         books: pageUser.userBookReadingState
             .filter(readingState => readingState.state === "READING")
@@ -18,7 +18,7 @@
 
         ownerId: pageUser.id
     }
-    const BooksReadCollection: Omit<BookCollectionWithEntireBooks, "id"> = {
+    const BooksReadCollection: BuiltInBookCollectionWithEntireBooks = {
         name: "Books Read",
         books: pageUser.userBookReadingState
             .filter(readingState => readingState.state === "READ")

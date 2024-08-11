@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
+    import type { BookCollectionWithEntireBooks, BuiltInBookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
 
-    export let collection: BookCollectionWithEntireBooks | Omit<BookCollectionWithEntireBooks, "id">
+    export let collection: BookCollectionWithEntireBooks | BuiltInBookCollectionWithEntireBooks
 </script>
 
 <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">

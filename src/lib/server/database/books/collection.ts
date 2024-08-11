@@ -16,6 +16,7 @@ export async function isNameAvailable(name: string, ownerId: number): Promise<bo
 export type BookCollectionWithEntireBooks = BookCollection & {
     books: EntireBook[]
 }
+export type BuiltInBookCollectionWithEntireBooks = Omit<BookCollectionWithEntireBooks, "id" | "createdAt" | "updatedAt">
 export async function createCollection(name: string, ownerId: number): Promise<BookCollectionWithEntireBooks> {
     const collection = await prisma.bookCollection.create({
         data: {
