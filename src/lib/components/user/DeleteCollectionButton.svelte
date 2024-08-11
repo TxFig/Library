@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { invalidateAll } from "$app/navigation";
     import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
     import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
@@ -40,6 +41,7 @@
         })
 
         if (response.status == HttpCodes.Success) {
+            await invalidateAll()
             onDelete()
         } else {
             toastStore.trigger({

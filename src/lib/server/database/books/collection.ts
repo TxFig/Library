@@ -1,4 +1,4 @@
-import type { Book, BookCollection } from "@prisma/client";
+import type { BookCollection } from "@prisma/client";
 import { prisma } from "..";
 import { EntireBookInclude, type EntireBook } from "./book";
 
@@ -11,15 +11,6 @@ export async function isNameAvailable(name: string, ownerId: number): Promise<bo
         }
     })
     return count === 0
-}
-
-export async function doesUserOwnCollection(id: number, ownerId: number): Promise<boolean> {
-    return await prisma.bookCollection.findUnique({
-        where: {
-            id,
-            ownerId
-        }
-    }) !== null
 }
 
 export type BookCollectionWithEntireBooks = BookCollection & {
@@ -94,10 +85,24 @@ export async function removeBookFromCollection(id: number, isbn: string): Promis
     })
 }
 
-export async function getCollectionByName(name: string): Promise<BookCollectionWithEntireBooks | null> {
+export async function getCollectionByName(name: string, ownerId: number): Promise<BookCollectionWithEntireBooks | null> {
     return await prisma.bookCollection.findFirst({
         where: {
-            name
+            name,
+            ownerId
+        },
+        include: {
+            books: {
+                include: EntireBookInclude
+            }
+        }
+    })
+}
+
+export async function getCollectionById(id: number): Promise<BookCollectionWithEntireBooks | null> {
+    return await prisma.bookCollection.findFirst({
+        where: {
+            id
         },
         include: {
             books: {
@@ -122,12 +127,12 @@ export async function doesCollectionHaveBook(id: number, isbn: string): Promise<
 
 export default {
     isNameAvailable,
-    doesUserOwnCollection,
     createCollection,
     deleteCollection,
     updateCollection,
     addBookToCollection,
     removeBookFromCollection,
     getCollectionByName,
+    getCollectionById,
     doesCollectionHaveBook
 }

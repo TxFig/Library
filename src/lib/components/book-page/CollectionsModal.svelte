@@ -7,7 +7,7 @@
     import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
     import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
-    import type { SvelteComponent } from "svelte";
+    import { type SvelteComponent } from "svelte";
     import SearchBar from "../SearchBar.svelte";
     import type { SearchOptions } from "$lib/utils/search";
     import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
@@ -35,12 +35,11 @@
         const json: ApiJsonResponse<BookCollectionAddBookPostMethodReturn> = await response.json()
 
         if (json.status === HttpCodes.Success) {
-            toastStore.trigger({
-                message: "Book Successfully Added to Collection",
-                background: "variant-filled-success"
-            })
-            await invalidateAll()
-            // parent.onClose()
+            // toastStore.trigger({
+            //     message: "Book Successfully Added to Collection",
+            //     background: "variant-filled-success"
+            // })
+            await updateAllCollections()
         } else {
             toastStore.trigger({
                 message: json.message,
@@ -64,12 +63,11 @@
         const json: ApiJsonResponse<BookCollectionAddBookDeleteMethodReturn> = await response.json()
 
         if (json.status === HttpCodes.Success) {
-            toastStore.trigger({
-                message: "Book Successfully Removed to Collection",
-                background: "variant-filled-success"
-            })
-            await invalidateAll()
-            parent.onClose()
+            // toastStore.trigger({
+            //     message: "Book Successfully Removed to Collection",
+            //     background: "variant-filled-success"
+            // })
+            await updateAllCollections()
         } else {
             toastStore.trigger({
                 message: json.message,
@@ -82,17 +80,16 @@
         return books.some(book => book.isbn === isbn)
     }
 
-    const allCollections = $page.data.user?.bookCollections ?? []
-    let collections = $page.data.user?.bookCollections ?? []
-    collections.sort((a, b) => {
-        const aContains = hasBook(a.books)
-        const bContains = hasBook(b.books)
+    async function updateAllCollections() {
+        await invalidateAll()
+        allCollections = $page.data.user?.bookCollections ?? []
+        searchBar.update(allCollections)
+    }
 
-        if (aContains && !bContains) return -1
-        if (!aContains && bContains) return 1
-        return 0
-    })
+    let allCollections = $page.data.user?.bookCollections ?? []
+    let searchResults = allCollections
 
+    let searchBar: SearchBar<BookCollectionWithEntireBooks>
     const searchOptions: SearchOptions<BookCollectionWithEntireBooks> = {
         keys: ["name"],
     }
@@ -107,20 +104,21 @@
             {:else}
                 <SearchBar
                     allValues={allCollections}
-                    bind:values={collections}
+                    bind:values={searchResults}
                     options={searchOptions}
                     placeholder="Search collections..."
+                    bind:this={searchBar}
                 />
                 <div class="overflow-y-auto max-h-[80vh]">
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Add/Remove</th>
+                                <th>Add / Remove</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {#each collections as collection}
+                            {#each searchResults as collection}
                                 <tr>
                                     <td>{collection.name}</td>
                                     <td>

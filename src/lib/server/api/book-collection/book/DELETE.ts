@@ -17,21 +17,12 @@ export type BookCollectionAddBookDeleteMethodReturn = Implements<InternalApiMeth
 
 export async function DELETE(userId: number, collectionName: string, isbn: string): Promise<BookCollectionAddBookDeleteMethodReturn> {
     try {
-        const collection = await db.books.collection.getCollectionByName(collectionName)
+        const collection = await db.books.collection.getCollectionByName(collectionName, userId)
         if (!collection) {
             return {
                 success: false,
                 code: HttpCodes.ClientError.BadRequest,
                 message: "Collection does not exist"
-            }
-        }
-
-        const doesUserOwnCollection = await db.books.collection.doesUserOwnCollection(collection.id, userId)
-        if (!doesUserOwnCollection) {
-            return {
-                success: false,
-                code: HttpCodes.ClientError.Unauthorized,
-                message: "You do not own this collection"
             }
         }
 

@@ -18,12 +18,12 @@ export type BookCollectionPatchMethodReturn = Implements<InternalApiMethodReturn
 
 export async function PATCH(collectionId: number, userId: number, name: string): Promise<BookCollectionPatchMethodReturn> {
     try {
-        const doesUserOwnCollection = await db.books.collection.doesUserOwnCollection(collectionId, userId)
-        if (!doesUserOwnCollection) {
+        const collection = await db.books.collection.getCollectionById(collectionId)
+        if (!collection) {
             return {
                 success: false,
                 code: HttpCodes.ClientError.Unauthorized,
-                message: "You do not own this collection"
+                message: "Collection does not exist"
             }
         }
         const data = await db.books.collection.updateCollection(collectionId, userId, name)

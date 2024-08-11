@@ -17,6 +17,14 @@ export type BookCollectionDeleteMethodReturn = Implements<InternalApiMethodRetur
 
 export async function DELETE(collectionId: number, userId: number): Promise<BookCollectionDeleteMethodReturn> {
     try {
+        const collection = await db.books.collection.getCollectionById(collectionId)
+        if (!collection) {
+            return {
+                success: false,
+                code: HttpCodes.ClientError.Unauthorized,
+                message: "Collection does not exist"
+            }
+        }
         await db.books.collection.deleteCollection(collectionId, userId)
         await log("info", `Collection deleted: ${collectionId}`, userId)
         return {

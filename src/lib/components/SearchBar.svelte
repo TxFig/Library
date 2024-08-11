@@ -14,9 +14,10 @@
     }
 
     let searchQuery: string = ""
-    function onQueryChange() {
+    function onQueryChange(newAllValues?: T[]) {
         const combinedOptions = {...defaultOptions, ...options}
-        values = search(allValues, searchQuery, combinedOptions)
+        values = search(newAllValues ?? allValues, searchQuery, combinedOptions)
+        console.log(values)
     }
 
     export const update = onQueryChange
@@ -30,7 +31,8 @@
         type="search"
         placeholder={placeholder}
         bind:value={searchQuery}
-        on:input={onQueryChange}
+        on:input={() => onQueryChange()}
         class="[&::-webkit-search-cancel-button]:invert"
+        on:input
     />
 </div>

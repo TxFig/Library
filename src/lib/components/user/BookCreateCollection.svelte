@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { invalidate, invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
     import type { ApiJsonResponse } from "$lib/server/api";
     import type { BookCollectionPostMethodReturn } from "$lib/server/api/book-collection/POST";
@@ -29,6 +30,7 @@
 
         const json: ApiJsonResponse<BookCollectionPostMethodReturn> = await response.json()
         if (json.status === HttpCodes.Success) {
+            await invalidateAll()
             onCreate(json.data)
         }
         else {
