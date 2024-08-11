@@ -80,9 +80,15 @@
         return books.some(book => book.isbn === isbn)
     }
 
+    function getUserCollections() {
+        return $page.data.user?.bookCollections.sort(
+            (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+        ) ?? []
+    }
+
     async function updateAllCollections() {
         await invalidateAll()
-        allCollections = $page.data.user?.bookCollections ?? []
+        allCollections = getUserCollections()
         searchBar.update(allCollections)
     }
 

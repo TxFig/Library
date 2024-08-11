@@ -66,7 +66,8 @@ export async function addBookToCollection(id: number, isbn: string): Promise<voi
                 connect: {
                     isbn
                 }
-            }
+            },
+            updatedAt: new Date()
         }
     })
 }
