@@ -190,6 +190,9 @@ model BookCollection {
 
   ownerId Int
   owner   User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 //
