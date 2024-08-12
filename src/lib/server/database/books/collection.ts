@@ -82,7 +82,8 @@ export async function removeBookFromCollection(id: number, isbn: string): Promis
                 disconnect: {
                     isbn
                 }
-            }
+            },
+            updatedAt: new Date()
         }
     })
 }

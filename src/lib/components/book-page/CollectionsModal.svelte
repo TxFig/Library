@@ -80,7 +80,7 @@
         return books.some(book => book.isbn === isbn)
     }
 
-    function getUserCollections() {
+    function getSortedUserCollections() {
         return $page.data.user?.bookCollections.sort(
             (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
         ) ?? []
@@ -88,12 +88,12 @@
 
     async function updateAllCollections() {
         await invalidateAll()
-        allCollections = getUserCollections()
+        allCollections = getSortedUserCollections()
         searchBar.update(allCollections)
     }
 
     let allCollections = $page.data.user?.bookCollections ?? []
-    let searchResults = allCollections
+    let searchResults = getSortedUserCollections()
 
     let searchBar: SearchBar<BookCollectionWithEntireBooks>
     const searchOptions: SearchOptions<BookCollectionWithEntireBooks> = {
