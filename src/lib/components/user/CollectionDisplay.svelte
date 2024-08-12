@@ -10,7 +10,7 @@
     {:else}
         {#each collection.books as book}
             {#if book.image.length === 0}
-                <a href={`/book/${book.isbn}`} class="snap-start shrink-0 card w-24 flex justify-center items-center">
+                <a href={`/book/${book.isbn}`} class="snap-start shrink-0 card w-24 flex justify-center items-center p-2 text-center">
                     {book.title}
                 </a>
             {:else}

@@ -59,7 +59,7 @@
     let isEditing = false
 </script>
 
-<fieldset class="border border-surface-600 px-4 py-1 rounded-token relative">
+<fieldset class="border border-surface-600 px-4 py-1 rounded-token w-full">
     <legend class="px-2 flex gap-2 items-center">
         {#if isEditing}
             <input

@@ -42,6 +42,7 @@
     }
 
     function onKeyPress(event: KeyboardEvent) {
+        if (!name) return
         if (event.key === "Enter") {
             event.preventDefault()
             onNameSet()
@@ -56,14 +57,14 @@
             class="
                 focus:ring-transparent bg-transparent
                 border-0 border-b focus:!border-b-primary-400
-                w-40 text-sm duration-300 transition-colors
+                w-60 text-sm duration-300 transition-colors
             "
             placeholder="Name..."
             bind:value={name}
             on:keypress={onKeyPress}
             autofocus
         />
-        <button class="btn-icon btn-icon-sm variant-soft-success" on:click={onNameSet}>
+        <button class="btn-icon btn-icon-sm variant-soft-success" on:click={onNameSet} disabled={!name}>
             <Icon icon="tabler:check" width="16" height="16" />
         </button>
         <button class="btn-icon btn-icon-sm variant-soft-error" on:click={onCancel}>
