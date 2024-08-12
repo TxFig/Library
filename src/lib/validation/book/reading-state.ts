@@ -6,6 +6,7 @@ const StateSchema = z.union([
     z.literal(ReadingState.NOT_READ),
     z.literal(ReadingState.READING),
     z.literal(ReadingState.READ),
+    z.literal(ReadingState.WANT_TO_READ)
 ])
 
 export const ReadingStateUpdateSchema = z.object({

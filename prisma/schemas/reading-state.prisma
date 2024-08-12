@@ -18,4 +18,5 @@ enum ReadingState {
     NOT_READ
     READING
     READ
+    WANT_TO_READ
 }

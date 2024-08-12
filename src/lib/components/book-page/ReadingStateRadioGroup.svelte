@@ -34,13 +34,15 @@
     const labels = {
         NOT_READ: "Not Read",
         READING: "Currently Reading",
-        READ: "Already Read"
+        READ: "Read",
+        WANT_TO_READ: "Want to Read"
     }
 
     const icons = {
         NOT_READ: "fa6-regular:eye-slash",
         READING: "fa6-regular:bookmark",
-        READ: "fa6-regular:circle-check"
+        READ: "fa6-regular:circle-check",
+        WANT_TO_READ: "material-symbols:star-outline"
     }
 
     const states = Object.keys(ReadingState) as ReadingState[]
@@ -49,7 +51,7 @@
 <div>
     <p>Reading State:</p>
 
-    <button class="btn variant-filled w-52 justify-between" use:popup={popupCombobox}>
+    <button class="btn variant-filled w-60 justify-between" use:popup={popupCombobox}>
         <div class="flex items-center gap-2">
             <Icon icon={icons[userBookReadingState]} width="16" height="16"/>
             <span>{labels[userBookReadingState]}</span>

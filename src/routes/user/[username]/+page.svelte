@@ -26,6 +26,13 @@
 
         ownerId: pageUser.id
     }
+    const BooksWantToReadCollection: BuiltInBookCollectionWithEntireBooks = {
+        name: "Want to Read",
+        books: pageUser.userBookReadingState
+            .filter(readingState => readingState.state === "WANT_TO_READ")
+            .map(readingState => readingState.book),
+        ownerId: pageUser.id
+    }
 
     let bookCollections = pageUser.bookCollections
     function onDeleteBookCollection(collection: BookCollectionWithEntireBooks) {
@@ -55,6 +62,9 @@
         {/if}
         {#if BooksReadCollection.books.length > 0}
             <BuiltInBookCollection collection={BooksReadCollection} />
+        {/if}
+        {#if BooksWantToReadCollection.books.length > 0}
+            <BuiltInBookCollection collection={BooksWantToReadCollection} />
         {/if}
     {/if}
 

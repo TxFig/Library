@@ -17,7 +17,6 @@
     function onQueryChange(newAllValues?: T[]) {
         const combinedOptions = {...defaultOptions, ...options}
         values = search(newAllValues ?? allValues, searchQuery, combinedOptions)
-        console.log(values)
     }
 
     export const update = onQueryChange
