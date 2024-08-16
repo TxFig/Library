@@ -5,7 +5,7 @@
         "dev": "vite dev",
         "build": "run-s prisma:generate build:app",
         "build:app": "vite build",
-        "prisma:import": "npx prisma-import -s prisma/schemas/* -o prisma/schema.prisma -f",
+        "prisma:import": "npx prisma-import -s \"prisma/schemas/*\" -o prisma/schema.prisma -f",
         "prisma:generate": "npx prisma generate",
         "prisma:seed": "npx prisma db seed",
         "prisma:deploy": "npx prisma migrate deploy",

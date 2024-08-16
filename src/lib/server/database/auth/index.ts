@@ -5,6 +5,7 @@ import readingState from "./reading-state"
 import permissionGroup from "./permission-group"
 import permission from "./permission"
 import settings from "./settings"
+import rating from "./rating"
 
 
 export default {
@@ -14,5 +15,6 @@ export default {
     readingState,
     permissionGroup,
     permission,
-    settings
+    settings,
+    rating
 }

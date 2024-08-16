@@ -42,6 +42,8 @@ model User {
   bookCollections BookCollection[]
 
   LogEntry LogEntry[]
+
+  userBookRating UserBookRating[]
 }
 
 model UserSettings {
@@ -123,6 +125,8 @@ model Book {
   public  Boolean @default(false)
 
   bookCollections BookCollection[]
+
+  userBookRating UserBookRating[]
 }
 
 model Image {
@@ -239,6 +243,21 @@ enum LogLevel {
   warn
   error
   fatal
+}
+
+//
+// rating.prisma
+//
+
+model UserBookRating {
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookId Int
+  book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  rating Float
+
+  @@id([userId, bookId])
 }
 
 //

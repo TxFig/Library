@@ -1,5 +1,6 @@
 import { UserBookReadingState } from "reading-state"
 import { User } from "auth"
+import { UserBookRating } from "rating"
 
 
 model Book {
@@ -33,6 +34,8 @@ model Book {
     public  Boolean @default(false)
 
     bookCollections BookCollection[]
+
+    userBookRating UserBookRating[]
 }
 
 model Image {

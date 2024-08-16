@@ -49,11 +49,13 @@ import user from "./user"
 import readingState from "./reading-state"
 import settings from "./settings"
 import bookCollection from "./book-collection"
+import rating from "./rating"
 
 export default {
     book,
     user,
     readingState,
     settings,
-    bookCollection
+    bookCollection,
+    rating
 }
