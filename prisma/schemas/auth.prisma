@@ -1,6 +1,7 @@
 import { Book, BookCollection } from "book"
 import { LogEntry } from "logging"
 import { UserBookReadingState } from "reading-state"
+import { UserBookRating } from "rating"
 
 
 model User {
@@ -25,6 +26,8 @@ model User {
     bookCollections BookCollection[]
 
     LogEntry LogEntry[]
+
+    userBookRating UserBookRating[]
 }
 
 

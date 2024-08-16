@@ -10,10 +10,11 @@
     import CollectionsButton from "$lib/components/book-page/CollectionsButton.svelte";
     import ReadingStateRadioGroup from "$lib/components/book-page/ReadingStateRadioGroup.svelte";
     import ChipArray from "$lib/components/book-page/ChipArray.svelte";
+    import RatingSelector from "$lib/components/book-page/RatingSelector.svelte";
 
 
     export let data: PageData
-    const { book, readingState } = data
+    const { book, readingState, rating } = data
 
     function formatDate(date: PublishDate): string {
         const day = date.day ? `${date.day.toString().padStart(2, "0")}/` : ""
@@ -93,6 +94,7 @@
             </div>
             {#if $page.data.user}
                 <ReadingStateRadioGroup readingState={readingState} bookId={book.id} />
+                <RatingSelector rating={rating} bookId={book.id} />
             {/if}
         </div>
     </div>
