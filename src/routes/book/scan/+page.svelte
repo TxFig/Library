@@ -5,7 +5,7 @@
     import { onDestroy, onMount } from "svelte";
     import ManualInsertISBN from "$lib/components/book-scan/ManualInsertISBN.svelte";
     import { validateISBN } from "$lib/validation/book/isbn";
-    import { getModalStore, getToastStore, type ModalSettings } from "@skeletonlabs/skeleton";
+    import { getModalStore, getToastStore, SlideToggle, type ModalSettings } from "@skeletonlabs/skeleton";
     import HttpCodes from "$lib/utils/http-codes";
     import { goto } from "$app/navigation"
     import Quagga from "@ericblade/quagga2";
@@ -65,10 +65,12 @@
             response.status === HttpCodes.Success ||
             response.status === HttpCodes.ClientError.Conflict
         ) {
-            await goto(`/book/${isbn}/`)
+            if (!multiScan) {
+                await goto(`/book/${isbn}/`)
+            }
         }
 
-        if (response.status === HttpCodes.ClientError.NotFound) {
+        if (response.status === HttpCodes.ClientError.NotFound && !multiScan) {
             modalStore.trigger(
                 BookNotAvailableInExternalApis(isbn)
             )
@@ -83,7 +85,9 @@
         fetchingBookData = true
 
         modalStore.trigger(FetchingBookDataAlert)
-        await Quagga.stop()
+        if (!multiScan) {
+            await Quagga.stop()
+        }
         await fetchBookData(isbn)
     }
 
@@ -94,13 +98,26 @@
             return
         }
     })
+
+    let multiScan = false
 </script>
 
 {#if $page.data.user}
     {#if mediaDevicesAvailable}
         <div class="flex flex-col items-center h-full gap-4 p-6">
             <ISBNScanner class="h-5/6" {onDetected} bind:this={ISBNScannerComponent} />
-            <ManualInsertISBN onSubmit={onDetected}/>
+            <div class="flex items-center gap-4 variant-filled-surface p-4 rounded-token">
+                <ManualInsertISBN onSubmit={onDetected}/>
+                <div class="flex flex-col items-center gap-2">
+                    <p>Multi Scan</p>
+                    <SlideToggle
+                        name="multi-scan"
+                        bind:checked={multiScan}
+                        size="sm"
+                        active="variant-filled-secondary"
+                    />
+                </div>
+            </div>
         </div>
     {:else}
         <h1 class="text-2xl text-center">Media devices not available</h1>
