@@ -109,7 +109,7 @@
             <div class="flex items-center gap-4 variant-filled-surface p-4 rounded-token">
                 <ManualInsertISBN onSubmit={onDetected}/>
                 <div class="flex flex-col items-center gap-2">
-                    <p>Multi Scan</p>
+                    <p class="text-sm text-center">Multi Scan</p>
                     <SlideToggle
                         name="multi-scan"
                         bind:checked={multiScan}
