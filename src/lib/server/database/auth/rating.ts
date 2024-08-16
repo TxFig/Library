@@ -37,8 +37,21 @@ export async function getUserRating(bookId: number, userId: number): Promise<num
     return userBookRating?.rating ?? null
 }
 
+export async function getBookAverageRating(bookId: number): Promise<number | null> {
+    const userBookRatings = await prisma.userBookRating.findMany({
+        where: {
+            bookId
+        }
+    })
+    if (userBookRatings.length === 0) {
+        return null
+    }
+    const ratings = userBookRatings.map(rating => rating.rating)
+    return ratings.reduce((a, b) => a + b, 0) / ratings.length
+}
 
 export default {
     updateUserRating,
-    getUserRating
+    getUserRating,
+    getBookAverageRating
 }

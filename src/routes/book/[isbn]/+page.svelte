@@ -14,7 +14,7 @@
 
 
     export let data: PageData
-    const { book, readingState, rating } = data
+    const { book, readingState, rating, bookRating } = data
 
     function formatDate(date: PublishDate): string {
         const day = date.day ? `${date.day.toString().padStart(2, "0")}/` : ""
@@ -94,7 +94,7 @@
             </div>
             {#if $page.data.user}
                 <ReadingStateRadioGroup readingState={readingState} bookId={book.id} />
-                <RatingSelector rating={rating} bookId={book.id} />
+                <RatingSelector rating={rating} bookId={book.id} bookRating={bookRating} />
             {/if}
         </div>
     </div>

@@ -5,6 +5,7 @@
 
     export let rating: number | null
     export let bookId: number
+    export let bookRating: number | null
 
     let value = rating || 0;
 
@@ -25,6 +26,7 @@
 </script>
 
 <div class="max-w-sm">
+    <p>Average Rating: {bookRating ?? "N/A"}</p>
     <p>Rating: {value}</p>
 
     <Ratings value={value} max={5} justify="justify-evenly">
