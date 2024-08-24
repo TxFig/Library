@@ -1,13 +1,11 @@
 <script lang="ts">
     import type { ReadingStateUpdateData } from "$lib/validation/book/reading-state";
-    import Icon from "@iconify/svelte";
     import { ReadingState } from "@prisma/client";
-    import { ListBox, ListBoxItem, popup, RadioGroup, RadioItem, type PopupSettings } from "@skeletonlabs/skeleton";
-
+    import Combobox from "../Combobox.svelte";
 
     export let readingState: ReadingState | null = null
     export let bookId: number
-    let userBookReadingState: ReadingState = readingState ?? "NOT_READ"
+    let state: ReadingState = readingState ?? "NOT_READ"
 
     async function setReadingState(state: ReadingState) {
         const updateData: ReadingStateUpdateData = {
@@ -24,56 +22,21 @@
         })
     }
 
-    const popupCombobox: PopupSettings = {
-        event: 'click',
-        target: 'popupCombobox',
-        placement: 'bottom',
-        closeQuery: '.listbox-item'
-    }
-
-    const labels = {
-        NOT_READ: "Not Read",
-        READING: "Currently Reading",
-        READ: "Read",
-        WANT_TO_READ: "Want to Read"
-    }
-
-    const icons = {
-        NOT_READ: "fa6-regular:eye-slash",
-        READING: "fa6-regular:bookmark",
-        READ: "fa6-regular:circle-check",
-        WANT_TO_READ: "material-symbols:star-outline"
-    }
-
-    const states = Object.keys(ReadingState) as ReadingState[]
+    const values = ["NOT_READ", "READING", "READ", "WANT_TO_READ"] as const
+    const labels = ["Not Read", "Currently Reading", "Read", "Want to Read"]
+    const icons = ["fa6-regular:eye-slash", "fa6-regular:bookmark", "fa6-regular:circle-check", "material-symbols:star-outline"]
 </script>
 
-<div>
+<div class="flex flex-col gap-2">
     <p>Reading State:</p>
-
-    <button class="btn variant-filled w-60 justify-between" use:popup={popupCombobox}>
-        <div class="flex items-center gap-2">
-            <Icon icon={icons[userBookReadingState]} width="16" height="16"/>
-            <span>{labels[userBookReadingState]}</span>
-        </div>
-        <span>↓</span>
-    </button>
-
-    <div class="card shadow-xl py-2" data-popup="popupCombobox">
-        <ListBox rounded="rounded-none">
-            {#each states as readingState}
-            <ListBoxItem
-                bind:group={userBookReadingState}
-                on:click={() => setReadingState(readingState)}
-                name="userBookReadingState"
-                value={readingState}
-                regionDefault="flex items-center gap-2 pr-8"
-            >
-                <Icon icon={icons[readingState]} width="16" height="16"/>
-                <span>{labels[readingState]}</span>
-            </ListBoxItem>
-            {/each}
-        </ListBox>
-        <div class="arrow bg-surface-100-800-token" />
-    </div>
+    <Combobox
+        popupName="readingStateCombobox"
+        value={labels[values.indexOf(state)]}
+        options={labels}
+        icons={icons}
+        width="w-60"
+        onClick={
+            (_, index) => setReadingState(values[index])
+        }
+    />
 </div>
