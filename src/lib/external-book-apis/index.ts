@@ -5,12 +5,11 @@ import { getParsedGoogleBooksBook } from "./google-books";
 import { getParsedOpenLibraryBook } from "./open-library";
 
 
-type FieldsToOmit = "location" | "language" | "public"
+type FieldsToOmit = "location" | "language"
 export type ExternalBookData = Omit<BookCreateFormData, FieldsToOmit>
 export const defaultsForOmittedFields: {[key in FieldsToOmit]: BookCreateFormData[key]} = {
     location: undefined,
     language: undefined,
-    public: true,
 }
 
 export async function fetchBookData(isbn: string): Promise<BookCreateFormData | null> {

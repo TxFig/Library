@@ -31,7 +31,6 @@ model Book {
 
     owner   User?   @relation(fields: [ownerId], references: [id])
     ownerId Int?
-    public  Boolean @default(false)
 
     bookCollections BookCollection[]
 

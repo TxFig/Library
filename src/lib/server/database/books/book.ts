@@ -66,7 +66,6 @@ async function BookCreateFormDataToDatabaseData(book: BookCreateFormData): Promi
             number_of_pages: book.number_of_pages ?? null,
             isbn10: book.isbn10 ?? null,
             isbn13: book.isbn13 ?? null,
-            public: book.public
         },
         publish_date: book.publish_date ? {
             year: book.publish_date.year,

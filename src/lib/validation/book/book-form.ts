@@ -31,8 +31,6 @@ export const BookCreateSchema = z.object({
     authors: z.array(z.string()).default([]),
     publishers: z.array(z.string()).default([]),
     subjects: z.array(z.string()).default([]),
-
-    public: z.boolean().default(false)
 }, {
     required_error: "Book Data Required",
 }).strict()
@@ -52,7 +50,6 @@ export const BookUpdateSchema = BookCreateSchema.partial().required({
     authors: true,
     publishers: true,
     subjects: true,
-    public: true,
 })
 export type BookUpdateSchema = typeof BookUpdateSchema
 

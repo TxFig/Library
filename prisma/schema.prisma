@@ -120,9 +120,8 @@ model Book {
   subjects             Subject[]
   userBookReadingState UserBookReadingState[]
 
-  owner   User?   @relation(fields: [ownerId], references: [id])
+  owner   User? @relation(fields: [ownerId], references: [id])
   ownerId Int?
-  public  Boolean @default(false)
 
   bookCollections BookCollection[]
 
