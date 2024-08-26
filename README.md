@@ -116,6 +116,7 @@ Otherwise, change them to match your PostgreSQL configuration.
 `SESSION_EXPIRATION_TIME` is the time in seconds the session will be valid for.
 
 `SESSION_COOKIE_NAME` is the name of the session cookie.
+
 `ADMIN_EMAIL` is the email address of the first admin user.
 
 
