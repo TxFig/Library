@@ -4,7 +4,7 @@ import EmailConfirmationHtml from "$lib/components/emails/EmailConfirmation.html
 
 
 const transport = nodemailer.createTransport({
-    host: env.EMAIL_HOST,
+    host: new URL(env.EMAIL_HOST).host,
     port: Number(env.EMAIL_PORT),
     auth: {
         user: env.EMAIL_USER,

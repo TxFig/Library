@@ -2,6 +2,7 @@ import { env } from "$env/dynamic/private"
 import { logFatal } from "$lib/logging";
 import db from "$lib/server/database/"
 import isDateExpired from "$lib/utils/is-date-expired";
+import { validateEnvVariables } from "$lib/validation/env-vars";
 import type { Handle, RequestEvent } from "@sveltejs/kit"
 import { validate as validateUUID } from "uuid"
 
@@ -44,3 +45,5 @@ export const handle: Handle = async ({ event, resolve }) => {
         throw err
     }
 }
+
+await validateEnvVariables(env)
