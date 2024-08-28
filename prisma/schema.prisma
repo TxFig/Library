@@ -245,6 +245,16 @@ enum LogLevel {
 }
 
 //
+// migrations.prisma
+//
+
+model Migration {
+  id               String  @id @default(dbgenerated())
+  name             String  @unique
+  hasDataMigration Boolean @default(false)
+}
+
+//
 // rating.prisma
 //
 
