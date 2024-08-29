@@ -1,5 +1,5 @@
 model Migration {
-    id               String  @id @default(dbgenerated())
+    id               Int     @id @default(autoincrement())
     name             String  @unique
     hasDataMigration Boolean @default(false)
 }

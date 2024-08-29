@@ -1,72 +1,207 @@
 import { PrismaClient } from "@prisma/client";
 import path from "path"
 import fs from "fs"
+import { execSync } from "child_process";
+import chalk from "chalk"
 
 
 const prisma = new PrismaClient()
-async function main() {
 
-    await updateMigrationTable();
+function doesFileExist(path: string): boolean {
+    try {
+        return fs.statSync(path).isFile()
+    } catch (e) {
+        return false
+    }
 }
 
 type MigrationInfo = {
+    folderName: string
     name: string
     timestamp: string
     hasDataMigration: boolean
 }
 const migrationsFolder = path.join(process.cwd(), "prisma/migrations")
+const pendingMigrationsFolder = path.join(process.cwd(), "prisma/pending-migrations")
+const migrationScriptFileName = "migration.ts"
+
 function getAllMigrationsFromFileSystem(): MigrationInfo[] {
     const folders = fs.readdirSync(migrationsFolder, { withFileTypes: true })
         .filter(dirent => dirent.isDirectory())
         .map(dir => dir.name)
 
     return folders.map(folder => {
-        const dataMigrationScriptPath = path.join(migrationsFolder, folder, "migration.ts")
-        try {
-            const hasDataMigration = fs.statSync(dataMigrationScriptPath)
-            console.log(hasDataMigration)
-        } catch {}
+        const dataMigrationScriptPath = path.join(migrationsFolder, folder, migrationScriptFileName)
+        const hasDataMigration = doesFileExist(dataMigrationScriptPath)
 
         return {
+            folderName: folder,
             name: folder.split("_").slice(1).join("_"),
             timestamp: folder.split("_")[0],
-            hasDataMigration: false
+            hasDataMigration
         }
     })
 }
 
-async function updateMigrationTable() {
-    const migrations = getAllMigrationsFromFileSystem()
+function runPrismaMigrate() {
+    try {
+        execSync("prisma migrate deploy")
+        console.log(chalk.greenBright("Prisma migrate deploy finished"))
+        console.log()
+    } catch (err) {
+        console.error(err)
+    }
+}
 
-    process.exit(0)
+function moveFolder(oldPath: string, newPath: string) {
+    try {
+        fs.renameSync(oldPath, newPath)
+    } catch (e) {
+        console.error(e)
+        return
+    }
+}
 
-    for (const migration of migrations) {
-        const migrationRecord = await prisma.migration.findUnique({
-            where: {
-                name: migration.name
-            }
-        })
+function moveMigrationFromMigrationsToPending(migration: MigrationInfo) {
+    const oldPath = path.join(migrationsFolder, migration.folderName)
+    const newPath = path.join(pendingMigrationsFolder, migration.folderName)
+    moveFolder(oldPath, newPath)
+}
 
-        if (migrationRecord) {
-            console.log(`- ${migration.name} already applied`)
-            continue
+function moveMigrationFromPendingToMigrations(migration: MigrationInfo) {
+    const oldPath = path.join(pendingMigrationsFolder, migration.folderName)
+    const newPath = path.join(migrationsFolder, migration.folderName)
+    moveFolder(oldPath, newPath)
+}
+
+type DataMigrationScript = {
+    default?: (prisma: PrismaClient) => void | Promise<void>
+}
+async function runDataMigrationScript(migration: MigrationInfo) {
+    const scriptPath = path.join(migrationsFolder, migration.folderName, migrationScriptFileName)
+    const urlPath = `file:///${scriptPath}`
+    try {
+        const script: DataMigrationScript = await import(urlPath)
+        if (script.default) {
+            console.log(chalk.greenBright(`Running data migration script for ${migration.name}`))
+            await script.default(prisma)
+            console.log(chalk.greenBright("Data migration script finished"))
+            console.log()
+        } else {
+            console.log(chalk.redBright(`No data migration script found for ${migration.name}`))
         }
+    } catch (e) {
+        console.error(e)
+        return
+    }
+}
 
+function logMigrations(migrations: MigrationInfo[]) {
+    console.log(chalk.bold("Applying the following migrations:"))
+    console.log(
+        migrations.map(migration =>
+            `    - ${chalk.blueBright(migration.name)}`
+        ).join("\n"),
+    )
+    console.log()
+}
+
+async function addMigrationsToDatabase(migrations: MigrationInfo[]) {
+    for (const migration of migrations) {
         await prisma.migration.create({
             data: {
                 name: migration.name,
                 hasDataMigration: migration.hasDataMigration
             }
         })
-
     }
-
-    //* update migration table with new migrations
-    //* move missing migrations to `pending-migrations` folder
-    //* and begging applying them based on which ones have data migrations
-    //* (series of migration that don't have data migrations can be applied in a single `prisma migrate deploy` call)
 }
 
+async function migrate(migrations: MigrationInfo[]) {
+    const indexOfFirstDataMigration = migrations.findIndex(migration => migration.hasDataMigration)
+    const migrationsBeforeDataMigration = migrations.slice(0, indexOfFirstDataMigration + 1)
+    const migrationsAfterDataMigration = migrations.slice(indexOfFirstDataMigration + 1)
+
+    if (indexOfFirstDataMigration === -1) {
+        logMigrations(migrations)
+        runPrismaMigrate()
+        await addMigrationsToDatabase(migrations)
+        return
+    }
+
+    for (const migration of migrationsAfterDataMigration) {
+        moveMigrationFromMigrationsToPending(migration)
+    }
+
+    logMigrations(migrationsBeforeDataMigration)
+    runPrismaMigrate()
+    await addMigrationsToDatabase(migrationsBeforeDataMigration)
+
+    await runDataMigrationScript(migrations[indexOfFirstDataMigration])
+
+    for (const migration of migrationsAfterDataMigration) {
+        moveMigrationFromPendingToMigrations(migration)
+    }
+
+    if (migrationsAfterDataMigration.length > 0) {
+        await migrate(migrationsAfterDataMigration)
+    }
+}
+
+async function makeSureMigrationsTableExists(allMigrations: MigrationInfo[]) {
+    //* Certifies that the "migrations" migration has been applied
+    //* so that the migration table in the database also exists
+
+    const migrationMigrationIndex = allMigrations.findIndex(migration => migration.name === "migrations")
+
+    if (migrationMigrationIndex === -1) {
+        console.log(chalk.yellowBright("\"migrations\" migration not found"))
+        process.exit(1)
+    }
+
+    const migrationsBeforeMigration = allMigrations.slice(0, migrationMigrationIndex + 1)
+    const migrationsAfterMigration = allMigrations.slice(migrationMigrationIndex + 1)
+
+    for (const migration of migrationsAfterMigration) {
+        moveMigrationFromMigrationsToPending(migration)
+    }
+
+    logMigrations(migrationsBeforeMigration)
+    runPrismaMigrate()
+    await addMigrationsToDatabase(migrationsBeforeMigration)
+
+    for (const migration of migrationsAfterMigration) {
+        moveMigrationFromPendingToMigrations(migration)
+    }
+}
+
+async function main() {
+    const allMigrations = getAllMigrationsFromFileSystem()
+    try {
+        await prisma.migration.findMany()
+    } catch {
+        console.log(chalk.yellowBright("Migrations table not found"))
+        await makeSureMigrationsTableExists(allMigrations)
+    }
+
+    const appliedMigrations = await prisma.migration.findMany()
+    const pendingMigrations = allMigrations.filter(
+        migration => !appliedMigrations.some(
+            appliedMigration => appliedMigration.name === migration.name
+        )
+    )
+
+    if (!fs.existsSync(pendingMigrationsFolder)) {
+        fs.mkdirSync(pendingMigrationsFolder)
+    }
+
+    if (pendingMigrations.length > 0) {
+        await migrate(pendingMigrations)
+        console.log(chalk.cyanBright("Migrations finished"))
+    } else {
+        console.log(chalk.cyanBright("No migrations to apply"))
+    }
+}
 
 main()
     .catch(async (err) => {

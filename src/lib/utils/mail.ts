@@ -1,10 +1,12 @@
 import nodemailer, { type SentMessageInfo } from "nodemailer"
 import { env } from "$env/dynamic/private";
 import EmailConfirmationHtml from "$lib/components/emails/EmailConfirmation.html?raw"
+import { building } from "$app/environment";
 
 
+if (building) console.log(env.EMAIL_HOST)
 const transport = nodemailer.createTransport({
-    host: new URL(env.EMAIL_HOST).host,
+    host: env.EMAIL_HOST ? new URL(env.EMAIL_HOST).host : undefined,
     port: Number(env.EMAIL_PORT),
     auth: {
         user: env.EMAIL_USER,

@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Migration" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "hasDataMigration" BOOLEAN NOT NULL DEFAULT false,
 
