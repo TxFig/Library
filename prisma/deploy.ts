@@ -55,7 +55,8 @@ function runPrismaMigrate() {
 
 function moveFolder(oldPath: string, newPath: string) {
     try {
-        fs.renameSync(oldPath, newPath)
+        fs.cpSync(oldPath, newPath, { recursive: true })
+        fs.rmSync(oldPath, { recursive: true, force: true })
     } catch (e) {
         console.error(e)
         return
