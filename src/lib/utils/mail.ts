@@ -6,7 +6,7 @@ import { building } from "$app/environment";
 
 if (building) console.log(env.EMAIL_HOST)
 const transport = nodemailer.createTransport({
-    host: env.EMAIL_HOST ? new URL(env.EMAIL_HOST).host : undefined,
+    host: env.EMAIL_HOST,
     port: Number(env.EMAIL_PORT),
     auth: {
         user: env.EMAIL_USER,
