@@ -4,7 +4,7 @@
     import { ListBox, ListBoxItem, popup, type PopupSettings } from "@skeletonlabs/skeleton";
 
 
-    export let popupName: string
+    export let name: string
     export let options: string[]
     export let value: string | undefined = undefined
     export let event: "click" | "hover" = "click"
@@ -14,7 +14,7 @@
 
     const popupSettings: PopupSettings = {
         event: event,
-        target: popupName,
+        target: name,
         placement: placement,
         closeQuery: ".listbox-item",
     }
@@ -32,14 +32,14 @@
     <div
         class="card {width} shadow-xl py-2 z-10"
         class:!opacity-0={options.length === 0}
-        data-popup={popupName}
+        data-popup={name}
     >
         <ListBox rounded="rounded-container-token">
             {#each options as option}
                 {@const optionIndex = options.indexOf(option)}
                 <ListBoxItem
                     bind:group={value}
-                    name="permissionGroup"
+                    name={name}
                     value={option}
 
                     on:click={() => onClick(option, optionIndex)}

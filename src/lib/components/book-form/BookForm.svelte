@@ -144,7 +144,7 @@
                     <Icon icon="mdi:location" width="16" />
                 </p>
                 <EditableCombobox
-                    popupName="locationCombobox"
+                    name="locationCombobox"
                     options={allLocations.map(loc => loc.value)}
                     bind:value={$form.location}
                     width="w-1/3 md:w-1/5"
@@ -158,7 +158,7 @@
                     <Icon icon="mdi:language" width="16" />
                 </p>
                 <EditableCombobox
-                    popupName="languageCombobox"
+                    name="languageCombobox"
                     options={allLanguages.map(lang => lang.value)}
                     bind:value={$form.language}
                     width="w-1/3 md:w-1/5"

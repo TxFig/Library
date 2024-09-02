@@ -28,6 +28,8 @@ const load: PageServerLoad = async ({ params, locals }) => {
         await db.auth.rating.getBookAverageRating(book.id)
     : null
 
+    const numberOfRatings = await db.auth.rating.getNumberOfRatings(book.id)
+
     const user = locals.user
 
     return {
@@ -35,7 +37,8 @@ const load: PageServerLoad = async ({ params, locals }) => {
         book,
         readingState,
         rating,
-        bookRating
+        bookRating,
+        numberOfRatings
     }
 }
 

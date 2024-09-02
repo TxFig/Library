@@ -4,7 +4,7 @@
     import { ListBox, ListBoxItem, popup, type PopupSettings } from "@skeletonlabs/skeleton";
 
 
-    export let popupName: string
+    export let name: string
     export let options: string[]
     export let value: string | undefined = undefined
     export let placeholder: string = "Select"
@@ -18,7 +18,7 @@
 
     const popupSettings: PopupSettings = {
         event: event,
-        target: popupName,
+        target: name,
         placement: placement,
         closeQuery: ".listbox-item",
     }
@@ -36,13 +36,13 @@
         {/if}
         <Icon icon="tabler:caret-down-filled" width="24" height="24" />
     </button>
-    <div class="card {width} shadow-xl py-2 z-10" data-popup={popupName}>
+    <div class="card {width} shadow-xl py-2 z-10" data-popup={name}>
         <ListBox rounded="rounded-container-token">
             {#each options as option}
                 {@const optionIndex = options.indexOf(option)}
                 <ListBoxItem
                     bind:group={value}
-                    name={popupName}
+                    name={name}
                     value={option}
                     regionDefault={icons ? "flex items-center gap-2 pr-8" : ""}
 

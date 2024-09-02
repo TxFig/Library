@@ -1,11 +1,10 @@
 <script lang="ts">
     import type { RatingUpdateData } from '$lib/validation/book/rating';
     import Icon from '@iconify/svelte';
-    import { RangeSlider, Ratings } from '@skeletonlabs/skeleton'
+    import { Ratings } from '@skeletonlabs/skeleton'
 
     export let rating: number | null
     export let bookId: number
-    export let bookRating: number | null
 
     let value = rating || 0;
 
@@ -23,22 +22,26 @@
             body: JSON.stringify(updateData),
         })
     }
+
+    async function iconClick(event: CustomEvent<{index:number}>): Promise<void> {
+        value = event.detail.index
+        await updateRating()
+    }
 </script>
 
-<div class="max-w-sm">
-    <p>Average Rating: {bookRating ?? "N/A"}</p>
-    <p>Rating: {value}</p>
-
-    <Ratings value={value} max={5} justify="justify-evenly">
+<div class="max-w-sm space-y-2">
+    <Ratings bind:value={value} max={5} interactive on:icon={iconClick}>
         <svelte:fragment slot="empty">
-            <Icon icon="material-symbols:star-outline" width="32" height="32" />
+            <Icon icon="material-symbols:star-outline" width="32" height="32" color="#c2c7cc"/>
         </svelte:fragment>
         <svelte:fragment slot="half">
-            <Icon icon="material-symbols:star-half" width="32" height="32" />
+            <Icon icon="material-symbols:star-half" width="32" height="32" color="#e87400" />
         </svelte:fragment>
         <svelte:fragment slot="full">
-            <Icon icon="material-symbols:star" width="32" height="32" />
+            <Icon icon="material-symbols:star" width="32" height="32" color="#e87400" />
         </svelte:fragment>
     </Ratings>
-    <RangeSlider name="" bind:value={value} max={5} step={0.5} ticked on:change={updateRating} />
+    {#if value === 0}
+        <p class="text-center">Rate this book</p>
+    {/if}
 </div>

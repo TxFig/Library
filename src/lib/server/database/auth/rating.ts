@@ -50,8 +50,18 @@ export async function getBookAverageRating(bookId: number): Promise<number | nul
     return ratings.reduce((a, b) => a + b, 0) / ratings.length
 }
 
+export async function getNumberOfRatings(bookId: number): Promise<number> {
+    const userBookRatings = await prisma.userBookRating.count({
+        where: {
+            bookId
+        }
+    })
+    return userBookRatings
+}
+
 export default {
     updateUserRating,
     getUserRating,
-    getBookAverageRating
+    getBookAverageRating,
+    getNumberOfRatings
 }

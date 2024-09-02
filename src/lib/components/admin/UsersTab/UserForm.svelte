@@ -85,7 +85,7 @@
     <label class="label flex flex-col">
         <span>Permission Group <sup class="text-red-500">*</sup></span>
         <Combobox
-            popupName="permissionGroupCombobox"
+            name="permissionGroup"
             bind:value={$form.permissionGroup}
             options={allPermissionGroups.map(permissionGroup => permissionGroup.name)}
         />

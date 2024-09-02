@@ -28,9 +28,8 @@
 </script>
 
 <div class="flex flex-col gap-2">
-    <p>Reading State:</p>
     <Combobox
-        popupName="readingStateCombobox"
+        name="readingStateCombobox"
         value={labels[values.indexOf(state)]}
         options={labels}
         icons={icons}
