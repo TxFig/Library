@@ -4,7 +4,7 @@
     import { getToastStore } from "@skeletonlabs/skeleton"
     import type { SubmitFunction } from "./$types"
     import { EmailSchema } from "$lib/validation/utils";
-    import TextInput from "$lib/components/TextInput.svelte";
+    import TextInput from "$lib/components/form/TextInput.svelte";
 
 
     const toastStore = getToastStore()

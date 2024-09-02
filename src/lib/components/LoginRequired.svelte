@@ -1,6 +1,6 @@
 <script lang="ts">
     import Icon from "@iconify/svelte";
-    import TextInput from "./TextInput.svelte";
+    import TextInput from "./form/TextInput.svelte";
     import { getToastStore } from "@skeletonlabs/skeleton";
     import type { SubmitFunction } from "../../routes/auth/login/$types";
     import { EmailSchema } from "$lib/validation/utils";

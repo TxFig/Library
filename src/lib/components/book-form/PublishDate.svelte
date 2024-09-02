@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Infer, ValidationErrors } from "sveltekit-superforms";
-    import NumberInput from "../NumberInput.svelte";
+    import NumberInput from "../form/NumberInput.svelte";
     import type { BookCreateSchema } from "$lib/validation/book/book-form";
     import type { DateObject } from "$lib/validation/book/publish-date";
 
@@ -16,7 +16,7 @@
 <!-- svelte-ignore a11y-label-has-associated-control -->
 <label class="label">
     <span>Publish Date</span>
-    <div class="flex gap-8">
+    <div class="flex gap-4 md:gap-8">
         <NumberInput text="Day" bind:value={data.day} class="w-full" />
         <NumberInput text="Month" bind:value={data.month} class="w-full" />
         <NumberInput text="Year" bind:value={data.year} class="w-full" />

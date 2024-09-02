@@ -1,7 +1,7 @@
 <script lang="ts">
     import Icon from "@iconify/svelte"
     import { FileDropzone, getToastStore } from "@skeletonlabs/skeleton"
-    import TextInput from "../TextInput.svelte";
+    import TextInput from "../form/TextInput.svelte";
     import fetchImageAsFile from "$lib/utils/fetch-image-as-file";
     import FileSchema from "$lib/validation/book/file";
 

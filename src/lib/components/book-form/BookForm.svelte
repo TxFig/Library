@@ -4,14 +4,16 @@
     import type { Author, Language, Location, Publisher, Subject } from "@prisma/client";
     import { getToastStore } from "@skeletonlabs/skeleton";
     import SuperDebug, { superForm } from "sveltekit-superforms";
-    import NumberInput from "../NumberInput.svelte";
-    import TextInput from "../TextInput.svelte";
+    import NumberInput from "../form/NumberInput.svelte";
+    import TextInput from "../form/TextInput.svelte";
     import AutocompleteInputChip from "./AutocompleteInputChip.svelte";
-    import ErrorMessage from "../ErrorMessage.svelte";
+    import ErrorMessage from "../form/ErrorMessage.svelte";
     import ImageInput from "./ImageInput.svelte";
     import ListBoxInput from "./ListBoxInput.svelte";
     import PublishDate from "./PublishDate.svelte";
     import { formISBNRegex } from "$lib/validation/book/isbn";
+    import EditableCombobox from "../form/EditableCombobox.svelte";
+    import Icon from "@iconify/svelte";
 
 
     export let data: SuperFormCreateBook
@@ -109,46 +111,63 @@
 
     <PublishDate bind:dateObject={$form.publish_date} bind:errors={$errors.publish_date} />
 
-    <AutocompleteInputChip
-        options={allAuthors.map(author => author.name)}
-        title="Authors"
-        name="authors"
-        placeholder="Enter authors..."
-        bind:selectedOptions={$form.authors}
-    />
+    <div class="flex flex-col md:flex-row justify-between [&>*]:w-full gap-8">
+        <AutocompleteInputChip
+            options={allAuthors.map(author => author.name)}
+            title="Authors"
+            name="authors"
+            placeholder="Enter authors..."
+            bind:selectedOptions={$form.authors}
+        />
 
-    <AutocompleteInputChip
-        options={allPublishers.map(publisher => publisher.name)}
-        title="Publishers"
-        name="publishers"
-        placeholder="Enter publishers..."
-        bind:selectedOptions={$form.publishers}
-    />
+        <AutocompleteInputChip
+            options={allPublishers.map(publisher => publisher.name)}
+            title="Publishers"
+            name="publishers"
+            placeholder="Enter publishers..."
+            bind:selectedOptions={$form.publishers}
+        />
+    </div>
+    <div class="flex flex-col [&>*]:w-full md:flex-row md:[&>*]:w-1/2 justify-between gap-8">
+        <AutocompleteInputChip
+            options={allSubjects.map(subject => subject.value)}
+            title="Subjects"
+            name="subjects"
+            placeholder="Enter subjects..."
+            bind:selectedOptions={$form.subjects}
+        />
+        <div class="flex justify-between gap-8 [&>*]:w-1/2 [&>*]:h-fit">
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label class="label">
+                <p class="flex items-center gap-1">
+                    <span>Book Location</span>
+                    <Icon icon="mdi:location" width="16" />
+                </p>
+                <EditableCombobox
+                    popupName="locationCombobox"
+                    options={allLocations.map(loc => loc.value)}
+                    bind:value={$form.location}
+                    width="w-1/3 md:w-1/5"
+                />
+            </label>
 
-    <AutocompleteInputChip
-        options={allSubjects.map(subject => subject.value)}
-        title="Subjects"
-        name="subjects"
-        placeholder="Enter subjects..."
-        bind:selectedOptions={$form.subjects}
-    />
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label class="label">
+                <p class="flex items-center gap-1">
+                    <span>Book Language</span>
+                    <Icon icon="mdi:language" width="16" />
+                </p>
+                <EditableCombobox
+                    popupName="languageCombobox"
+                    options={allLanguages.map(lang => lang.value)}
+                    bind:value={$form.language}
+                    width="w-1/3 md:w-1/5"
+                />
+            </label>
+        </div>
+    </div>
 
     <ImageInput title="Image" name="image" bind:file={$form.image} />
-
-    <ListBoxInput
-        title="Book Location"
-        name="location"
-        options={allLocations.map(loc => loc.value)}
-        placeholder="Enter location..."
-        bind:selected={$form.location}
-    />
-    <ListBoxInput
-        title="Book Language"
-        name="language"
-        options={allLanguages.map(lang => lang.value)}
-        placeholder="Enter language..."
-        bind:selected={$form.language}
-    />
 
     <div class="flex justify-center fixed bottom-4 w-full">
         <button type="submit" class="btn bg-primary-500 px-10 py-3">Submit</button>

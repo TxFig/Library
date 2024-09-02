@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { ReadingStateUpdateData } from "$lib/validation/book/reading-state";
     import { ReadingState } from "@prisma/client";
-    import Combobox from "../Combobox.svelte";
+    import Combobox from "../form/Combobox.svelte";
 
     export let readingState: ReadingState | null = null
     export let bookId: number

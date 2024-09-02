@@ -1,5 +1,5 @@
 <script lang="ts">
-    import TextInput from "$lib/components/TextInput.svelte";
+    import TextInput from "$lib/components/form/TextInput.svelte";
     import { formISBNRegex } from "$lib/validation/book/isbn";
     import Icon from "@iconify/svelte";
     import { popup, type PopupSettings } from "@skeletonlabs/skeleton";

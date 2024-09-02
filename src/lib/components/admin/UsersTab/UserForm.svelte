@@ -1,13 +1,13 @@
 <script lang="ts">
-    import ErrorMessage from "$lib/components/ErrorMessage.svelte";
-    import TextInput from "$lib/components/TextInput.svelte";
+    import ErrorMessage from "$lib/components/form/ErrorMessage.svelte";
+    import TextInput from "$lib/components/form/TextInput.svelte";
     import type { SuperFormCreateUser } from "$lib/server/api/user/POST";
     import type { EntireUser } from "$lib/server/database/auth/user";
     import type { PermissionGroup } from "@prisma/client";
     import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
     import { superForm, type FormResult } from "sveltekit-superforms";
     import type { ActionData } from "../../../../routes/admin/users/$types";
-    import Combobox from "$lib/components/Combobox.svelte";
+    import Combobox from "$lib/components/form/Combobox.svelte";
 
 
     export let data: SuperFormCreateUser
