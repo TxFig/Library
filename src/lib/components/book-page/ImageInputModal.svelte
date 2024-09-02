@@ -21,7 +21,9 @@
         <header>
             <h2 class="text-xl">Add Book Cover</h2>
         </header>
-        <ImageInput name="image" bind:file={file} />
+        <div class="overflow-y-auto max-h-[80vh]">
+            <ImageInput name="image" bind:file={file} />
+        </div>
 
         <footer class="modal-footer {parent.regionFooter}">
             <button
