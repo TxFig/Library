@@ -167,7 +167,7 @@
         </div>
     </div>
 
-    <ImageInput title="Image" name="image" bind:file={$form.image} />
+    <ImageInput name="image" bind:file={$form.image} />
 
     <div class="flex justify-center fixed bottom-4 w-full">
         <button type="submit" class="btn bg-primary-500 px-10 py-3">Submit</button>

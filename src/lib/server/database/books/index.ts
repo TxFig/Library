@@ -5,6 +5,7 @@ import subject from "./subject"
 import location from "./location"
 import language from "./language"
 import collection from "./collection"
+import image from "./image"
 
 
 export default {
@@ -14,5 +15,6 @@ export default {
     subject,
     location,
     language,
-    collection
+    collection,
+    image
 }

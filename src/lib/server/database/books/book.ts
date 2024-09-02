@@ -7,7 +7,7 @@ import { prisma } from ".."
 import type { BookCreateFormData, BookUpdateFormData } from "$lib/validation/book/book-form"
 import { deleteImagesFolder, generateResizedImages } from "$lib/utils/images"
 import type { ReplaceFields } from "$lib/utils/types"
-
+import { createBookImage, deleteBookImage, updateBookImage, type BookImageInput } from "./image"
 
 
 export type EntireBook = Book & {
@@ -45,7 +45,6 @@ type BookCreateDatabaseData = {
     image: BookImageInput[],
     // owner: Omit<User, "id"> | null
 }
-export type BookImageInput = Omit<Image, "id" | "bookId" | "createdAt">
 
 type BookUpdateDatabaseData = ReplaceFields<BookCreateDatabaseData, {
     book: ReplaceFields<BookCreateDatabaseData["book"], {
@@ -128,12 +127,7 @@ export async function createBook(formData: BookCreateFormData): Promise<EntireBo
     })
 
     if (image.length > 0) {
-        await prisma.image.createMany({
-            data: image.map(img => ({
-                bookId: returnBook.id,
-                ...img
-            }))
-        })
+        await createBookImage(returnBook.id, image)
     }
 
     return returnBook
@@ -245,22 +239,7 @@ export async function updateBook(formData: BookUpdateFormData): Promise<EntireBo
     })
 
     deleteBooklessFields()
-
-    await prisma.image.deleteMany({
-        where: {
-            bookId: returnBook.id,
-        }
-    })
-
-    if (image.length > 0) {
-        await prisma.image.createMany({
-            data: image.map(img => ({
-                bookId: returnBook.id,
-                ...img
-            }))
-        })
-    }
-
+    updateBookImage(returnBook.id, image)
 
     return returnBook
 }
@@ -281,11 +260,7 @@ export async function deleteBook(isbn: string): Promise<void> {
 
     if (book.image.length > 0) {
         deleteImagesFolder(book.isbn)
-        await prisma.image.deleteMany({
-            where: {
-                bookId: book.id,
-            }
-        })
+        await deleteBookImage(book.id)
     }
 }
 
@@ -297,6 +272,11 @@ export async function doesBookExist(isbn: string): Promise<boolean> {
     return count !== 0
 }
 
+export async function getBookByISBN(isbn: string): Promise<Book | null> {
+    return await prisma.book.findUnique({
+        where: { isbn },
+    })
+}
 
 export async function getEntireBookByISBN(isbn: string): Promise<EntireBook | null> {
     return await prisma.book.findUnique({
@@ -318,6 +298,7 @@ export default {
     deleteBook,
 
     doesBookExist,
+    getBookByISBN,
     getEntireBookByISBN,
     getAllBooks
 }

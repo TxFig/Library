@@ -2,7 +2,7 @@ import { env } from "$env/dynamic/private"
 import fs from "fs"
 import path from "path"
 import sharp from "sharp"
-import type { BookImageInput } from "$lib/server/database/books/book"
+import type { BookImageInput } from "$lib/server/database/books/image"
 
 
 function clearFolder(folder: string): void {
