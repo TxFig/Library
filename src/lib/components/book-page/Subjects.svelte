@@ -17,7 +17,7 @@
         {/each}
         {#if subjects.length > limit}
             {#if limit === 12}
-                <button class="border-b border-b-cyan-600" on:click={() => limit = 18}>
+                <button class="border-b border-b-cyan-600" on:click={() => limit = 24}>
                     ...more
                 </button>
             {:else if limit === 24}

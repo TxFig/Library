@@ -3,6 +3,7 @@ import POST from "./POST"
 import PATCH from "./PATCH"
 import DELETE from "./DELETE"
 import image from "./image"
+import subjects from "./subjects"
 
 
 export default {
@@ -10,5 +11,6 @@ export default {
     POST,
     PATCH,
     DELETE,
-    image
+    image,
+    subjects
 }
