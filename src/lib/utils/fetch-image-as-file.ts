@@ -1,4 +1,3 @@
-import { logError } from "$lib/logging"
 import HttpCodes from "./http-codes"
 
 
@@ -14,7 +13,7 @@ async function fetchImageAsFile(url: string, mimeType?: string, fetchFunction = 
             return null
         }
     } catch (err) {
-        await logError(err, `Error fetching image ${url}`)
+        console.error(err)
         return null
     }
 }
