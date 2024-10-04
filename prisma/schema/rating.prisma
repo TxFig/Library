@@ -1,7 +1,3 @@
-import { Book } from "book"
-import { User } from "auth"
-
-
 model UserBookRating {
     userId Int
     user   User @relation(fields: [userId], references: [id], onDelete: Cascade)

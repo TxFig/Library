@@ -1,8 +1,3 @@
-import { UserBookReadingState } from "reading-state"
-import { User } from "auth"
-import { UserBookRating } from "rating"
-
-
 model Book {
     id Int @id @default(autoincrement())
 
@@ -29,7 +24,7 @@ model Book {
     subjects             Subject[]
     userBookReadingState UserBookReadingState[]
 
-    owner   User?   @relation(fields: [ownerId], references: [id])
+    owner   User? @relation(fields: [ownerId], references: [id])
     ownerId Int?
 
     bookCollections BookCollection[]
@@ -41,7 +36,7 @@ model Image {
     id Int @id @default(autoincrement())
 
     bookId Int
-    Book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+    Book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
     width  Int
     height Int
@@ -104,5 +99,5 @@ model BookCollection {
     owner   User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 }

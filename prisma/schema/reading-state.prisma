@@ -1,7 +1,3 @@
-import { Book } from "book"
-import { User } from "auth"
-
-
 model UserBookReadingState {
     userId Int
     user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -12,7 +8,6 @@ model UserBookReadingState {
 
     @@id([userId, bookId])
 }
-
 
 enum ReadingState {
     NOT_READ
