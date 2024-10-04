@@ -1,7 +1,8 @@
 model Book {
-    id Int @id @default(autoincrement())
+    id       Int     @id @default(autoincrement())
+    publicId String  @unique
 
-    isbn            String  @unique // also acts as opaque id
+    isbn            String  @unique
     title           String
     subtitle        String?
     number_of_pages Int?

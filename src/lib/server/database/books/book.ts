@@ -35,7 +35,7 @@ export const EntireBookInclude = {
 }
 
 type BookCreateDatabaseData = {
-    book: Omit<Book, "id" | "ownerId" | "locationId" | "languageId">
+    book: Omit<Book, "id" | "ownerId" | "locationId" | "languageId" | "publicId">
     publish_date: Omit<PublishDate, "id" | "bookId"> | null,
     location: Omit<Location, "id"> | null,
     language: Omit<Language, "id"> | null,
@@ -80,15 +80,28 @@ async function BookCreateFormDataToDatabaseData(book: BookCreateFormData): Promi
     }
 }
 
+const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+const idLength = 8
+function generateRandomId(): string {
+    let id = ""
+
+    for (let i = 0; i < idLength; i++) {
+        const index = Math.floor(Math.random() * characters.length)
+        id += characters.charAt(index)
+    }
+
+    return id
+}
 
 export async function createBook(formData: BookCreateFormData): Promise<EntireBook> {
     const data = await BookCreateFormDataToDatabaseData(formData)
     const { book, publish_date, location, language, authors, publishers, subjects, image } = data
-
+    const publicId = generateRandomId()
 
     const returnBook = await prisma.book.create({
         data: {
             ...book,
+            publicId,
             publish_date: publish_date ? {
                 create: publish_date
             } : undefined,
