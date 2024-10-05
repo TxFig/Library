@@ -16,7 +16,7 @@ export type BookSubjectsDeleteMethodReturn = Implements<InternalApiMethodReturn,
 }>
 
 export async function DELETE(isbn: string, subjects: string[], userId: number): Promise<BookSubjectsDeleteMethodReturn> {
-    const book = await db.books.book.getBookByISBN(isbn)
+    const book = await db.books.book.getUniqueBook({ where: { isbn } })
     if (!book) {
         return {
             success: false,

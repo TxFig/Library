@@ -1,12 +1,11 @@
 <script lang="ts">
     import type { PageData } from "./$types";
-    import Icon from "@iconify/svelte"
     import CreateUserButton from "$lib/components/admin/UsersTab/CreateUserButton.svelte";
     import EditUserButton from "$lib/components/admin/UsersTab/EditUserButton.svelte";
     import DeleteUserButton from "$lib/components/admin/UsersTab/DeleteUserButton.svelte";
-    import { search, type SearchOptions } from "$lib/utils/search";
+    import { type SearchOptions } from "$lib/utils/search";
     import SearchBar from "$lib/components/SearchBar.svelte";
-    import type { EntireUser } from "$lib/server/database/auth/user";
+    import type { User } from "@prisma/client";
 
     export let data: PageData
     let {
@@ -17,7 +16,7 @@
     } = data
     const allUsers = users
 
-    const searchOptions: SearchOptions<EntireUser> = {
+    const searchOptions: SearchOptions<User> = {
         keys: ["email", "username"]
     }
 </script>

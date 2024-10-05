@@ -1,14 +1,14 @@
-import type { EntireBook } from "$lib/server/database/books/book"
 import db from "$lib/server/database/"
 
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
+import type { Book } from "@prisma/client"
 
 import type { InternalApiMethodReturn } from ".."
 
 
 type BookGetMethodReturn = Implements<InternalApiMethodReturn, {
-    data: EntireBook | EntireBook[],
+    data: Book | Book[],
     success: true
 } | {
     success: false
@@ -19,7 +19,7 @@ type BookGetMethodReturn = Implements<InternalApiMethodReturn, {
 export async function GET(isbn?: string): Promise<BookGetMethodReturn> {
     try {
         if (isbn) {
-            const book = await db.books.book.getEntireBookByISBN(isbn)
+            const book = await db.books.book.getUniqueBook({ where: { isbn } })
             if (book) {
                 return {
                     data: book,
@@ -33,7 +33,7 @@ export async function GET(isbn?: string): Promise<BookGetMethodReturn> {
             }
         }
 
-        const books = await db.books.book.getAllBooks()
+        const books = await db.books.book.getBooks()
         return {
             data: books,
             success: true

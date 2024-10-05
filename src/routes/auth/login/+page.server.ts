@@ -19,7 +19,10 @@ export const actions: Actions = {
         }
 
         const email = parsingResult.data
-        const user = await db.auth.user.getUserByEmail(email)
+        const user = await db.auth.user.getUniqueUser({
+            where: { email },
+            include: { emailConfirmationRequest: true }
+        })
         if (!user) {
             return fail(HttpCodes.ClientError.BadRequest, {
                 error: undefined,

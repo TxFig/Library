@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { EntireUser } from "$lib/server/database/auth/user";
     import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
     import { getModalStore, getToastStore, type ModalSettings } from "@skeletonlabs/skeleton";
@@ -7,15 +6,16 @@
     import type { ApiJsonResponse } from "$lib/server/api";
     import type { UserDeleteMethodReturn } from "$lib/server/api/user/DELETE";
     import { page } from "$app/stores";
+    import type { User } from "@prisma/client";
 
 
-    export let users: EntireUser[]
-    export let user: EntireUser
+    export let users: User[]
+    export let user: User
 
     const modalStore = getModalStore()
     const toastStore = getToastStore()
 
-    const deleteUserModal: (user: EntireUser) => ModalSettings = (user) => ({
+    const deleteUserModal: (user: User) => ModalSettings = (user) => ({
         type: "confirm",
         title: "Delete User Confirmation",
         body: `Are you sure you want to delete the user <b>${user.username}</b>?`,
@@ -36,7 +36,7 @@
         }
     })
 
-    async function deleteUser(user: EntireUser) {
+    async function deleteUser(user: User) {
         modalStore.trigger(deleteUserModal(user))
     }
 

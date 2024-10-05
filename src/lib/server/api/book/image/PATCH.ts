@@ -17,7 +17,7 @@ export type BookImagePatchMethodReturn = Implements<InternalApiMethodReturn, {
 }>
 
 export async function PATCH(isbn: string, image: File, userId: number): Promise<BookImagePatchMethodReturn> {
-    const book = await db.books.book.getBookByISBN(isbn)
+    const book = await db.books.book.getUniqueBook({ where: { isbn } })
     if (!book) {
         return {
             success: false,

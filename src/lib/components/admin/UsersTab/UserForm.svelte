@@ -2,8 +2,7 @@
     import ErrorMessage from "$lib/components/form/ErrorMessage.svelte";
     import TextInput from "$lib/components/form/TextInput.svelte";
     import type { SuperFormCreateUser } from "$lib/server/api/user/POST";
-    import type { EntireUser } from "$lib/server/database/auth/user";
-    import type { PermissionGroup } from "@prisma/client";
+    import type { PermissionGroup, User } from "@prisma/client";
     import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
     import { superForm, type FormResult } from "sveltekit-superforms";
     import type { ActionData } from "../../../../routes/admin/users/$types";
@@ -13,7 +12,7 @@
     export let data: SuperFormCreateUser
     export let actionName: string
     export let allPermissionGroups: PermissionGroup[]
-    export let response: ((user: EntireUser) => void) | undefined = undefined
+    export let response: ((user: User) => void) | undefined = undefined
     export let opaqueId: string | undefined = undefined
 
     const toastStore = getToastStore()

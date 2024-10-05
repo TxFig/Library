@@ -9,14 +9,25 @@ import { error } from "@sveltejs/kit";
 import api from "$lib/server/api";
 import type { UserPatchMethodReturn } from "$lib/server/api/user/PATCH";
 import { uuidv4Schema } from "$lib/validation/auth/uuid";
+import type { UserWithPermissionGroup } from "$lib/server/database/auth/types";
 
 
-export const load: PageServerLoad = async ({ locals }) => ({
-    createForm: await superValidate(zod(UserCreateSchema), { id: "create" }),
-    updateForm: await superValidate(zod(UserCreateSchema), { id: "edit" }),
-    users: locals.user ? await db.auth.user.getAllUsers() : [],
-    allPermissionGroups: await db.auth.permissionGroup.getAllPermissionGroupsWithPermissions(),
-})
+export const load: PageServerLoad = async ({ locals }) => {
+    const users: UserWithPermissionGroup[] = locals.user ?
+        await db.auth.user.getUsers({
+            include: {
+                permissionGroup: true
+            }
+        })
+    : []
+
+    return {
+        users,
+        createForm: await superValidate(zod(UserCreateSchema), { id: "create" }),
+        updateForm: await superValidate(zod(UserCreateSchema), { id: "edit" }),
+        allPermissionGroups: await db.auth.permissionGroup.getAllPermissionGroupsWithPermissions(),
+    }
+}
 
 
 export const actions: Actions = {

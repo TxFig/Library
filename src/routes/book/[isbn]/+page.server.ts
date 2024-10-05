@@ -6,12 +6,16 @@ import HttpCodes from "$lib/utils/http-codes"
 import { ISBNSchema } from "$lib/validation/book/isbn"
 import { applyDecorators } from "$lib/decorators"
 import { ParseParamsDecorator } from "$lib/decorators/parse-params"
+import { DisplayBookInclude } from "$lib/server/database/books/types"
 
 
 const load: PageServerLoad = async ({ params, locals }) => {
     const { isbn } = params
 
-    const book = await db.books.book.getEntireBookByISBN(isbn)
+    const book = await db.books.book.getUniqueBook({
+        where: { isbn },
+        include: DisplayBookInclude
+    })
     if (!book) {
         error(HttpCodes.ClientError.NotFound, "Book Not Found")
     }

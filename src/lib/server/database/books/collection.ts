@@ -1,6 +1,7 @@
-import type { BookCollection } from "@prisma/client";
+import type { Book, BookCollection } from "@prisma/client";
 import { prisma } from "..";
-import { EntireBookInclude, type EntireBook } from "./book";
+import { BookCollectionWithBooksInclude, type BookCollectionWithBooks } from "./types";
+
 
 
 export async function isNameAvailable(name: string, ownerId: number): Promise<boolean> {
@@ -13,11 +14,7 @@ export async function isNameAvailable(name: string, ownerId: number): Promise<bo
     return count === 0
 }
 
-export type BookCollectionWithEntireBooks = BookCollection & {
-    books: EntireBook[]
-}
-export type BuiltInBookCollectionWithEntireBooks = Omit<BookCollectionWithEntireBooks, "id" | "createdAt" | "updatedAt">
-export async function createCollection(name: string, ownerId: number): Promise<BookCollectionWithEntireBooks> {
+export async function createCollection(name: string, ownerId: number): Promise<BookCollectionWithBooks> {
     const collection = await prisma.bookCollection.create({
         data: {
             name, ownerId
@@ -39,7 +36,7 @@ export async function deleteCollection(id: number, ownerId: number): Promise<voi
     })
 }
 
-export async function updateCollection(id: number, ownerId: number, name: string): Promise<BookCollectionWithEntireBooks> {
+export async function updateCollection(id: number, ownerId: number, name: string): Promise<BookCollectionWithBooks> {
     return await prisma.bookCollection.update({
         where: {
             id,
@@ -48,11 +45,7 @@ export async function updateCollection(id: number, ownerId: number, name: string
         data: {
             name
         },
-        include: {
-            books: {
-                include: EntireBookInclude
-            }
-        }
+        include: BookCollectionWithBooksInclude
     })
 }
 
@@ -88,30 +81,22 @@ export async function removeBookFromCollection(id: number, isbn: string): Promis
     })
 }
 
-export async function getCollectionByName(name: string, ownerId: number): Promise<BookCollectionWithEntireBooks | null> {
+export async function getCollectionByName(name: string, ownerId: number): Promise<BookCollectionWithBooks | null> {
     return await prisma.bookCollection.findFirst({
         where: {
             name,
             ownerId
         },
-        include: {
-            books: {
-                include: EntireBookInclude
-            }
-        }
+        include: BookCollectionWithBooksInclude
     })
 }
 
-export async function getCollectionById(id: number): Promise<BookCollectionWithEntireBooks | null> {
+export async function getCollectionById(id: number): Promise<BookCollectionWithBooks | null> {
     return await prisma.bookCollection.findFirst({
         where: {
             id
         },
-        include: {
-            books: {
-                include: EntireBookInclude
-            }
-        }
+        include: BookCollectionWithBooksInclude
     })
 }
 

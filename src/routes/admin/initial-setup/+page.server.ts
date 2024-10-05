@@ -16,8 +16,8 @@ export const load: PageServerLoad = async () => {
 
     if (env.ADMIN_EMAIL) {
         try {
-            const user = await db.auth.user.getUserByEmail(env.ADMIN_EMAIL)
-            if (user) {
+            const doesUserExist = await db.auth.user.doesUserExist({ email: env.ADMIN_EMAIL })
+            if (doesUserExist) {
                 return {
                     providedEmail: true,
                     form: await superValidate(zod(UserCreateSchema))
@@ -68,8 +68,8 @@ export const actions = {
         }
 
         try {
-            const user = await db.auth.user.getUserByEmail(form.data.email)
-            if (user) {
+            const doesUserExist = await db.auth.user.doesUserExist({ email: form.data.email })
+            if (doesUserExist) {
                 return message(form, {
                     type: "error",
                     text: "Confirmation email already sent"

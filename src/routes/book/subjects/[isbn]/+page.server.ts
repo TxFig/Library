@@ -11,7 +11,7 @@ import { ParseParamsDecorator } from "$lib/decorators/parse-params"
 const load: PageServerLoad = async ({ params }) => {
     const { isbn } = params
 
-    const book = await db.books.book.getBookByISBN(isbn)
+    const book = await db.books.book.getUniqueBook({ where: { isbn } })
     if (!book) {
         error(HttpCodes.ClientError.NotFound, "Book Not Found")
     }

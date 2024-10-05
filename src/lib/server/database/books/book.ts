@@ -1,38 +1,17 @@
-import {
-    type Book, type Location, type Language, type Author, type Publisher, type Subject, type PublishDate,
-    type User, type UserBookReadingState, type Image,
-    PrismaClient
-} from "@prisma/client"
-import { prisma } from ".."
-import type { BookCreateFormData, BookUpdateFormData } from "$lib/validation/book/book-form"
 import { deleteImagesFolder, generateResizedImages } from "$lib/utils/images"
 import type { ReplaceFields } from "$lib/utils/types"
+import type { BookCreateFormData, BookUpdateFormData } from "$lib/validation/book/book-form"
+import type {
+    Author,
+    Book,
+    Language,
+    Location,
+    PublishDate,
+    Publisher, Subject,
+} from "@prisma/client"
+import { prisma } from ".."
 import { createBookImage, deleteBookImage, updateBookImage, type BookImageInput } from "./image"
 
-
-export type EntireBook = Book & {
-    image: Image[]
-    publish_date: PublishDate | null
-    authors: Author[]
-    publishers: Publisher[]
-    subjects: Subject[]
-    location: Location | null
-    language: Language | null
-    userBookReadingState: UserBookReadingState[]
-    owner: User | null
-}
-
-export const EntireBookInclude = {
-    image: true,
-    publish_date: true,
-    authors: true,
-    publishers: true,
-    subjects: true,
-    location: true,
-    language: true,
-    userBookReadingState: true,
-    owner: true
-}
 
 type BookCreateDatabaseData = {
     book: Omit<Book, "id" | "ownerId" | "locationId" | "languageId" | "publicId">
@@ -93,7 +72,7 @@ function generateRandomId(): string {
     return id
 }
 
-export async function createBook(formData: BookCreateFormData): Promise<EntireBook> {
+export async function createBook(formData: BookCreateFormData): Promise<Book> {
     const data = await BookCreateFormDataToDatabaseData(formData)
     const { book, publish_date, location, language, authors, publishers, subjects, image } = data
     const publicId = generateRandomId()
@@ -135,8 +114,7 @@ export async function createBook(formData: BookCreateFormData): Promise<EntireBo
                     create: subject
                 }))
             }
-        },
-        include: EntireBookInclude
+        }
     })
 
     if (image.length > 0) {
@@ -195,7 +173,7 @@ async function deleteBooklessFields() {
 }
 
 
-export async function updateBook(formData: BookUpdateFormData): Promise<EntireBook> {
+export async function updateBook(formData: BookUpdateFormData): Promise<Book> {
     const data: BookUpdateDatabaseData = await BookCreateFormDataToDatabaseData({
         ...formData,
         title: formData.title ?? ""
@@ -247,8 +225,7 @@ export async function updateBook(formData: BookUpdateFormData): Promise<EntireBo
                     create: subject
                 }))
             }
-        },
-        include: EntireBookInclude
+        }
     })
 
     deleteBooklessFields()
@@ -285,24 +262,8 @@ export async function doesBookExist(isbn: string): Promise<boolean> {
     return count !== 0
 }
 
-export async function getBookByISBN(isbn: string): Promise<Book | null> {
-    return await prisma.book.findUnique({
-        where: { isbn },
-    })
-}
-
-export async function getEntireBookByISBN(isbn: string): Promise<EntireBook | null> {
-    return await prisma.book.findUnique({
-        where: { isbn },
-        include: EntireBookInclude
-    })
-}
-
-export async function getAllBooks(): Promise<EntireBook[]> {
-    return await prisma.book.findMany({
-        include: EntireBookInclude
-    })
-}
+export const getUniqueBook = prisma.book.findUnique
+export const getBooks = prisma.book.findMany
 
 
 export default {
@@ -311,7 +272,6 @@ export default {
     deleteBook,
 
     doesBookExist,
-    getBookByISBN,
-    getEntireBookByISBN,
-    getAllBooks
+    getUniqueBook,
+    getBooks
 }

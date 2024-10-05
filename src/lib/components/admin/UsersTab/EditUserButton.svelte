@@ -1,20 +1,20 @@
 <script lang="ts">
-    import type { EntireUser } from "$lib/server/database/auth/user";
     import Icon from "@iconify/svelte";
     import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import UserFormModal from "./UserFormModal.svelte";
     import type { PermissionGroup } from "@prisma/client";
     import type { SuperFormCreateUser } from "$lib/server/api/user/POST";
+    import type { UserWithPermissionGroup } from "$lib/server/database/auth/types";
 
 
-    export let users: EntireUser[]
+    export let users: UserWithPermissionGroup[]
     export let allPermissionGroups: PermissionGroup[]
-    export let user: EntireUser
+    export let user: UserWithPermissionGroup
     export let updateForm: SuperFormCreateUser
 
     const modalStore = getModalStore()
 
-    const editUserModal: (user: EntireUser) => ModalSettings = (user) => {
+    const editUserModal: (user: UserWithPermissionGroup) => ModalSettings = (user) => {
         updateForm.data.email = user.email
         updateForm.data.username = user.username
         updateForm.data.permissionGroup = user.permissionGroup.name
@@ -32,14 +32,14 @@
                     opaqueId: user.opaqueId
                 }
             },
-            response(editedUser?: EntireUser) {
+            response(editedUser?: UserWithPermissionGroup) {
                 if (editedUser)
                     users = users.map(u => u.id == editedUser.id ? editedUser : u)
             }
         }
     }
 
-    function editUser(user: EntireUser) {
+    function editUser(user: UserWithPermissionGroup) {
         modalStore.trigger(editUserModal(user))
     }
 

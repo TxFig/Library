@@ -11,10 +11,21 @@ import { zod } from "sveltekit-superforms/adapters"
 import type { BookPatchMethodReturn } from "$lib/server/api/book/PATCH"
 import ParseParamsDecorator from "$lib/decorators/parse-params"
 import { BookCreateSchema, type BookCreateFormDataInput } from "$lib/validation/book/book-form"
-import type { EntireBook } from "$lib/server/database/books/book"
+import type { Prisma } from "@prisma/client"
 
 
-async function EntireBookToBookCreateFormData(book: EntireBook, fetchFunction = fetch): Promise<BookCreateFormDataInput> {
+
+type BookWithFormData = Prisma.BookGetPayload<{
+    include: {
+        publish_date: true,
+        location: true,
+        language: true,
+        authors: true,
+        publishers: true,
+        subjects: true,
+    }
+}>
+async function EntireBookToBookCreateFormData(book: BookWithFormData): Promise<BookCreateFormDataInput> {
     return {
         isbn: book.isbn,
         title: book.title,
@@ -32,15 +43,26 @@ async function EntireBookToBookCreateFormData(book: EntireBook, fetchFunction = 
     }
 }
 
-const load: PageServerLoad = async ({ params, fetch }) => {
+const load: PageServerLoad = async ({ params }) => {
     const { isbn } = params
 
-    const book = await db.books.book.getEntireBookByISBN(isbn)
+    const book = await db.books.book.getUniqueBook({
+        where: { isbn },
+        include: {
+            publish_date: true,
+            location: true,
+            language: true,
+            authors: true,
+            publishers: true,
+            subjects: true,
+            image: true
+        }
+    })
     if (!book) {
         error(HttpCodes.ClientError.NotFound, "Book Not Available")
     }
 
-    const data = await EntireBookToBookCreateFormData(book, fetch)
+    const data = await EntireBookToBookCreateFormData(book)
     let imageUrl: string | undefined = undefined
     if (book.image.length > 0) {
         const largestImage = book.image.sort((a, b) => b.height - a.height)[0]

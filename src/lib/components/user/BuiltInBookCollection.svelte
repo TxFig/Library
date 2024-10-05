@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { BuiltInBookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
+    import type { BuiltInBookCollectionWithBooks } from "$lib/server/database/books/types";
     import Icon from "@iconify/svelte";
     import CollectionDisplay from "./CollectionDisplay.svelte";
 
@@ -9,7 +9,7 @@
         "Want to Read": "material-symbols:star-outline"
     }
 
-    export let collection: BuiltInBookCollectionWithEntireBooks
+    export let collection: BuiltInBookCollectionWithBooks
 </script>
 
 <fieldset class="border border-surface-600 px-4 py-1 rounded-token">

@@ -3,15 +3,15 @@ import type { Implements } from "$lib/utils/types";
 import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms";
 import type { InternalApiMethodReturn } from "..";
 import db from "$lib/server/database/";
-import type { EntireUser } from "$lib/server/database/auth/user";
 import type { UserUpdateSchema } from "$lib/validation/auth/user";
 import log, { logError } from "$lib/logging";
+import type { User } from "@prisma/client";
 
 
 export type UserPatchMethodReturn = Implements<InternalApiMethodReturn, {
     success: true
     message: string,
-    data: EntireUser,
+    data: User,
 } | {
     success: false,
     code: HttpErrorCodesValues,

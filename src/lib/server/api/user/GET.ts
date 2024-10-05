@@ -1,13 +1,13 @@
-import type { EntireUser } from "$lib/server/database/auth/user"
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
 import type { InternalApiMethodReturn } from ".."
 
 import db from "$lib/server/database/"
+import type { User } from "@prisma/client"
 
 
 type UserGetMethodReturn = Implements<InternalApiMethodReturn, {
-    data: EntireUser | EntireUser[],
+    data: User | User[],
     success: true
 } | {
     success: false
@@ -18,7 +18,7 @@ type UserGetMethodReturn = Implements<InternalApiMethodReturn, {
 export async function GET(opaqueId?: string): Promise<UserGetMethodReturn> {
     try {
         if (opaqueId) {
-            const user = await db.auth.user.getEntireUserByOpaqueId(opaqueId)
+            const user = await db.auth.user.getUniqueUser({ where: { opaqueId } })
             if (user) {
                 return {
                     data: user,
@@ -31,7 +31,7 @@ export async function GET(opaqueId?: string): Promise<UserGetMethodReturn> {
                 message: "User Not Found"
             }
         }
-        const users = await db.auth.user.getAllUsers()
+        const users = await db.auth.user.getUsers()
         return {
             data: users,
             success: true

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
+    import type { BookCollectionWithBooks } from "$lib/server/database/books/types";
     import Icon from "@iconify/svelte";
     import { getToastStore, popup, type PopupSettings } from "@skeletonlabs/skeleton";
     import DeleteCollectionButton from "./DeleteCollectionButton.svelte";
@@ -11,7 +11,7 @@
 
     const toastStore = getToastStore()
 
-    export let collection: BookCollectionWithEntireBooks
+    export let collection: BookCollectionWithBooks
     export let onDelete: () => void
 
 

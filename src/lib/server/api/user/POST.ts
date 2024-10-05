@@ -4,8 +4,8 @@ import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms";
 import db from "$lib/server/database/";
 import type { Implements } from "$lib/utils/types";
 import type { InternalApiMethodReturn } from "..";
-import type { EntireUser } from "$lib/server/database/auth/user";
 import log, { logError } from "$lib/logging";
+import type { User } from "@prisma/client";
 
 
 export type SuperFormCreateUser = SuperValidated<
@@ -17,7 +17,7 @@ export type SuperFormCreateUser = SuperValidated<
 export type UserPostMethodReturn = Implements<InternalApiMethodReturn, {
     success: true
     message: string,
-    data: EntireUser
+    data: User
 } | {
     success: false
     code: HttpErrorCodesValues,

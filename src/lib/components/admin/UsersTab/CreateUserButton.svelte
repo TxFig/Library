@@ -2,12 +2,11 @@
     import Icon from "@iconify/svelte";
     import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import UserFormModal from "./UserFormModal.svelte";
-    import type { EntireUser } from "$lib/server/database/auth/user";
-    import type { PermissionGroup } from "@prisma/client";
+    import type { PermissionGroup, User } from "@prisma/client";
     import type { SuperFormCreateUser } from "$lib/server/api/user/POST";
 
 
-    export let users: EntireUser[]
+    export let users: User[]
     export let allPermissionGroups: PermissionGroup[]
     export let createForm: SuperFormCreateUser
 
@@ -25,7 +24,7 @@
                 actionName: "create"
             }
         },
-        response(user?: EntireUser) {
+        response(user?: User) {
             if (user)
                 users = [...users, user]
         }

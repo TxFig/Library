@@ -2,17 +2,17 @@
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types"
     import type { Author, Publisher } from "@prisma/client";
-    import type { EntireBook } from "$lib/server/database/books/book";
-    import { search, type SearchOptions } from "$lib/utils/search";
+    import { type SearchOptions } from "$lib/utils/search";
     import type { FuseOptionKey } from "fuse.js"
     import SearchBar from "$lib/components/SearchBar.svelte";
+    import type { BookWithSearchProperties } from "$lib/server/database/books/types";
 
 
     export let data: PageData
     const { books, authors, publishers } = data
 
     type SearchItem =
-        ({ type: "book" } & EntireBook) |
+        ({ type: "book" } & BookWithSearchProperties) |
         ({ type: "author" } & Author) |
         ({ type: "publisher" } & Publisher)
 

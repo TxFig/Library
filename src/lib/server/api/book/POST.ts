@@ -1,11 +1,11 @@
 import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms"
 import type { BookCreateSchema } from "$lib/validation/book/book-form"
 import db from "$lib/server/database/"
-import type { EntireBook } from "$lib/server/database/books/book"
 import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
 import type { InternalApiMethodReturn } from ".."
 import log, { logError } from "$lib/logging"
+import type { Book } from "@prisma/client"
 
 
 export type SuperFormCreateBook = SuperValidated<
@@ -17,7 +17,7 @@ export type SuperFormCreateBook = SuperValidated<
 export type BookPostMethodReturn = Implements<InternalApiMethodReturn, {
     success: true
     message: string,
-    data: EntireBook
+    data: Book
 } | {
     success: false
     code: HttpErrorCodesValues,

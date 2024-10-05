@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageData } from "./$types";
-    import type { BookCollectionWithEntireBooks, BuiltInBookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
+    import type { BookCollectionWithBooks, BuiltInBookCollectionWithBooks } from "$lib/server/database/books/types";
     import BookCollection from "$lib/components/user/BookCollection.svelte";
     import BuiltInBookCollection from "$lib/components/user/BuiltInBookCollection.svelte";
     import Icon from "@iconify/svelte";
@@ -10,7 +10,7 @@
     const { pageUser, isCurrentUser } = data
 
 
-    const BooksReadingCollection: BuiltInBookCollectionWithEntireBooks = {
+    const BooksReadingCollection: BuiltInBookCollectionWithBooks = {
         name: "Books Reading",
         books: pageUser.userBookReadingState
             .filter(readingState => readingState.state === "READING")
@@ -18,7 +18,7 @@
 
         ownerId: pageUser.id
     }
-    const BooksReadCollection: BuiltInBookCollectionWithEntireBooks = {
+    const BooksReadCollection: BuiltInBookCollectionWithBooks = {
         name: "Books Read",
         books: pageUser.userBookReadingState
             .filter(readingState => readingState.state === "READ")
@@ -26,7 +26,7 @@
 
         ownerId: pageUser.id
     }
-    const BooksWantToReadCollection: BuiltInBookCollectionWithEntireBooks = {
+    const BooksWantToReadCollection: BuiltInBookCollectionWithBooks = {
         name: "Want to Read",
         books: pageUser.userBookReadingState
             .filter(readingState => readingState.state === "WANT_TO_READ")
@@ -35,7 +35,7 @@
     }
 
     let bookCollections = pageUser.bookCollections
-    function onDeleteBookCollection(collection: BookCollectionWithEntireBooks) {
+    function onDeleteBookCollection(collection: BookCollectionWithBooks) {
         bookCollections = bookCollections.filter(bookCollection => bookCollection.id !== collection.id)
     }
 
@@ -44,7 +44,7 @@
         creatingCollection = false
     }
 
-    function onCreateCollection(newCollection: BookCollectionWithEntireBooks) {
+    function onCreateCollection(newCollection: BookCollectionWithBooks) {
         creatingCollection = false
         bookCollections = [newCollection, ...bookCollections]
     }

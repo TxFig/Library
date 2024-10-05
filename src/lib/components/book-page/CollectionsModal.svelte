@@ -3,15 +3,15 @@
     import { page } from "$app/stores";
     import type { ApiJsonResponse } from "$lib/server/api";
     import type { BookCollectionAddBookPostMethodReturn } from "$lib/server/api/book-collection/book/POST";
-    import type { EntireBook } from "$lib/server/database/books/book";
     import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
     import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
     import { type SvelteComponent } from "svelte";
     import SearchBar from "../SearchBar.svelte";
     import type { SearchOptions } from "$lib/utils/search";
-    import type { BookCollectionWithEntireBooks } from "$lib/server/database/books/collection";
+    import type { BookCollectionWithBooks } from "$lib/server/database/books/types";
     import type { BookCollectionAddBookDeleteMethodReturn } from "$lib/server/api/book-collection/book/DELETE";
+    import type { Book } from "@prisma/client";
 
 
     export let parent: SvelteComponent
@@ -76,7 +76,7 @@
         }
     }
 
-    function hasBook(books: EntireBook[]): boolean {
+    function hasBook(books: Book[]): boolean {
         return books.some(book => book.isbn === isbn)
     }
 
@@ -95,8 +95,8 @@
     let allCollections = $page.data.user?.bookCollections ?? []
     let searchResults = getSortedUserCollections()
 
-    let searchBar: SearchBar<BookCollectionWithEntireBooks>
-    const searchOptions: SearchOptions<BookCollectionWithEntireBooks> = {
+    let searchBar: SearchBar<BookCollectionWithBooks>
+    const searchOptions: SearchOptions<BookCollectionWithBooks> = {
         keys: ["name"],
     }
 </script>
