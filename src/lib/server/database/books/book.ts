@@ -8,6 +8,7 @@ import type {
     Location,
     PublishDate,
     Publisher, Subject,
+    Prisma
 } from "@prisma/client"
 import { prisma } from ".."
 import { createBookImage, deleteBookImage, updateBookImage, type BookImageInput } from "./image"
@@ -262,8 +263,17 @@ export async function doesBookExist(isbn: string): Promise<boolean> {
     return count !== 0
 }
 
-export const getUniqueBook = prisma.book.findUnique
-export const getBooks = prisma.book.findMany
+export function getUniqueBook<T extends Prisma.BookFindUniqueArgs>(
+    args: Parameters<typeof prisma.book.findUnique<T>>[0]
+) {
+    return prisma.book.findUnique<T>(args)
+}
+
+export function getBooks<T extends Prisma.BookFindManyArgs>(
+    args?: Parameters<typeof prisma.book.findMany<T>>[0]
+) {
+    return prisma.book.findMany<T>(args)
+}
 
 
 export default {

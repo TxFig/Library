@@ -48,9 +48,24 @@ export async function deleteUser(opaqueId: string): Promise<User> {
     })
 }
 
-export const getUniqueUser = prisma.user.findUnique
-export const getUsers = prisma.user.findMany
-export const getUserCount = prisma.user.count
+export function getUniqueUser<T extends Prisma.UserFindUniqueArgs>(
+    args: Parameters<typeof prisma.user.findUnique<T>>[0]
+) {
+    return prisma.user.findUnique<T>(args)
+}
+
+export function getUsers<T extends Prisma.UserFindManyArgs>(
+    args?: Parameters<typeof prisma.user.findMany<T>>[0]
+) {
+    return prisma.user.findMany<T>(args)
+}
+
+export function getUserCount<T extends Prisma.UserCountArgs>(
+    args?: Parameters<typeof prisma.user.count<T>>[0]
+) {
+    return prisma.user.count<T>(args)
+}
+
 export async function doesUserExist(where: Prisma.UserWhereUniqueInput): Promise<boolean> {
     const count = await prisma.user.count({
         where,
