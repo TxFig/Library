@@ -27,7 +27,7 @@ export type SuperFormUpdateBook = SuperValidated<
 export async function PATCH(form: SuperFormUpdateBook, userId: number): Promise<BookPatchMethodReturn> {
     const { data } = form
 
-    const doesBookExist = await db.books.book.doesBookExist(data.isbn)
+    const doesBookExist = await db.books.book.doesBookExist({ isbn: data.isbn })
     if (!doesBookExist) {
         return {
             success: false,

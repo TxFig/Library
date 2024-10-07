@@ -25,7 +25,7 @@ export const POST: RequestHandler = applyDecorators(
         const { isbn } = params
         const userId = locals.user!.id
 
-        const bookAlreadyExists = await db.books.book.doesBookExist(isbn)
+        const bookAlreadyExists = await db.books.book.doesBookExist({ isbn })
         if (bookAlreadyExists) {
             error(HttpCodes.ClientError.Conflict, {
                 message: "Book already exists in database.",

@@ -27,7 +27,7 @@ export type BookPostMethodReturn = Implements<InternalApiMethodReturn, {
 export async function POST(form: SuperFormCreateBook, userId: number): Promise<BookPostMethodReturn> {
     const { data } = form
 
-    const doesBookExist = await db.books.book.doesBookExist(data.isbn)
+    const doesBookExist = await db.books.book.doesBookExist({ isbn: data.isbn })
     if (doesBookExist) {
         return {
             code: HttpCodes.ClientError.Conflict,

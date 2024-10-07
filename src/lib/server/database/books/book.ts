@@ -255,14 +255,6 @@ export async function deleteBook(isbn: string): Promise<void> {
     }
 }
 
-
-export async function doesBookExist(isbn: string): Promise<boolean> {
-    const count = await prisma.book.count({
-        where: { isbn }
-    })
-    return count !== 0
-}
-
 export function getUniqueBook<T extends Prisma.BookFindUniqueArgs>(
     args: Parameters<typeof prisma.book.findUnique<T>>[0]
 ) {
@@ -275,6 +267,12 @@ export function getBooks<T extends Prisma.BookFindManyArgs>(
     return prisma.book.findMany<T>(args)
 }
 
+export async function doesBookExist(where: Prisma.BookWhereUniqueInput): Promise<boolean> {
+    const count = await prisma.book.count({
+        where
+    })
+    return count !== 0
+}
 
 export default {
     createBook,
