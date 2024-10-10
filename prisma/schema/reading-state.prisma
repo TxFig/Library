@@ -4,6 +4,9 @@ model UserBookReadingState {
     bookId Int
     book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
+    editionId Int?
+    edition   BookEdition? @relation(fields: [editionId], references: [id])
+
     state ReadingState
 
     @@id([userId, bookId])

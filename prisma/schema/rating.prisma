@@ -4,6 +4,9 @@ model UserBookRating {
     bookId Int
     book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
+    editionId Int?
+    edition   BookEdition? @relation(fields: [editionId], references: [id])
+
     rating Float
 
     @@id([userId, bookId])
