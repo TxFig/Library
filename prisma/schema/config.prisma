@@ -9,9 +9,3 @@ model AppSettings {
 
     public Boolean @default(false)
 }
-
-model DatabaseInfo {
-    id Int @id @default(autoincrement())
-
-    version String
-}

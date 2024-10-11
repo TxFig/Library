@@ -1,15 +1,12 @@
 model UserBookReadingState {
     userId Int
     user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    bookId Int
-    book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
-
-    editionId Int?
-    edition   BookEdition? @relation(fields: [editionId], references: [id])
+    editionId Int
+    edition   BookEdition @relation(fields: [editionId], references: [id])
 
     state ReadingState
 
-    @@id([userId, bookId])
+    @@id([userId, editionId])
 }
 
 enum ReadingState {

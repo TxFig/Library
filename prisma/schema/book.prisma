@@ -2,35 +2,9 @@ model Book {
     id       Int    @id @default(autoincrement())
     publicId String @unique
 
-    isbn            String  @unique
-    title           String
-    subtitle        String?
-    number_of_pages Int?
-
-    publish_date PublishDate?
-
-    isbn10 String? @unique
-    isbn13 String? @unique
-
-    image Image[]
-
-    location   Location? @relation(fields: [locationId], references: [id])
-    locationId Int?
-
-    language   Language? @relation(fields: [languageId], references: [id])
-    languageId Int?
-
-    authors              Author[]
-    publishers           Publisher[]
-    subjects             Subject[]
-    userBookReadingState UserBookReadingState[]
-
-    owner   User? @relation(fields: [ownerId], references: [id])
-    ownerId Int?
-
-    bookCollections BookCollection[]
-    userBookRating  UserBookRating[]
-    editions        BookEdition[]
+    authors  Author[]
+    subjects Subject[]
+    editions BookEdition[]
 }
 
 model BookEdition {
@@ -71,10 +45,8 @@ model BookCopy {
 model Image {
     id Int @id @default(autoincrement())
 
-    bookId        Int
-    Book          Book         @relation(fields: [bookId], references: [id], onDelete: Cascade)
-    bookEditionId Int?
-    BookEdition   BookEdition? @relation(fields: [bookEditionId], references: [id])
+    bookEditionId Int
+    BookEdition   BookEdition @relation(fields: [bookEditionId], references: [id])
 
     width  Int
     height Int
@@ -88,17 +60,14 @@ model PublishDate {
     month Int?
     day   Int?
 
-    book      Book         @relation(fields: [bookId], references: [id], onDelete: Cascade)
-    bookId    Int          @unique
-    editionId Int?         @unique
-    edition   BookEdition? @relation(fields: [editionId], references: [id], onDelete: Cascade)
+    editionId Int         @unique
+    edition   BookEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
 }
 
 model Location {
     id    Int    @id @default(autoincrement())
     value String @unique
 
-    books  Book[]
     copies BookCopy[]
 }
 
@@ -106,7 +75,6 @@ model Language {
     id    Int    @id @default(autoincrement())
     value String @unique
 
-    books    Book[]
     editions BookEdition[]
 }
 
@@ -121,7 +89,6 @@ model Publisher {
     id   Int    @id @default(autoincrement())
     name String @unique
 
-    books    Book[]
     editions BookEdition[]
 }
 
@@ -136,7 +103,6 @@ model BookCollection {
     id   Int    @id @default(autoincrement())
     name String
 
-    books    Book[]
     editions BookEdition[]
 
     ownerId Int

@@ -16,12 +16,9 @@ model User {
 
     userSettings UserSettings?
 
-    books           Book[]
     bookCollections BookCollection[]
-
-    LogEntry LogEntry[]
-
-    userBookRating UserBookRating[]
+    logs LogEntry[]
+    ratings UserBookRating[]
 }
 
 model UserSettings {
