@@ -34,12 +34,12 @@ type BookUpdateDatabaseData = ReplaceFields<BookCreateDatabaseData, {
 
 async function BookCreateFormDataToDatabaseData(book: BookCreateFormData): Promise<BookCreateDatabaseData> {
     const imageSizes = book.image ?
-        await generateResizedImages(book.isbn, book.image)
+        await generateResizedImages(book.isbn!, book.image)
     : []
 
     return {
         book: {
-            isbn: book.isbn,
+            isbn: book.isbn!,
             title: book.title,
             subtitle: book.subtitle ?? null,
             number_of_pages: book.number_of_pages ?? null,
@@ -244,7 +244,6 @@ export async function deleteBook(isbn: string): Promise<void> {
     })
     if (!book) return
 
-    // Delete book row
     await prisma.book.delete({ where: { isbn } })
 
     deleteBooklessFields()

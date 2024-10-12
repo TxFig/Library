@@ -6,6 +6,7 @@ import location from "./location"
 import language from "./language"
 import collection from "./collection"
 import image from "./image"
+import edition from "./edition"
 
 
 export default {
@@ -16,5 +17,6 @@ export default {
     location,
     language,
     collection,
-    image
+    image,
+    edition
 }

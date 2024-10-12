@@ -1,3 +1,4 @@
+import { logError } from "$lib/logging";
 import type { BookCreateFormData } from "$lib/validation/book/book-form";
 import { combineBooksData } from "./combine-books";
 import { formatBookData } from "./format";
@@ -13,15 +14,24 @@ export const defaultsForOmittedFields: {[key in FieldsToOmit]: BookCreateFormDat
 }
 
 export async function fetchBookData(isbn: string): Promise<BookCreateFormData | null> {
-    const booksOrNull: (ExternalBookData | null)[] = await Promise.all([
+    const booksResults = await Promise.allSettled<ExternalBookData | null>([
         getParsedGoogleBooksBook(isbn),
         getParsedOpenLibraryBook(isbn)
     ])
 
-    const books = booksOrNull.filter(book => book !== null)
-    if (books.length === 0) return null
+    const books = booksResults
+        .filter(book => book.status === "fulfilled")
+        .map(book => book.value)
+        .filter(book => book !== null)
 
-    const resultBook = await combineBooksData(isbn, books)
+    const errors = booksResults.filter(book => book.status === "rejected").map(book => book.reason)
+    for (const err of errors)
+        logError(err, "Errors of fetching book data")
+
+    if (books.length === 0) return null
+    books.length === 1
+
+    const resultBook = combineBooksData(isbn, books)
     const formattedBook = formatBookData(resultBook)
     return {
         ...formattedBook,

@@ -5,21 +5,21 @@
     import { type SearchOptions } from "$lib/utils/search";
     import type { FuseOptionKey } from "fuse.js"
     import SearchBar from "$lib/components/SearchBar.svelte";
-    import type { BookWithSearchProperties } from "$lib/server/database/books/types";
+    import type { BookEditionWithSearchProperties } from "$lib/server/database/books/types";
 
 
     export let data: PageData
-    const { books, authors, publishers } = data
+    const { editions, authors, publishers } = data
 
     type SearchItem =
-        ({ type: "book" } & BookWithSearchProperties) |
+        ({ type: "book" } & BookEditionWithSearchProperties) |
         ({ type: "author" } & Author) |
         ({ type: "publisher" } & Publisher)
 
     const allResults: SearchItem[] = [
-        ...books.map(book => ({
+        ...editions.map(edition => ({
             type: "book" as const,
-            ...book
+            ...edition
         })),
         ...authors.map(author => ({
             type: "author" as const,
@@ -33,9 +33,8 @@
     let results: SearchItem[] = allResults
 
     const searchKeys: FuseOptionKey<SearchItem>[] = [
-        "title", "isbn", "isbn10", "isbn13", "name",
+        "title", "isbn10", "isbn13", "name", "value",
         { name: "subjects.value", weight: 0.25 },
-        "language.value", "location.value"
     ]
     const searchOptions: SearchOptions<SearchItem> = {
         keys: searchKeys,
@@ -100,10 +99,10 @@
             {#if item.type == "book"}
                 {@const smallestImage = item.image.sort((a, b) => a.width - b.width)[0]}
 
-                <a href={"/book/" + item.isbn} class="flex flex-col items-center justify-center">
+                <a href="/book/{item.book.publicId}/{item.publicId}/" class="flex flex-col items-center justify-center">
                     {#if item.image.length > 0}
                         <img
-                        src={`/images/${item.isbn}/${smallestImage.height}.webp`}
+                        src="/images/{item.book.publicId}/{item.publicId}/{smallestImage.height}.webp"
                             alt={item.title}
                             class="mb-1"
                             loading="lazy"

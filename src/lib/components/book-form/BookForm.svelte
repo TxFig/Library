@@ -9,7 +9,6 @@
     import AutocompleteInputChip from "./AutocompleteInputChip.svelte";
     import ErrorMessage from "../form/ErrorMessage.svelte";
     import ImageInput from "./ImageInput.svelte";
-    import ListBoxInput from "./ListBoxInput.svelte";
     import PublishDate from "./PublishDate.svelte";
     import { formISBNRegex } from "$lib/validation/book/isbn";
     import EditableCombobox from "../form/EditableCombobox.svelte";
@@ -75,7 +74,6 @@
             bind:value={$form.isbn}
             allowedRegex={formISBNRegex}
             errors={$errors.isbn}
-            required
             disabled={editing}
         />
         <ErrorMessage errors={$errors.isbn}/>

@@ -3,17 +3,17 @@ import { error } from "@sveltejs/kit"
 
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
-import { ISBNSchema } from "$lib/validation/book/isbn"
+import { PublicIdSchema } from "$lib/validation/book/publicId"
 import { applyDecorators } from "$lib/decorators"
 import { ParseParamsDecorator } from "$lib/decorators/parse-params"
 import { DisplayBookInclude } from "$lib/server/database/books/types"
 
 
 const load: PageServerLoad = async ({ params, locals }) => {
-    const { isbn } = params
+    const { bookPublicId, editionPublicId } = params
 
     const book = await db.books.book.getUniqueBook({
-        where: { isbn },
+        where: { publicId },
         include: DisplayBookInclude
     })
     if (!book) {
@@ -48,9 +48,9 @@ const load: PageServerLoad = async ({ params, locals }) => {
 
 const decoratedLoad = applyDecorators([
     ParseParamsDecorator({
-        isbn: {
-            schema: ISBNSchema,
-            onError: () => error(HttpCodes.ClientError.BadRequest, "Invalid ISBN")
+        publicId: {
+            schema: PublicIdSchema,
+            onError: () => error(HttpCodes.ClientError.BadRequest, "Invalid Public Id")
         }
     })
 ], load)

@@ -8,12 +8,10 @@ import FileSchema from "./file"
 
 //* Create Schema
 export const BookCreateSchema = z.object({
-    isbn: ISBNSchema,
-
+    isbn: ISBNSchema.optional(),
     title: z.string().min(1, "Title Required"),
-
     subtitle: z.string().nullish(),
-    number_of_pages: z
+    numberOfPages: z
         .number()
         .int()
         .positive()
@@ -25,7 +23,7 @@ export const BookCreateSchema = z.object({
 
     image: FileSchema.optional(),
 
-    publish_date: PublishDateSchema,
+    publishDate: PublishDateSchema,
     location: z.string().optional(),
     language: z.string().optional(),
     authors: z.array(z.string()).default([]),
@@ -46,7 +44,7 @@ export const BookUpdateSchema = BookCreateSchema.partial().required({
 
     //* These fields have default values, so they must be marked as required
     //* to ensure their types are correct. They can still be omitted by the user.
-    publish_date: true,
+    publishDate: true,
     authors: true,
     publishers: true,
     subjects: true,

@@ -1,11 +1,11 @@
 import type { Prisma } from "@prisma/client"
-import { BookCollectionBooksInclude } from "../books/types"
+import { BookCollectionEditionsInclude } from "../books/types"
 
 
 export const PageDataUserInclude = {
     bookCollections: {
         include: {
-            books: {
+            editions: {
                 include: {
                     image: true
                 }
@@ -26,15 +26,15 @@ export type PageDataUser = Prisma.UserGetPayload<{
 export const DisplayUserInclude = {
     userBookReadingState: {
         include: {
-            book: {
-                include: BookCollectionBooksInclude
+            edition: {
+                include: BookCollectionEditionsInclude
             }
         }
     },
     bookCollections: {
         include: {
-            books: {
-                include: BookCollectionBooksInclude
+            editions: {
+                include: BookCollectionEditionsInclude
             },
         }
     },

@@ -2,7 +2,7 @@ import type { PageServerLoad } from "./$types"
 import db from "$lib/server/database/"
 import { redirect } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
-import { BookWithSearchPropertiesInclude } from "$lib/server/database/books/types"
+import { BookEditionWithSearchPropertiesInclude } from "$lib/server/database/books/types"
 
 
 export const load: PageServerLoad = async () => {
@@ -12,7 +12,7 @@ export const load: PageServerLoad = async () => {
     }
 
     return {
-        books: await db.books.book.getBooks({ include: BookWithSearchPropertiesInclude }),
+        editions: await db.books.edition.getEditions({ include: BookEditionWithSearchPropertiesInclude }),
         authors: await db.books.author.getAllAuthors(),
         publishers: await db.books.publisher.getAllPublishers(),
     }

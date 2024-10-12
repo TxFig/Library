@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import path from "path"
 import fs from "fs"
-import { execSync } from "child_process";
+import { exec, execSync } from "child_process";
 import chalk from "chalk"
 
 
@@ -18,7 +18,6 @@ function doesFileExist(path: string): boolean {
 type MigrationInfo = {
     folderName: string
     name: string
-    timestamp: string
     hasDataMigration: boolean
 }
 const migrationsFolder = path.join(process.cwd(), "prisma/migrations")
@@ -37,7 +36,6 @@ function getAllMigrationsFromFileSystem(): MigrationInfo[] {
         return {
             folderName: folder,
             name: folder.split("_").slice(1).join("_"),
-            timestamp: folder.split("_")[0],
             hasDataMigration
         }
     })
@@ -75,25 +73,15 @@ function moveMigrationFromPendingToMigrations(migration: MigrationInfo) {
     moveFolder(oldPath, newPath)
 }
 
-type DataMigrationScript = {
-    default?: (prisma: PrismaClient) => void | Promise<void>
-}
 async function runDataMigrationScript(migration: MigrationInfo) {
     const scriptPath = path.join(migrationsFolder, migration.folderName, migrationScriptFileName)
-    const urlPath = `file:///${scriptPath}`
     try {
-        const script: DataMigrationScript = await import(urlPath)
-        if (script.default) {
-            console.log(chalk.greenBright(`Running data migration script for ${migration.name}`))
-            await script.default(prisma)
-            console.log(chalk.greenBright("Data migration script finished"))
-            console.log()
-        } else {
-            console.log(chalk.redBright(`No data migration script found for ${migration.name}`))
-        }
+        console.log(chalk.greenBright(`Running data migration script for ${migration.name}`))
+        execSync(`tsx ${scriptPath}`)
+        console.log(chalk.greenBright("Data migration script finished"))
+        console.log()
     } catch (e) {
         console.error(e)
-        return
     }
 }
 

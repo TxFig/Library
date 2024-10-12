@@ -1,4 +1,3 @@
-import type { BookCreateFormData } from "$lib/validation/book/book-form"
 import type { DateObjectWithYear } from "$lib/validation/book/publish-date"
 import type { ExternalBookData } from "."
 
@@ -25,7 +24,7 @@ export function getBiggerPublishDate(datesOrUndefined: (DateObjectWithYear | und
     })
 }
 
-export async function combineBooksData(isbn: string, books: ExternalBookData[]): Promise<ExternalBookData> {
+export function combineBooksData(isbn: string, books: ExternalBookData[]): ExternalBookData {
     const title = books[0].title
     const subtitle = books.find(book => Boolean(book.subtitle))?.subtitle
     const number_of_pages = books.find(book => Boolean(book.number_of_pages))?.number_of_pages
@@ -33,9 +32,9 @@ export async function combineBooksData(isbn: string, books: ExternalBookData[]):
     const isbn13 = books.find(book => Boolean(book.isbn13))?.isbn13
     const image = getBiggerFile(books.map(book => book.image))
     const publish_date = getBiggerPublishDate(books.map(book => book.publish_date))
-    const authors = books.map(book => book.authors).flat()
+    const authors = books.map(book => book.authors).sort((a, b) => b.length - a.length)[0]
     const publishers = books.map(book => book.publishers).sort((a, b) => b.length - a.length)[0]
-    const subjects = books.map(book => book.subjects).flat()
+    const subjects = books.map(book => book.subjects).sort((a, b) => b.length - a.length)[0]
 
     return {
         isbn,

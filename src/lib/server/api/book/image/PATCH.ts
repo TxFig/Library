@@ -16,8 +16,8 @@ export type BookImagePatchMethodReturn = Implements<InternalApiMethodReturn, {
     message: string
 }>
 
-export async function PATCH(isbn: string, image: File, userId: number): Promise<BookImagePatchMethodReturn> {
-    const book = await db.books.book.getUniqueBook({ where: { isbn } })
+export async function PATCH(publicId: string, image: File, userId: number): Promise<BookImagePatchMethodReturn> {
+    const book = await db.books.book.getUniqueBook({ where: { publicId } })
     if (!book) {
         return {
             success: false,
@@ -27,16 +27,16 @@ export async function PATCH(isbn: string, image: File, userId: number): Promise<
     }
 
     try {
-        const imageSizes = await generateResizedImages(book.isbn, image)
+        const imageSizes = await generateResizedImages(publicId, image)
         await db.books.image.updateBookImage(book.id, imageSizes)
-        await log("info", `Book image updated: ${book.isbn}`, userId)
+        await log("info", `Book image updated: ${book.publicId}`, userId)
         return {
             success: true,
             message: "Book Image Updated Successfully",
             data: null
         }
     } catch (err) {
-        await logError(err, `Error updating book image: ${book.isbn} in database`, userId)
+        await logError(err, `Error updating book image: ${book.publicId} in database`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

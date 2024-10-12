@@ -1,12 +1,12 @@
 import type { Prisma } from "@prisma/client"
 
 
-export const BookCollectionBooksInclude = {
+export const BookCollectionEditionsInclude = {
     image: true
 } as const
 export const BookCollectionWithBooksInclude = {
-    books: {
-        include: BookCollectionBooksInclude
+    editions: {
+        include: BookCollectionEditionsInclude
     }
 } as const
 export type BookCollectionWithBooks = Prisma.BookCollectionGetPayload<{
@@ -14,14 +14,24 @@ export type BookCollectionWithBooks = Prisma.BookCollectionGetPayload<{
 }>
 export type BuiltInBookCollectionWithBooks = Omit<BookCollectionWithBooks, "id" | "createdAt" | "updatedAt">
 
-export const BookWithSearchPropertiesInclude = {
-    subjects: true,
-    location: true,
+export const BookEditionWithSearchPropertiesInclude = {
     language: true,
-    image: true
+    image: true,
+    publishers: true,
+    book: {
+        include: {
+            authors: true,
+            subjects: true
+        }
+    },
+    copies: {
+        include: {
+            location: true
+        }
+    }
 } as const
-export type BookWithSearchProperties = Prisma.BookGetPayload<{
-    include: typeof BookWithSearchPropertiesInclude
+export type BookEditionWithSearchProperties = Prisma.BookEditionGetPayload<{
+    include: typeof BookEditionWithSearchPropertiesInclude
 }>
 
 export const DisplayBookInclude = {
