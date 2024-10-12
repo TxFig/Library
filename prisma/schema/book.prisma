@@ -25,6 +25,7 @@ model BookEdition {
     languageId Int?
     language   Language? @relation(fields: [languageId], references: [id])
 
+    authors      Author[]
     publishers   Publisher[]
     readingState UserBookReadingState[]
     collections  BookCollection[]
@@ -83,7 +84,8 @@ model Author {
     id   Int    @id @default(autoincrement())
     name String @unique
 
-    books Book[]
+    books    Book[]
+    editions BookEdition[]
 }
 
 model Publisher {
