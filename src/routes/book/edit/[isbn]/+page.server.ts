@@ -10,7 +10,7 @@ import { fail, message, superValidate } from "sveltekit-superforms"
 import { zod } from "sveltekit-superforms/adapters"
 import type { BookPatchMethodReturn } from "$lib/server/api/book/PATCH"
 import ParseParamsDecorator from "$lib/decorators/parse-params"
-import { BookCreateSchema, type BookCreateFormDataInput } from "$lib/validation/book/book-form"
+import { BookCreateSchema, type BookCreateFormDataInput } from "$lib/validation/book/_book"
 import type { Prisma } from "@prisma/client"
 
 

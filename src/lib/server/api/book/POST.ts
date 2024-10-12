@@ -1,5 +1,5 @@
 import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms"
-import type { BookCreateSchema } from "$lib/validation/book/book-form"
+import type { BookCreateSchema } from "$lib/validation/book/book"
 import db from "$lib/server/database/"
 import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
@@ -27,18 +27,9 @@ export type BookPostMethodReturn = Implements<InternalApiMethodReturn, {
 export async function POST(form: SuperFormCreateBook, userId: number): Promise<BookPostMethodReturn> {
     const { data } = form
 
-    const doesBookExist = await db.books.book.doesBookExist({ isbn: data.isbn })
-    if (doesBookExist) {
-        return {
-            code: HttpCodes.ClientError.Conflict,
-            message: "Book Already Exists",
-            success: false
-        }
-    }
-
     try {
-        const book = await db.books.book.createBook(data)
-        await log("info", `Book created: ${book.isbn}`, userId, data)
+        const book = await db.books.book.create(data)
+        await log("info", `Book created: ${book.publicId}`, userId, data)
 
         return {
             message: "Book Created Successfully",
@@ -46,7 +37,7 @@ export async function POST(form: SuperFormCreateBook, userId: number): Promise<B
             data: book
         }
     } catch (err) {
-        await logError(err, `Error creating book: ${data.isbn} in database`, userId)
+        await logError(err, `Error creating book: ${data.edition.title} in database`, userId)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

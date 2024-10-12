@@ -14,14 +14,14 @@ function clearFolder(folder: string): void {
 }
 
 const resizeHeights = [1080, 720, 480, 320]
-export async function generateResizedImages(publicId: string, file: File): Promise<BookImageInput[]> {
+export async function generateResizedImages(bookPublicId: string, editionPublicId: string, file: File): Promise<BookImageInput[]> {
     const arrayBuffer = await file.arrayBuffer()
     const image = sharp(arrayBuffer)
 
     let metadata = await image.metadata()
     if (!metadata.width || !metadata.height) {
         // TODO: Handle Error
-        throw new Error(`Image File of (publicId: ${publicId}) doesn't contain width or height`)
+        throw new Error(`Image file doesn't contain width or height`)
     }
     const size = {
         width: metadata.width,
@@ -31,7 +31,7 @@ export async function generateResizedImages(publicId: string, file: File): Promi
     if (heights.length === 0) heights.push(size.height)
     const generatedSizes: BookImageInput[] = []
 
-    const folder = path.join(env.STATIC, "images", publicId)
+    const folder = path.join(env.STATIC, "images", bookPublicId, editionPublicId)
     if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder, { recursive: true })
     } else {
@@ -57,7 +57,7 @@ export async function generateResizedImages(publicId: string, file: File): Promi
     return generatedSizes
 }
 
-export async function deleteImagesFolder(publicId: string) {
-    const folder = path.join(env.STATIC, "images", publicId)
+export async function deleteImagesFolder(bookPublicId: string, editionPublicId: string) {
+    const folder = path.join(env.STATIC, "images", bookPublicId, editionPublicId)
     fs.rmSync(folder, { recursive: true, force: true })
 }

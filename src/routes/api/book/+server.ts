@@ -8,7 +8,7 @@ import { json } from "@sveltejs/kit";
 
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
-import { BookCreateSchema } from "$lib/validation/book/book-form";
+import { BookCreateSchema } from "$lib/validation/book/_book";
 
 import api, { defaultApiMethodResponse } from "$lib/server/api"
 

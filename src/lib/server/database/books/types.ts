@@ -47,3 +47,15 @@ export type DisplayBook = Prisma.BookGetPayload<{
     include: typeof DisplayBookInclude
 }>
 
+export const DisplayBookEditionInclude = {
+    authors: true,
+    publishers: true,
+    subjects: true,
+    publish_date: true,
+    location: true,
+    language: true,
+    image: true
+} as const
+export type DisplayBookEdition = Prisma.BookGetPayload<{
+    include: typeof DisplayBookEditionInclude
+}>

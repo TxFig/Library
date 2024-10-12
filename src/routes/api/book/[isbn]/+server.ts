@@ -7,7 +7,7 @@ import HttpCodes from "$lib/utils/http-codes"
 import { ISBNSchema } from "$lib/validation/book/isbn"
 import { superValidate } from "sveltekit-superforms"
 import { zod } from "sveltekit-superforms/adapters"
-import { BookUpdateSchema } from "$lib/validation/book/book-form"
+import { BookUpdateSchema } from "$lib/validation/book/_book"
 import { ParseParamsDecorator } from "$lib/decorators/parse-params"
 
 

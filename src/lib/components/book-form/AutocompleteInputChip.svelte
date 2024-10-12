@@ -21,12 +21,28 @@
     export let title: string
     export let name: string
     export let placeholder: string
+    export let required: boolean = false
+    export let errors: string[] | undefined = undefined
+    $: hasErrors = errors && errors.length > 0
 </script>
 
 <!-- svelte-ignore a11y-label-has-associated-control -->
 <label class="label">
-    <span>{title}</span>
-    <InputChip bind:input={inputValue} bind:value={selectedOptions} name={name} placeholder={placeholder} allowUpperCase />
+    <span>
+        {title}
+        {#if required}
+            <sup class="text-red-500">*</sup>
+        {/if}
+    </span>
+    <InputChip
+        bind:input={inputValue}
+        bind:value={selectedOptions}
+        name={name}
+        placeholder={placeholder}
+        allowUpperCase
+        class={hasErrors ? "input-error !bg-error-900" : ""}
+        aria-invalid={hasErrors ? "true" : undefined}
+    />
     <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
         <Autocomplete
             bind:input={inputValue}

@@ -3,11 +3,19 @@ import { LogLevel } from "@prisma/client";
 import chalk from "chalk";
 
 
+const logLevelColors = {
+    "debug": chalk.blue,
+    "http": chalk.blue,
+    "info": chalk.blue,
+    "warn": chalk.yellow,
+    "error": chalk.red,
+    "fatal": chalk.redBright
+}
 export async function log(level: LogLevel, message: string, userId?: number, data?: unknown) {
     const metadata = JSON.stringify(data)
 
     console.log(
-        chalk.blue(level),
+        logLevelColors[level](level),
         chalk.green(message),
         chalk.yellow(userId ?? ""),
         chalk.magenta(metadata ?? "")

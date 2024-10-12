@@ -2,7 +2,7 @@ import { z } from "zod"
 import { ISBNSchema } from "./isbn"
 import { MAX_INT32BIT } from "../utils"
 import PublishDateSchema from "./publish-date"
-import FileSchema from "./file"
+import { ImageFileSchema } from "./file"
 
 
 
@@ -21,7 +21,7 @@ export const BookCreateSchema = z.object({
     isbn10: ISBNSchema.nullish(),
     isbn13: ISBNSchema.nullish(),
 
-    image: FileSchema.optional(),
+    image: ImageFileSchema.optional(),
 
     publishDate: PublishDateSchema,
     location: z.string().optional(),

@@ -6,7 +6,7 @@ import HttpCodes from "$lib/utils/http-codes"
 import api from "$lib/server/api"
 import { fail, message, superValidate } from "sveltekit-superforms"
 import { zod } from "sveltekit-superforms/adapters"
-import { BookCreateSchema } from "$lib/validation/book/book-form"
+import { BookCreateSchema } from "$lib/validation/book/book"
 import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
 import type { BookPostMethodReturn } from "$lib/server/api/book/POST"
@@ -14,7 +14,11 @@ import type { BookPostMethodReturn } from "$lib/server/api/book/POST"
 
 export const load: PageServerLoad = async ({ url }) => ({
     form: await superValidate({
-        isbn: url.searchParams.get("isbn") ?? ""
+        edition: {
+            isbn: url.searchParams.get("isbn") ?? undefined,
+            title: "",
+            language: ""
+        },
     }, zod(BookCreateSchema), { errors: false }),
 
     allAuthors: await db.books.author.getAllAuthors(),
@@ -30,7 +34,7 @@ export const actions: Actions = {
         async ({ request, locals }) => {
             const formData = await request.formData()
             const form = await superValidate(formData, zod(BookCreateSchema))
-
+            console.log(form.data, form.errors)
             if (!form.valid) {
                 return fail(HttpCodes.ClientError.BadRequest, { form })
             }

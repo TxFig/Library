@@ -21,7 +21,8 @@
     let externalClasses: string = ""
     export { externalClasses as class }
 
-    export let errors: string[] | undefined = undefined
+    export let errors: { _errors?: string[] } | undefined = undefined
+    $: hasErrors = errors?._errors?.length ?? 0 > 0
 </script>
 
 <label class="label {externalClasses}">
@@ -32,7 +33,7 @@
         {/if}
     </span>
     <input
-        class="input"
+        class="input {hasErrors ? "input-error !bg-error-900" : ""}"
         type="text"
         {name} {min} {max}
         bind:value
@@ -43,6 +44,6 @@
         on:change
         on:input
 
-        aria-invalid={errors ? "true" : undefined}
+        aria-invalid={hasErrors ? "true" : undefined}
     />
 </label>

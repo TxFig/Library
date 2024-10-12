@@ -6,7 +6,7 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import HttpCodes from "$lib/utils/http-codes";
 import api, { defaultApiMethodResponse } from "$lib/server/api";
-import { BookCreateSchema } from "$lib/validation/book/book-form";
+import { BookCreateSchema } from "$lib/validation/book/_book";
 
 
 const ISBNParamSchema = {

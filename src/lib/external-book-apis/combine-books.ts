@@ -1,3 +1,4 @@
+import { descending } from "$lib/utils/sorting"
 import type { DateObjectWithYear } from "$lib/validation/book/publish-date"
 import type { ExternalBookData } from "."
 
@@ -8,7 +9,7 @@ export function getBiggerFile(filesOrUndefined: (File | undefined)[]): File | un
     if (files.length === 0) return undefined
     if (files.length === 1) return files[0]
 
-    return files.sort((a, b) => b.size - a.size)[0]
+    return files.sort((a, b) => descending(a.size, b.size))[0]
 }
 
 export function getBiggerPublishDate(datesOrUndefined: (DateObjectWithYear | undefined)[]): DateObjectWithYear | undefined {
@@ -32,9 +33,9 @@ export function combineBooksData(isbn: string, books: ExternalBookData[]): Exter
     const isbn13 = books.find(book => Boolean(book.isbn13))?.isbn13
     const image = getBiggerFile(books.map(book => book.image))
     const publish_date = getBiggerPublishDate(books.map(book => book.publish_date))
-    const authors = books.map(book => book.authors).sort((a, b) => b.length - a.length)[0]
-    const publishers = books.map(book => book.publishers).sort((a, b) => b.length - a.length)[0]
-    const subjects = books.map(book => book.subjects).sort((a, b) => b.length - a.length)[0]
+    const authors = books.map(book => book.authors).sort((a, b) => descending(a.length, b.length))[0]
+    const publishers = books.map(book => book.publishers).sort((a, b) => descending(a.length, b.length))[0]
+    const subjects = books.map(book => book.subjects).sort((a, b) => descending(a.length, b.length))[0]
 
     return {
         isbn,

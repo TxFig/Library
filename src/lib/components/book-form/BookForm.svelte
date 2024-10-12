@@ -4,15 +4,16 @@
     import type { Author, Language, Location, Publisher, Subject } from "@prisma/client";
     import { getToastStore } from "@skeletonlabs/skeleton";
     import SuperDebug, { superForm } from "sveltekit-superforms";
-    import NumberInput from "../form/NumberInput.svelte";
-    import TextInput from "../form/TextInput.svelte";
-    import AutocompleteInputChip from "./AutocompleteInputChip.svelte";
-    import ErrorMessage from "../form/ErrorMessage.svelte";
-    import ImageInput from "./ImageInput.svelte";
-    import PublishDate from "./PublishDate.svelte";
+    import NumberInput from "$lib/components/form/NumberInput.svelte";
+    import TextInput from "$lib/components/form/TextInput.svelte";
+    import AutocompleteInputChip from "$lib/components/book-form/AutocompleteInputChip.svelte";
+    import ErrorMessage from "$lib/components/form/ErrorMessage.svelte";
+    import ImageInput from "$lib/components/book-form/ImageInput.svelte";
+    import PublishDate from "$lib/components/book-form/PublishDate.svelte";
     import { formISBNRegex } from "$lib/validation/book/isbn";
-    import EditableCombobox from "../form/EditableCombobox.svelte";
-    import Icon from "@iconify/svelte";
+    import EditableComboboxField from "$lib/components/form/EditableComboboxField.svelte";
+    import FetchSimilarBooksByTitle from "./FetchSimilarBooksByTitle.svelte";
+    import type { BookCopySchemaInput } from "$lib/validation/book/book";
 
 
     export let data: SuperFormCreateBook
@@ -55,11 +56,14 @@
     })
 
     export let image: File | undefined = undefined
-    $: $form.image = image
+    $: $form.edition.image = image
+
+    let copy = $form.copy ?? {} as BookCopySchemaInput
+    $: $form.copy = copy
 </script>
 
 
-<!-- <SuperDebug data={$form} /> -->
+<SuperDebug data={$form} />
 
 <form
     method="post"
@@ -67,105 +71,116 @@
     use:enhance
     class="space-y-6 !mb-24"
 >
-    <div>
-        <TextInput
-            text="ISBN"
-            name="isbn"
-            bind:value={$form.isbn}
-            allowedRegex={formISBNRegex}
-            errors={$errors.isbn}
-            disabled={editing}
-        />
-        <ErrorMessage errors={$errors.isbn}/>
-    </div>
-    <div>
-        <TextInput
-            text="Title"
-            name="title"
-            bind:value={$form.title}
-            errors={$errors.title}
-            required
-        />
-        <ErrorMessage errors={$errors.title}/>
-    </div>
-    <div>
-        <TextInput
-            text="Subtitle"
-            name="subtitle"
-            bind:value={$form.subtitle}
-            errors={$errors.subtitle}
-        />
-        <ErrorMessage errors={$errors.subtitle}/>
-    </div>
-    <div>
-        <NumberInput
-            text="Number of Pages"
-            name="number_of_pages"
-            bind:value={$form.number_of_pages}
-            errors={$errors.number_of_pages}
-        />
-        <ErrorMessage errors={$errors.number_of_pages}/>
-    </div>
-
-    <PublishDate bind:dateObject={$form.publish_date} bind:errors={$errors.publish_date} />
-
+    <h3 class="h3">Book Properties</h3>
     <div class="flex flex-col md:flex-row justify-between [&>*]:w-full gap-8">
-        <AutocompleteInputChip
-            options={allAuthors.map(author => author.name)}
-            title="Authors"
-            name="authors"
-            placeholder="Enter authors..."
-            bind:selectedOptions={$form.authors}
-        />
-
-        <AutocompleteInputChip
-            options={allPublishers.map(publisher => publisher.name)}
-            title="Publishers"
-            name="publishers"
-            placeholder="Enter publishers..."
-            bind:selectedOptions={$form.publishers}
-        />
-    </div>
-    <div class="flex flex-col [&>*]:w-full md:flex-row md:[&>*]:w-1/2 justify-between gap-8">
+        <div>
+            <AutocompleteInputChip
+                options={allAuthors.map(author => author.name)}
+                title="Authors"
+                name="authors"
+                placeholder="Enter authors..."
+                bind:selectedOptions={$form.book.authors}
+                errors={$errors.book?.authors?._errors}
+                required
+            />
+            <ErrorMessage errors={$errors.book?.authors?._errors}/>
+        </div>
         <AutocompleteInputChip
             options={allSubjects.map(subject => subject.value)}
             title="Subjects"
             name="subjects"
             placeholder="Enter subjects..."
-            bind:selectedOptions={$form.subjects}
+            bind:selectedOptions={$form.book.subjects}
         />
-        <div class="flex justify-between gap-8 [&>*]:w-1/2 [&>*]:h-fit">
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label class="label">
-                <p class="flex items-center gap-1">
-                    <span>Book Location</span>
-                    <Icon icon="mdi:location" width="16" />
-                </p>
-                <EditableCombobox
-                    name="locationCombobox"
-                    options={allLocations.map(loc => loc.value)}
-                    bind:value={$form.location}
-                    width="w-1/3 md:w-1/5"
-                />
-            </label>
-
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label class="label">
-                <p class="flex items-center gap-1">
-                    <span>Book Language</span>
-                    <Icon icon="mdi:language" width="16" />
-                </p>
-                <EditableCombobox
-                    name="languageCombobox"
-                    options={allLanguages.map(lang => lang.value)}
-                    bind:value={$form.language}
-                    width="w-1/3 md:w-1/5"
-                />
-            </label>
-        </div>
     </div>
 
-    <ImageInput name="image" bind:file={$form.image} />
+    <hr>
+    <h3 class="h3">Book Edition Properties</h3>
+    <div>
+        <TextInput
+            text="Title"
+            name="title"
+            bind:value={$form.edition.title}
+            errors={$errors.edition?.title}
+            required
+        />
+        <ErrorMessage errors={$errors.edition?.title}/>
+        <FetchSimilarBooksByTitle title={$form.edition.title} />
+    </div>
+    <PublishDate bind:dateObject={$form.edition.publishDate} errors={$errors.edition?.publishDate} />
+    <div>
+        <EditableComboboxField
+            text="Book Language"
+            name="language"
+            options={allLanguages.map(lang => lang.value)}
+            bind:value={$form.edition.language}
+            class="w-1/4"
+            optionsWidth="w-1/4"
+            icon="mdi:language"
+            errors={$errors.edition?.language}
+            required
+        />
+        <ErrorMessage errors={$errors.edition?.language}/>
+    </div>
+
+    <div>
+        <TextInput
+            text="ISBN"
+            name="isbn"
+            bind:value={$form.edition.isbn}
+            allowedRegex={formISBNRegex}
+            errors={$errors.edition?.isbn?._errors}
+            disabled={editing}
+        />
+        <ErrorMessage errors={$errors.edition?.isbn?._errors}/>
+    </div>
+    <div>
+        <TextInput
+            text="Subtitle"
+            name="subtitle"
+            bind:value={$form.edition.subtitle}
+            errors={$errors.edition?.subtitle?._errors}
+        />
+        <ErrorMessage errors={$errors.edition?.subtitle?._errors}/>
+    </div>
+    <div>
+        <NumberInput
+            text="Number of Pages"
+            name="numberOfPages"
+            bind:value={$form.edition.numberOfPages}
+            errors={$errors.edition?.numberOfPages}
+        />
+        <ErrorMessage errors={$errors.edition?.numberOfPages?._errors}/>
+    </div>
+    <div class="flex flex-col [&>*]:w-full md:flex-row md:[&>*]:w-1/2 justify-between gap-8">
+        <AutocompleteInputChip
+            options={allAuthors.map(author => author.name)}
+            title="Additional Authors"
+            name="editionAuthors"
+            placeholder="Enter authors..."
+            bind:selectedOptions={$form.edition.authors}
+        />
+        <AutocompleteInputChip
+            options={allPublishers.map(publisher => publisher.name)}
+            title="Publishers"
+            name="publishers"
+            placeholder="Enter publishers..."
+            bind:selectedOptions={$form.edition.publishers}
+        />
+    </div>
+    <ImageInput name="image" bind:file={$form.edition.image} />
+
+    <hr>
+    <h3 class="h3">Book Copy Properties</h3>
+    <EditableComboboxField
+        text="Book Location"
+        name="location"
+        icon="mdi:location"
+        options={allLocations.map(loc => loc.value)}
+        bind:value={copy.location}
+        class="w-1/4"
+        optionsWidth="w-1/4"
+    />
 
     <div class="flex justify-center fixed bottom-4 w-full">
         <button type="submit" class="btn bg-primary-500 px-10 py-3">Submit</button>

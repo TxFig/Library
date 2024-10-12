@@ -1,5 +1,5 @@
 import { logError } from "$lib/logging";
-import type { BookCreateFormData } from "$lib/validation/book/book-form";
+import type { BookCreateFormData } from "$lib/validation/book/_book";
 import { combineBooksData } from "./combine-books";
 import { formatBookData } from "./format";
 import { getParsedGoogleBooksBook } from "./google-books";
