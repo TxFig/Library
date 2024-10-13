@@ -11,8 +11,6 @@
     export let placement: Placement = "bottom"
     export let width: string = "w-48"
     export let onClick: (value: string, index: number) => void = () => {}
-    export let errors: string[] | undefined = undefined
-    $: hasErrors = errors && errors.length > 0
 
     const popupSettings: PopupSettings = {
         event: event,
@@ -24,21 +22,14 @@
 
 <div> <!-- prevent external css properties from separating the button from the popup -->
     <button
-        class="
-            flex items-center variant-filled w-full justify-between p-0 pr-2
-            {hasErrors ? "!bg-error-900" : ""}
-        "
+        class="flex items-center variant-filled w-full justify-between p-0 pr-2"
         use:popup={popupSettings}
         type="button"
     >
         <input
             type="text"
-            class="
-                w-full variant-filled focus:ring-transparent border-0 input
-                {hasErrors ? "input-error !bg-error-900" : ""}
-            "
+            class="w-full variant-filled focus:ring-transparent border-0 input"
             bind:value={value}
-            aria-invalid={hasErrors ? "true" : undefined}
         />
         <Icon icon="tabler:caret-down-filled" width="24" height="24" />
     </button>

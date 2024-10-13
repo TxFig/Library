@@ -1,9 +1,10 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import { page } from "$app/stores"
     import type { SuperFormCreateBook } from "$lib/server/api/book/POST";
     import type { Author, Language, Location, Publisher, Subject } from "@prisma/client";
     import { getToastStore } from "@skeletonlabs/skeleton";
-    import SuperDebug, { superForm } from "sveltekit-superforms";
+    import SuperDebug, { superForm, fieldProxy } from "sveltekit-superforms";
     import NumberInput from "$lib/components/form/NumberInput.svelte";
     import TextInput from "$lib/components/form/TextInput.svelte";
     import AutocompleteInputChip from "$lib/components/book-form/AutocompleteInputChip.svelte";
@@ -13,7 +14,6 @@
     import { formISBNRegex } from "$lib/validation/book/isbn";
     import EditableComboboxField from "$lib/components/form/EditableComboboxField.svelte";
     import FetchSimilarBooksByTitle from "./FetchSimilarBooksByTitle.svelte";
-    import type { BookCopySchemaInput } from "$lib/validation/book/book";
 
 
     export let data: SuperFormCreateBook
@@ -34,16 +34,12 @@
             block: "center",
         },
 
-        onUpdated({ form: { message, data } }) {
-            if (!message) return
-            const variant = message.type === "success" ? "variant-filled-success" : "variant-filled-error"
-            toastStore.trigger({
-                message: message.text,
-                background: variant
-            })
-
-            if (message.type === "success") {
-                goto(`/book/${data.isbn}`)
+        onResult({ result }) {
+            if (result.type === "redirect") {
+                toastStore.trigger({
+                    message: "Book Created Successfully",
+                    background: "variant-filled-success"
+                })
             }
         },
 
@@ -58,12 +54,13 @@
     export let image: File | undefined = undefined
     $: $form.edition.image = image
 
-    let copy = $form.copy ?? {} as BookCopySchemaInput
-    $: $form.copy = copy
+    $form.edition.isbn = $page.url.searchParams.get("isbn") ?? undefined
+
+    const publishDate = fieldProxy(form, "edition.publishDate")
 </script>
 
 
-<SuperDebug data={$form} />
+<!-- <SuperDebug data={$form} /> -->
 
 <form
     method="post"
@@ -73,18 +70,16 @@
 >
     <h3 class="h3">Book Properties</h3>
     <div class="flex flex-col md:flex-row justify-between [&>*]:w-full gap-8">
-        <div>
+        <ErrorMessage errors={$errors.book?.authors}>
             <AutocompleteInputChip
                 options={allAuthors.map(author => author.name)}
                 title="Authors"
                 name="authors"
                 placeholder="Enter authors..."
                 bind:selectedOptions={$form.book.authors}
-                errors={$errors.book?.authors?._errors}
                 required
             />
-            <ErrorMessage errors={$errors.book?.authors?._errors}/>
-        </div>
+        </ErrorMessage>
         <AutocompleteInputChip
             options={allSubjects.map(subject => subject.value)}
             title="Subjects"
@@ -97,18 +92,20 @@
     <hr>
     <h3 class="h3">Book Edition Properties</h3>
     <div>
-        <TextInput
-            text="Title"
-            name="title"
-            bind:value={$form.edition.title}
-            errors={$errors.edition?.title}
-            required
-        />
-        <ErrorMessage errors={$errors.edition?.title}/>
+        <ErrorMessage errors={$errors.edition?.title}>
+            <TextInput
+                text="Title"
+                name="title"
+                bind:value={$form.edition.title}
+                required
+            />
+        </ErrorMessage>
         <FetchSimilarBooksByTitle title={$form.edition.title} />
     </div>
-    <PublishDate bind:dateObject={$form.edition.publishDate} errors={$errors.edition?.publishDate} />
-    <div>
+
+    <PublishDate proxy={publishDate} errors={$errors.edition?.publishDate} />
+
+    <ErrorMessage errors={$errors.edition?.language}>
         <EditableComboboxField
             text="Book Language"
             name="language"
@@ -117,40 +114,38 @@
             class="w-1/4"
             optionsWidth="w-1/4"
             icon="mdi:language"
-            errors={$errors.edition?.language}
             required
         />
-        <ErrorMessage errors={$errors.edition?.language}/>
-    </div>
+    </ErrorMessage>
 
     <div>
-        <TextInput
-            text="ISBN"
-            name="isbn"
-            bind:value={$form.edition.isbn}
-            allowedRegex={formISBNRegex}
-            errors={$errors.edition?.isbn?._errors}
-            disabled={editing}
-        />
-        <ErrorMessage errors={$errors.edition?.isbn?._errors}/>
+        <ErrorMessage errors={$errors.edition?.isbn}>
+            <TextInput
+                text="ISBN"
+                name="isbn"
+                bind:value={$form.edition.isbn}
+                allowedRegex={formISBNRegex}
+                disabled={editing}
+            />
+        </ErrorMessage>
     </div>
     <div>
-        <TextInput
-            text="Subtitle"
-            name="subtitle"
-            bind:value={$form.edition.subtitle}
-            errors={$errors.edition?.subtitle?._errors}
-        />
-        <ErrorMessage errors={$errors.edition?.subtitle?._errors}/>
+        <ErrorMessage errors={$errors.edition?.subtitle}>
+            <TextInput
+                text="Subtitle"
+                name="subtitle"
+                bind:value={$form.edition.subtitle}
+            />
+        </ErrorMessage>
     </div>
     <div>
-        <NumberInput
-            text="Number of Pages"
-            name="numberOfPages"
-            bind:value={$form.edition.numberOfPages}
-            errors={$errors.edition?.numberOfPages}
-        />
-        <ErrorMessage errors={$errors.edition?.numberOfPages?._errors}/>
+        <ErrorMessage errors={$errors.edition?.numberOfPages}>
+            <NumberInput
+                text="Number of Pages"
+                name="numberOfPages"
+                bind:value={$form.edition.numberOfPages}
+            />
+        </ErrorMessage>
     </div>
     <div class="flex flex-col [&>*]:w-full md:flex-row md:[&>*]:w-1/2 justify-between gap-8">
         <AutocompleteInputChip
@@ -158,7 +153,7 @@
             title="Additional Authors"
             name="editionAuthors"
             placeholder="Enter authors..."
-            bind:selectedOptions={$form.edition.authors}
+            bind:selectedOptions={$form.edition.additionalAuthors}
         />
         <AutocompleteInputChip
             options={allPublishers.map(publisher => publisher.name)}
@@ -177,7 +172,7 @@
         name="location"
         icon="mdi:location"
         options={allLocations.map(loc => loc.value)}
-        bind:value={copy.location}
+        bind:value={$form.copy.location}
         class="w-1/4"
         optionsWidth="w-1/4"
     />

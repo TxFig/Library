@@ -1,25 +1,17 @@
-import { isObjectNotEmpty } from "$lib/utils/is-object-empty"
 import { z } from "zod"
 
 
 const daysInMonth = (month: number, year: number) =>
     new Date(year, month, 0).getDate()
 
-const minYear = 1970
+const minYear = 1800
 
 export type DateObject = {
-    year?: number | null,
-    month?: number | null,
-    day?: number | null
-}
-export type DateObjectWithYear = {
     year: number,
-    month?: number | null,
-    day?: number | null
+    month?: number,
+    day?: number
 }
-function isValidDate(date: DateObject | undefined): date is DateObjectWithYear | undefined {
-    if (!date) return true
-
+function isValidDate(date: DateObject): boolean {
     const { year, month, day } = date
     const maxYear = new Date().getFullYear()
 
@@ -35,20 +27,15 @@ function isValidDate(date: DateObject | undefined): date is DateObjectWithYear |
 
 export const PublishDateSchema = z
     .object({
-        year: z.number().nullish(),
-        month: z.number().nullish(),
-        day: z.number().nullish()
+        year: z.number()
+            .or(z.literal("")).default(""),
+        month: z.number().optional(),
+        day: z.number().optional()
     })
-    .default({})
-    .transform(date =>
-        !isObjectNotEmpty(date) ||
-        (date.year === null &&
-        date.month === null &&
-        date.day === null)
-        ? undefined : date
-    )
+    .refine((val): val is DateObject => val.year !== "", "Year is required")
     .refine(isValidDate, "Invalid Publish Date")
 
+export type PublishDateSchema = typeof PublishDateSchema
 export type PublishDateSchemaOutput = z.output<typeof PublishDateSchema>
 
 export default PublishDateSchema

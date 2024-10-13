@@ -11,7 +11,6 @@
     export let icon: string | undefined = undefined
     let externalClasses: string = ""
     export { externalClasses as class }
-    export let errors: string[] | undefined = undefined
 </script>
 
 <!-- svelte-ignore a11y-label-has-associated-control -->
@@ -30,6 +29,5 @@
         options={options}
         bind:value={value}
         width={optionsWidth}
-        errors={errors}
     />
 </label>

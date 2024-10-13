@@ -185,7 +185,7 @@ async function BookCreateSchemaToDatabaseData(data: BookCreateSchemaOutput): Pro
                         }
                     }))
                 },
-                copies: data.copy ? {
+                copies: data.copy.location ? {
                     create: {
                         location: {
                             connectOrCreate: {
