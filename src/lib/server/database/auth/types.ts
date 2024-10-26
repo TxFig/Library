@@ -2,7 +2,7 @@ import type { Prisma } from "@prisma/client"
 import { BookCollectionEditionsInclude } from "../books/types"
 
 
-export const PageDataUserInclude: Prisma.UserInclude = {
+export const PageDataUserInclude = {
     bookCollections: {
         include: {
             editions: {

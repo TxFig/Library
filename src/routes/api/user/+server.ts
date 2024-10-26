@@ -3,7 +3,7 @@ import { json } from "@sveltejs/kit"
 import HttpCodes from "$lib/utils/http-codes"
 import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
-import api, { defaultApiMethodResponse } from "$lib/server/api"
+import api, { ApiMethodResponse } from "$lib/server/api"
 import { superValidate } from "sveltekit-superforms"
 import { zod } from "sveltekit-superforms/adapters"
 import { UserCreateSchema } from "$lib/validation/auth/user"
@@ -11,7 +11,7 @@ import { UserCreateSchema } from "$lib/validation/auth/user"
 
 export const GET: RequestHandler = applyDecorators(
     [AuthDecorator(["View Book"])],
-    async () => defaultApiMethodResponse(
+    async () => ApiMethodResponse(
         await api.user.GET()
     )
 )
@@ -32,7 +32,7 @@ export const POST: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.user.POST(form, userId)
         )
     }

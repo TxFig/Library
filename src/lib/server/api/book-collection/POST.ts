@@ -2,7 +2,7 @@ import type { BookCollectionWithBooks } from "$lib/server/database/books/types";
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes";
 import type { Implements } from "$lib/utils/types";
 import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms";
-import type { InternalApiMethodReturn } from "..";
+import type { ApiMethodReturn } from "..";
 import type { BookCollectionCreateSchema } from "$lib/validation/book-collection/collection";
 import db from "$lib/server/database/"
 import log, { logError } from "$lib/logging";
@@ -14,7 +14,7 @@ export type SuperFormCreateBookCollection = SuperValidated<
     InferIn<BookCollectionCreateSchema>
 >
 
-export type BookCollectionPostMethodReturn = Implements<InternalApiMethodReturn, {
+export type BookCollectionPostMethodReturn = Implements<ApiMethodReturn, {
     success: true
     message: string,
     data: BookCollectionWithBooks

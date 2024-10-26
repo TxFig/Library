@@ -1,14 +1,14 @@
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes";
 import type { Implements } from "$lib/utils/types";
 import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms";
-import type { InternalApiMethodReturn } from "..";
+import type { ApiMethodReturn } from "..";
 import type { BookUpdateSchema } from "$lib/validation/book/_book";
 import db from "$lib/server/database/";
 import log, { logError } from "$lib/logging";
 import type { Book } from "@prisma/client";
 
 
-export type BookPatchMethodReturn = Implements<InternalApiMethodReturn, {
+export type BookPatchMethodReturn = Implements<ApiMethodReturn, {
     success: true
     message: string,
     data: Book,

@@ -1,12 +1,12 @@
 import type { BookCollectionWithBooks } from "$lib/server/database/books/types"
 import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
-import type { InternalApiMethodReturn } from ".."
+import type { ApiMethodReturn } from ".."
 import db from "$lib/server/database/"
 import log, { logError } from "$lib/logging"
 
 
-export type BookCollectionPatchMethodReturn = Implements<InternalApiMethodReturn, {
+export type BookCollectionPatchMethodReturn = Implements<ApiMethodReturn, {
     success: true
     message: string,
     data: BookCollectionWithBooks

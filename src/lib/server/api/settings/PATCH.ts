@@ -1,12 +1,12 @@
 import type { Implements } from "$lib/utils/types";
 import type { SettingsUpdateData } from "$lib/validation/auth/settings";
-import type { InternalApiMethodReturn } from "..";
+import type { ApiMethodReturn } from "..";
 import db from "$lib/server/database/"
 import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import log, { logError } from "$lib/logging";
 
 
-export type SettingsPatchMethodReturn = Implements<InternalApiMethodReturn, {
+export type SettingsPatchMethodReturn = Implements<ApiMethodReturn, {
     success: true
     message: string,
     data: SettingsUpdateData

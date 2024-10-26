@@ -6,7 +6,7 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import HttpCodes from "$lib/utils/http-codes";
 import FileSchema from "$lib/validation/book/file";
-import api, { defaultApiMethodResponse } from "$lib/server/api";
+import api, { ApiMethodResponse } from "$lib/server/api";
 
 
 const ISBNParamSchema = {
@@ -36,7 +36,7 @@ export const PATCH: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.book.image.PATCH(params.isbn, parsingResult.data, userId)
         )
     }

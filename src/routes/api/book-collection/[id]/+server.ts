@@ -5,7 +5,7 @@ import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
 import { z } from "zod"
 import ParseParamsDecorator from "$lib/decorators/parse-params"
-import api, { defaultApiMethodResponse } from "$lib/server/api"
+import api, { ApiMethodResponse } from "$lib/server/api"
 import { BookCollectionCreateSchema } from "$lib/validation/book-collection/collection"
 
 
@@ -37,7 +37,7 @@ export const PATCH: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.bookCollection.PATCH(collectionId, userId, name)
         )
     }
@@ -53,7 +53,7 @@ export const DELETE: RequestHandler = applyDecorators(
         const userId = locals.user!.id
         const collectionId = Number(params.id)
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.bookCollection.DELETE(collectionId, userId)
         )
     }

@@ -52,9 +52,9 @@
     })
 
     export let image: File | undefined = undefined
-    $: $form.edition.image = image
+    $: $form["edition.image"] = image
 
-    $form.edition.isbn = $page.url.searchParams.get("isbn") ?? undefined
+    $form["edition.isbn"] = $page.url.searchParams.get("isbn") ?? undefined
 
     const publishDate = fieldProxy(form, "edition.publishDate")
 </script>
@@ -70,13 +70,13 @@
 >
     <h3 class="h3">Book Properties</h3>
     <div class="flex flex-col md:flex-row justify-between [&>*]:w-full gap-8">
-        <ErrorMessage errors={$errors.book?.authors}>
+        <ErrorMessage errors={$errors["book.authors"]}>
             <AutocompleteInputChip
                 options={allAuthors.map(author => author.name)}
                 title="Authors"
                 name="authors"
                 placeholder="Enter authors..."
-                bind:selectedOptions={$form.book.authors}
+                bind:selectedOptions={$form["book.authors"]}
                 required
             />
         </ErrorMessage>
@@ -85,32 +85,32 @@
             title="Subjects"
             name="subjects"
             placeholder="Enter subjects..."
-            bind:selectedOptions={$form.book.subjects}
+            bind:selectedOptions={$form["book.subjects"]}
         />
     </div>
 
     <hr>
     <h3 class="h3">Book Edition Properties</h3>
     <div>
-        <ErrorMessage errors={$errors.edition?.title}>
+        <ErrorMessage errors={$errors["edition.title"]}>
             <TextInput
                 text="Title"
                 name="title"
-                bind:value={$form.edition.title}
+                bind:value={$form["edition.title"]}
                 required
             />
         </ErrorMessage>
-        <FetchSimilarBooksByTitle title={$form.edition.title} />
+        <FetchSimilarBooksByTitle title={$form["edition.title"]} />
     </div>
 
-    <PublishDate proxy={publishDate} errors={$errors.edition?.publishDate} />
+    <PublishDate proxy={publishDate} errors={$errors["edition.publishDate"]} />
 
-    <ErrorMessage errors={$errors.edition?.language}>
+    <ErrorMessage errors={$errors["edition.language"]}>
         <EditableComboboxField
             text="Book Language"
             name="language"
             options={allLanguages.map(lang => lang.value)}
-            bind:value={$form.edition.language}
+            bind:value={$form["edition.language"]}
             class="w-1/4"
             optionsWidth="w-1/4"
             icon="mdi:language"
@@ -119,31 +119,31 @@
     </ErrorMessage>
 
     <div>
-        <ErrorMessage errors={$errors.edition?.isbn}>
+        <ErrorMessage errors={$errors["edition.isbn"]}>
             <TextInput
                 text="ISBN"
                 name="isbn"
-                bind:value={$form.edition.isbn}
+                bind:value={$form["edition.isbn"]}
                 allowedRegex={formISBNRegex}
                 disabled={editing}
             />
         </ErrorMessage>
     </div>
     <div>
-        <ErrorMessage errors={$errors.edition?.subtitle}>
+        <ErrorMessage errors={$errors["edition.subtitle"]}>
             <TextInput
                 text="Subtitle"
                 name="subtitle"
-                bind:value={$form.edition.subtitle}
+                bind:value={$form["edition.subtitle"]}
             />
         </ErrorMessage>
     </div>
     <div>
-        <ErrorMessage errors={$errors.edition?.numberOfPages}>
+        <ErrorMessage errors={$errors["edition.numberOfPages"]}>
             <NumberInput
                 text="Number of Pages"
                 name="numberOfPages"
-                bind:value={$form.edition.numberOfPages}
+                bind:value={$form["edition.numberOfPages"]}
             />
         </ErrorMessage>
     </div>
@@ -153,17 +153,17 @@
             title="Additional Authors"
             name="editionAuthors"
             placeholder="Enter authors..."
-            bind:selectedOptions={$form.edition.additionalAuthors}
+            bind:selectedOptions={$form["edition.authors"]}
         />
         <AutocompleteInputChip
             options={allPublishers.map(publisher => publisher.name)}
             title="Publishers"
             name="publishers"
             placeholder="Enter publishers..."
-            bind:selectedOptions={$form.edition.publishers}
+            bind:selectedOptions={$form["edition.publishers"]}
         />
     </div>
-    <ImageInput name="image" bind:file={$form.edition.image} />
+    <ImageInput name="image" bind:file={$form["edition.image"]} />
 
     <hr>
     <h3 class="h3">Book Copy Properties</h3>
@@ -172,7 +172,7 @@
         name="location"
         icon="mdi:location"
         options={allLocations.map(loc => loc.value)}
-        bind:value={$form.copy.location}
+        bind:value={$form["copy.location"]}
         class="w-1/4"
         optionsWidth="w-1/4"
     />

@@ -1,31 +1,33 @@
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
-import { json } from "@sveltejs/kit"
+import { json, type MaybePromise } from "@sveltejs/kit"
 
 
-export type InternalApiMethodReturn = {
+export type ApiMethodReturn<Data = any> = {
     success: true,
     message?: string,
-    data: any
+    data: Data
 } | {
     success: false,
     code: HttpErrorCodesValues,
     message: string,
+    errors?: Data
 }
 
-export type ApiJsonResponse<InternalMethodReturn extends InternalApiMethodReturn> =
-    InternalMethodReturn extends { success: true } ?
+export type ApiJsonResponse<MethodReturn extends ApiMethodReturn> =
+    MethodReturn extends { success: true } ?
         {
-            data: InternalMethodReturn["data"],
+            data: MethodReturn["data"],
             status: HttpCodes["Success"]
         }
-    : InternalMethodReturn extends { success: false } ?
+    : MethodReturn extends { success: false } ?
         {
-            message: InternalMethodReturn["message"]
-            status: InternalMethodReturn["code"]
+            message: MethodReturn["message"]
+            status: MethodReturn["code"]
+            errors: MethodReturn["errors"]
         }
     : never
 
-export function defaultApiMethodResponse(methodReturn: InternalApiMethodReturn): Response {
+export function ApiMethodResponse<Data = any>(methodReturn: ApiMethodReturn<Data>): Response {
     if (methodReturn.success) {
         return json({
             data: methodReturn.data,
@@ -36,7 +38,8 @@ export function defaultApiMethodResponse(methodReturn: InternalApiMethodReturn):
     } else {
         return json({
             message: methodReturn.message,
-            status: methodReturn.code
+            status: methodReturn.code,
+            errors: methodReturn.errors
         }, {
             status: methodReturn.code
         })
@@ -59,3 +62,17 @@ export default {
     bookCollection,
     rating
 }
+
+import { PublicIdSchema } from "$lib/validation/book/publicId"
+import { BookCreateSchema } from "$lib/validation/book/book"
+
+export const apiEndpoints = {
+    book: {
+        GET: { publicId: PublicIdSchema },
+        POST: { schema: BookCreateSchema },
+        PATCH: { schema: BookCreateSchema },
+        PUT: { schema: BookCreateSchema },
+        DELETE: { publicId: PublicIdSchema },
+
+    }
+} as const

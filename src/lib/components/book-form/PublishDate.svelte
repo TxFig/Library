@@ -6,7 +6,7 @@
     import type { BookCreateSchema } from "$lib/validation/book/book";
 
     export let proxy: FieldProxy<DateObject>
-    export let errors: ValidationErrors<Infer<BookCreateSchema>["edition"]>["publishDate"] = undefined
+    export let errors: ValidationErrors<Infer<BookCreateSchema>>["edition.publishDate"] = undefined
 </script>
 
 <!-- svelte-ignore a11y-label-has-associated-control -->

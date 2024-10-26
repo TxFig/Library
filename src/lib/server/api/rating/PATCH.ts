@@ -1,12 +1,12 @@
 import type { HttpErrorCodesValues } from "$lib/utils/http-codes";
 import type { Implements } from "$lib/utils/types";
 import type { RatingUpdateData } from "$lib/validation/book/rating";
-import type { InternalApiMethodReturn } from "..";
+import type { ApiMethodReturn } from "..";
 import db from "$lib/server/database/";
 import log, { logError } from "$lib/logging";
 
 
-export type RatingPatchMethodReturn = Implements<InternalApiMethodReturn, {
+export type RatingPatchMethodReturn = Implements<ApiMethodReturn, {
     success: true
     message: string,
     data: number

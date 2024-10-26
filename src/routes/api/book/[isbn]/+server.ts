@@ -1,6 +1,6 @@
 import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
-import api, { defaultApiMethodResponse } from "$lib/server/api"
+import api, { ApiMethodResponse } from "$lib/server/api"
 import { json } from "@sveltejs/kit"
 import type { RequestHandler } from "./$types"
 import HttpCodes from "$lib/utils/http-codes"
@@ -22,7 +22,7 @@ const ISBNParamSchema = {
 
 export const GET: RequestHandler = applyDecorators(
     [AuthDecorator(["View Book"]), ParseParamsDecorator({ isbn: ISBNParamSchema })],
-    async ({ params }) => defaultApiMethodResponse(
+    async ({ params }) => ApiMethodResponse(
         await api.book.GET(params.isbn)
     )
 )
@@ -45,7 +45,7 @@ export const PATCH: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.book.PATCH(form, userId)
         )
     }
@@ -53,7 +53,7 @@ export const PATCH: RequestHandler = applyDecorators(
 
 export const DELETE: RequestHandler = applyDecorators(
     [AuthDecorator(["Delete Book"]), ParseParamsDecorator({ isbn: ISBNParamSchema })],
-    async ({ locals, params }) => defaultApiMethodResponse(
+    async ({ locals, params }) => ApiMethodResponse(
         await api.book.DELETE(params.isbn, locals.user!.id)
     )
 )

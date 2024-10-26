@@ -14,6 +14,7 @@ export function AuthDecorator(permissions?: PermissionName[]) {
                     message: "Need to be logged in"
                 })
             }
+            event.locals.user
             if (permissions && !hasPermissions(event.locals.user, permissions)) {
                 const permissionsString = permissions.map(p => `'${p}'`).join(", ")
                 error(HttpCodes.ClientError.Forbidden, {

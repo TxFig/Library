@@ -3,7 +3,7 @@ import type { BookCreateSchema } from "$lib/validation/book/book"
 import db from "$lib/server/database/"
 import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
-import type { InternalApiMethodReturn } from ".."
+import type { ApiMethodReturn } from ".."
 import log, { logError } from "$lib/logging"
 import type { Book } from "@prisma/client"
 
@@ -14,7 +14,7 @@ export type SuperFormCreateBook = SuperValidated<
     InferIn<BookCreateSchema>
 >
 
-export type BookPostMethodReturn = Implements<InternalApiMethodReturn, {
+export type BookPostMethodReturn = Implements<ApiMethodReturn, {
     success: true
     message: string,
     data: Book
@@ -24,12 +24,14 @@ export type BookPostMethodReturn = Implements<InternalApiMethodReturn, {
     message: string,
 }>
 
-export async function POST(form: SuperFormCreateBook, userId: number): Promise<BookPostMethodReturn> {
+// export async function POST(form: SuperFormCreateBook, userId: number): Promise<BookPostMethodReturn> {
+export async function POST(form: SuperFormCreateBook): Promise<BookPostMethodReturn> {
     const { data } = form
 
     try {
         const book = await db.books.book.create(data)
-        await log("info", `Book created: ${book.publicId}`, userId, data)
+        // await log("info", `Book created: ${book.publicId}`, userId, data)
+        await log("info", `Book created: ${book.publicId}`, undefined, data)
 
         return {
             message: "Book Created Successfully",
@@ -37,7 +39,8 @@ export async function POST(form: SuperFormCreateBook, userId: number): Promise<B
             data: book
         }
     } catch (err) {
-        await logError(err, `Error creating book: ${data.edition.title} in database`, userId)
+        // await logError(err, `Error creating book: ${data["edition.title"]} in database`, userId)
+        await logError(err, `Error creating book: ${data["edition.title"]} in database`)
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,

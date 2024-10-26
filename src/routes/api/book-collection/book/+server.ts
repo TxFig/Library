@@ -4,7 +4,7 @@ import type { RequestHandler } from "./$types"
 import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
 import { ISBNSchema } from "$lib/validation/book/isbn"
-import api, { defaultApiMethodResponse } from "$lib/server/api"
+import api, { ApiMethodResponse } from "$lib/server/api"
 
 
 export const POST: RequestHandler = applyDecorators(
@@ -23,7 +23,7 @@ export const POST: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.bookCollection.book.POST(userId, collectionName, isbn)
         )
     }
@@ -45,7 +45,7 @@ export const DELETE: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.bookCollection.book.DELETE(userId, collectionName, isbn)
         )
     }

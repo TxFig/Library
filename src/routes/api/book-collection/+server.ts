@@ -6,7 +6,7 @@ import AuthDecorator from "$lib/decorators/auth";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { BookCollectionCreateSchema } from "$lib/validation/book-collection/collection";
-import api, { defaultApiMethodResponse } from "$lib/server/api";
+import api, { ApiMethodResponse } from "$lib/server/api";
 
 
 export const POST: RequestHandler = applyDecorators(
@@ -28,7 +28,7 @@ export const POST: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.bookCollection.POST(form, userId)
         )
     }

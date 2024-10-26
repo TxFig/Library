@@ -3,7 +3,7 @@ import type { RequestHandler } from "./$types"
 import HttpCodes from "$lib/utils/http-codes"
 import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
-import api, { defaultApiMethodResponse } from "$lib/server/api"
+import api, { ApiMethodResponse } from "$lib/server/api"
 import { RatingUpdateSchema } from "$lib/validation/book/rating"
 
 
@@ -23,7 +23,7 @@ export const PATCH: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.rating.PATCH(parsingResult.data, userId)
         )
     }

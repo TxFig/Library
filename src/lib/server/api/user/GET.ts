@@ -1,12 +1,12 @@
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
-import type { InternalApiMethodReturn } from ".."
+import type { ApiMethodReturn } from ".."
 
 import db from "$lib/server/database/"
 import type { User } from "@prisma/client"
 
 
-type UserGetMethodReturn = Implements<InternalApiMethodReturn, {
+type UserGetMethodReturn = Implements<ApiMethodReturn, {
     data: User | User[],
     success: true
 } | {

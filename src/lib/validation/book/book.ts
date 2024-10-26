@@ -3,6 +3,7 @@ import { ISBNSchema } from "./isbn";
 import { MAX_INT32BIT } from "../utils";
 import { ImageFileSchema } from "./file";
 import PublishDateSchema from "./publish-date";
+import prefixKeys from "$lib/utils/prefix-keys";
 
 
 const StringSchema = z.string().min(1, "Required").max(500, "Must be less than 500 characters")
@@ -23,7 +24,7 @@ export const BookEditionSchema = z.object({
     subtitle: StringSchema.optional(),
     numberOfPages: NumberSchema.optional(),
     image: ImageFileSchema.optional(),
-    additionalAuthors: StringArraySchema.default([]),
+    authors: StringArraySchema.default([]),
     publishers: StringArraySchema.default([]),
 })
 export type BookEditionSchema = typeof BookEditionSchema
@@ -33,25 +34,18 @@ export const BookCopySchema = z.object({
 })
 export type BookCopySchema = typeof BookCopySchema
 
+// export const BookCreateSchema = z.object({
+//     book: BookSchema,
+//     edition: BookEditionSchema,
+//     copy: BookCopySchema.partial(),
+// })
+// export type BookCreateSchema = typeof BookCreateSchema
+// export type BookCreateSchemaOutput = z.output<typeof BookCreateSchema>
+
 export const BookCreateSchema = z.object({
-    book: BookSchema,
-    edition: BookEditionSchema,
-    copy: BookCopySchema.partial(),
+    ...prefixKeys("book.", BookSchema.shape),
+    ...prefixKeys("edition.", BookEditionSchema.shape),
+    ...prefixKeys("copy.", BookCopySchema.shape),
 })
 export type BookCreateSchema = typeof BookCreateSchema
 export type BookCreateSchemaOutput = z.output<typeof BookCreateSchema>
-
-
-function prefixKeys<Shape extends z.ZodRawShape, ObjectSchema extends z.ZodObject<Shape>>(prefix: string, schema: ObjectSchema): ObjectSchema {
-    const newSchema = z.object({})
-
-    for (const [key, value] of Object.entries(schema)) {
-        newSchema.merge(z.object({ [prefix + key]: value }))
-    }
-
-    return newSchema
-}
-
-const prefixBook = prefixKeys("book.", BookSchema)
-
-export const _BookCreateSchema = BookSchema.merge(BookEditionSchema).merge(BookCopySchema)

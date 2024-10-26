@@ -5,7 +5,7 @@ import { ISBNSchema } from "$lib/validation/book/isbn";
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import HttpCodes from "$lib/utils/http-codes";
-import api, { defaultApiMethodResponse } from "$lib/server/api";
+import api, { ApiMethodResponse } from "$lib/server/api";
 import { BookCreateSchema } from "$lib/validation/book/_book";
 
 
@@ -35,7 +35,7 @@ export const DELETE: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.book.subjects.DELETE(params.isbn, parsingResult.data, userId)
         )
     }

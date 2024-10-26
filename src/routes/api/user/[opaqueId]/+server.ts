@@ -4,7 +4,7 @@ import HttpCodes from "$lib/utils/http-codes"
 import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
 import ParseParamsDecorator from "$lib/decorators/parse-params"
-import api, { defaultApiMethodResponse } from "$lib/server/api"
+import api, { ApiMethodResponse } from "$lib/server/api"
 import { uuidv4Schema } from "$lib/validation/auth/uuid"
 import { zod } from "sveltekit-superforms/adapters"
 import { superValidate } from "sveltekit-superforms"
@@ -22,7 +22,7 @@ const OpaqueIdParamSchema = {
 
 export const GET: RequestHandler = applyDecorators(
     [AuthDecorator(["View Book"]), ParseParamsDecorator({ opaqueId: OpaqueIdParamSchema })],
-    async ({ params }) => defaultApiMethodResponse(
+    async ({ params }) => ApiMethodResponse(
         await api.user.GET(params.opaqueId)
     )
 )
@@ -45,7 +45,7 @@ export const PATCH: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.user.PATCH(form, opaqueId, userId)
         )
     }
@@ -53,7 +53,7 @@ export const PATCH: RequestHandler = applyDecorators(
 
 export const DELETE: RequestHandler = applyDecorators(
     [AuthDecorator(["Admin"]), ParseParamsDecorator({ opaqueId: OpaqueIdParamSchema })],
-    async ({ locals, params }) => defaultApiMethodResponse(
+    async ({ locals, params }) => ApiMethodResponse(
         await api.user.DELETE(params.opaqueId, locals.user!.id)
     )
 )

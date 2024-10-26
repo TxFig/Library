@@ -1,3 +1,4 @@
+import type { Entries } from "$lib/utils/types"
 import { z } from "zod"
 
 export const MAX_INT32BIT = 2 ** 31 - 1

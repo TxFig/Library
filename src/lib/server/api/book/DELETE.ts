@@ -1,11 +1,11 @@
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
-import type { InternalApiMethodReturn } from ".."
+import type { ApiMethodReturn } from ".."
 import db from "$lib/server/database/"
 import log, { logError } from "$lib/logging"
 
 
-export type BookDeleteMethodReturn = Implements<InternalApiMethodReturn, {
+export type BookDeleteMethodReturn = Implements<ApiMethodReturn, {
     success: true
     message: string,
     data: null,

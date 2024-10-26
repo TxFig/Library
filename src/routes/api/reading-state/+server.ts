@@ -4,7 +4,7 @@ import HttpCodes from "$lib/utils/http-codes"
 import { ReadingStateUpdateSchema } from "$lib/validation/book/reading-state"
 import { applyDecorators } from "$lib/decorators"
 import AuthDecorator from "$lib/decorators/auth"
-import api, { defaultApiMethodResponse } from "$lib/server/api"
+import api, { ApiMethodResponse } from "$lib/server/api"
 
 
 export const PATCH: RequestHandler = applyDecorators(
@@ -23,7 +23,7 @@ export const PATCH: RequestHandler = applyDecorators(
             })
         }
 
-        return defaultApiMethodResponse(
+        return ApiMethodResponse(
             await api.readingState.PATCH(parsingResult.data, userId)
         )
     }

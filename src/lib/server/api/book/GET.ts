@@ -4,10 +4,10 @@ import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
 import type { Implements } from "$lib/utils/types"
 import type { Book } from "@prisma/client"
 
-import type { InternalApiMethodReturn } from ".."
+import type { ApiMethodReturn } from ".."
 
 
-type BookGetMethodReturn = Implements<InternalApiMethodReturn, {
+type BookGetMethodReturn = Implements<ApiMethodReturn, {
     data: Book | Book[],
     success: true
 } | {

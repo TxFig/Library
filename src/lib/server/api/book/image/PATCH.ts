@@ -1,12 +1,12 @@
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes";
 import type { Implements } from "$lib/utils/types";
-import type { InternalApiMethodReturn } from "../..";
+import type { ApiMethodReturn } from "../..";
 import db from "$lib/server/database/";
 import { generateResizedImages } from "$lib/utils/images";
 import log, { logError } from "$lib/logging";
 
 
-export type BookImagePatchMethodReturn = Implements<InternalApiMethodReturn, {
+export type BookImagePatchMethodReturn = Implements<ApiMethodReturn, {
     success: true
     message: string,
     data: null,
