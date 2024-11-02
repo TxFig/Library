@@ -1,53 +1,27 @@
 import db from "$lib/server/database/"
 
-import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
-import type { Implements } from "$lib/utils/types"
+import { HttpCodes } from "$lib/utils/http-codes"
 import type { Book } from "@prisma/client"
 
 import type { ApiMethodReturn } from ".."
 import type { RequestEvent } from "."
+import type { BaseEndpointFunction } from "../endpoint"
 
 
-type BookGetMethodReturn = Implements<ApiMethodReturn, {
-    data: Book | Book[],
-    success: true
-} | {
-    success: false
-    code: HttpErrorCodesValues
-    message: string
-}>
-
-// export async function GET(isbn?: string): Promise<BookGetMethodReturn> {
-export async function GET(event: RequestEvent): Promise<BookGetMethodReturn> {
-    event.route.id
-
+type ReturnData = Book[]
+export type BookGetMethodReturn = ApiMethodReturn<ReturnData>
+export const GET: BaseEndpointFunction<RequestEvent, ReturnData> = async function(_) {
     try {
-        if (isbn) {
-            const book = await db.books.book.getUniqueBook({ where: { isbn } })
-            if (book) {
-                return {
-                    data: book,
-                    success: true
-                }
-            }
-            return {
-                success: false,
-                code: HttpCodes.ClientError.NotFound,
-                message: "Book Not Found"
-            }
-        }
-
         const books = await db.books.book.getBooks()
         return {
             data: books,
             success: true
         }
-    }
-    catch {
+    } catch (err) {
         return {
             success: false,
             code: HttpCodes.ServerError.InternalServerError,
-            message: "Error retrieving book(s)"
+            message: "Error retrieving books"
         }
     }
 }

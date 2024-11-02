@@ -2,21 +2,22 @@ import type { RequestEvent } from "@sveltejs/kit";
 import type { z } from "zod";
 import type { TargetFunction } from ".";
 
-interface ParamSchema {
+
+interface ParamSchema<Return = any> {
     schema: z.ZodTypeAny,
-    onError?: () => any
+    onError?: () => Return
 }
 
-type ValidateParams<Event extends RequestEvent> = {
-    [key in keyof Event["params"]]?: ParamSchema
+export type ParamsSchemas<Event extends RequestEvent, Return = any> = {
+    [key in keyof Event["params"]]?: ParamSchema<Return>
 }
 
-export function ParseParamsDecorator<Event extends RequestEvent, Return>(
-    schemas: ValidateParams<Event>
+export function ParseParamsDecorator<Event extends RequestEvent, Return, ParamErrorReturn = any>(
+    schemas: ParamsSchemas<Event, ParamErrorReturn>
 ) {
     return function(
         target: TargetFunction<Event, Return>
-    ): TargetFunction<Event, Return> {
+    ): TargetFunction<Event, Return | ParamErrorReturn> {
         return function(event) {
             const { params } = event
 
@@ -27,7 +28,8 @@ export function ParseParamsDecorator<Event extends RequestEvent, Return>(
                 try {
                     params[key] = schema.schema.parse(value)
                 } catch (err) {
-                    schema.onError?.()
+                    if (schema.onError)
+                        return schema.onError()
                 }
             }
             return target(event)

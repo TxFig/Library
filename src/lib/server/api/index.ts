@@ -1,8 +1,8 @@
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
-import { json, type MaybePromise } from "@sveltejs/kit"
+import { json } from "@sveltejs/kit"
 
 
-export type ApiMethodReturn<Data = any> = {
+export type ApiMethodReturn<Data = any, Errors = any> = {
     success: true,
     message?: string,
     data: Data
@@ -10,7 +10,7 @@ export type ApiMethodReturn<Data = any> = {
     success: false,
     code: HttpErrorCodesValues,
     message: string,
-    errors?: Data
+    errors?: Errors
 }
 
 export type ApiJsonResponse<MethodReturn extends ApiMethodReturn> =

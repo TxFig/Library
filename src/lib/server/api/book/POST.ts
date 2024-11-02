@@ -5,26 +5,11 @@ import type { BookCreateSchema } from "$lib/validation/book/book"
 import type { Book } from "@prisma/client"
 import type { RequestEvent } from "."
 import type { FormEndpointFunction } from "../endpoint"
+import type { ApiMethodReturn } from ".."
 
 
-// export type SuperFormCreateBook = SuperValidated<
-//     Infer<BookCreateSchema>,
-//     App.Superforms.Message,
-//     InferIn<BookCreateSchema>
-// >
-
-// export type BookPostMethodReturn = Implements<ApiMethodReturn, {
-//     success: true
-//     message: string,
-//     data: Book
-// } | {
-//     success: false
-//     code: HttpErrorCodesValues,
-//     message: string,
-// }>
-
-
-// export async function POST(_: RequestEvent, form: SuperFormCreateBook): Promise<BookPostMethodReturn> {
+type ReturnData = Book
+export type BookPostMethodReturn = ApiMethodReturn<ReturnData>
 export const POST: FormEndpointFunction<RequestEvent, BookCreateSchema, Book> = async function(_, form) {
     const { data } = form
 

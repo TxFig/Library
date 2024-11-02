@@ -20,6 +20,8 @@ export function HeadersValidationDecorator<Event extends RequestEvent, Return>(
             const { request: { headers: requestHeaders } } = event
 
             for (const [key, expectedValue] of Object.entries(headers)) {
+                if (expectedValue === undefined || expectedValue === null) continue
+
                 const value = requestHeaders.get(key)
                 if (value === null) return onInvalid()
                 const actualValue = value.split(";")[0]

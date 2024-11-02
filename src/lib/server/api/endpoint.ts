@@ -9,18 +9,20 @@ import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import type { z } from "zod";
 import { ApiMethodResponse, type ApiMethodReturn } from ".";
+import { ParseParamsDecorator, type ParamsSchemas } from "$lib/decorators/parse-params";
 
 
-type EndpointOptions = {
+type EndpointOptions<Event extends RequestEvent> = {
     auth?: PermissionName[]
     headers?: {
         contentType?: string[]
-    }
+    },
+    params?: ParamsSchemas<Event, Response>
 }
 
-export type BaseEndpointFunction<Event extends RequestEvent> = (
+export type BaseEndpointFunction<Event extends RequestEvent, Data = any> = (
     event: Event
-) => MaybePromise<ApiMethodReturn>
+) => MaybePromise<ApiMethodReturn<Data>>
 
 type RequestHandlerFromRequestEvent<
     Event extends RequestEvent
@@ -30,7 +32,7 @@ export function BaseEndpoint<
     ReqEvent extends RequestEvent,
 >(
     endpoint: BaseEndpointFunction<ReqEvent>,
-    options: EndpointOptions = {}
+    options: EndpointOptions<ReqEvent> = {}
 ): RequestHandlerFromRequestEvent<ReqEvent> {
     return applyDecorators(
         [
@@ -42,7 +44,8 @@ export function BaseEndpoint<
                     message: "Invalid Content Type",
                     code: HttpCodes.ClientError.BadRequest
                 })
-            )
+            ),
+            ParseParamsDecorator(options.params ?? {})
         ],
         async function(event) {
             return ApiMethodResponse(
@@ -61,11 +64,12 @@ export type FormEndpointFunction<
     form: SchemaToSuperValidated<Schema>
 ) => MaybePromise<ApiMethodReturn<Data>>
 
-const FormEndpointDefaultOptions: EndpointOptions = {
+const FormEndpointDefaultOptions: EndpointOptions<RequestEvent> = {
     auth: [],
     headers: {
         contentType: ["application/x-www-form-urlencoded", "multipart/form-data"]
-    }
+    },
+    params: {}
 }
 export function FormEndpoint<
     ReqEvent extends RequestEvent,
@@ -74,7 +78,7 @@ export function FormEndpoint<
 >(
     endpoint: FormEndpointFunction<ReqEvent, Schema, Data>,
     schema: Schema,
-    options: EndpointOptions = {}
+    options: EndpointOptions<ReqEvent> = {}
 ): RequestHandlerFromRequestEvent<ReqEvent> {
     const mergedOptions = {
         ...FormEndpointDefaultOptions,
@@ -90,7 +94,8 @@ export function FormEndpoint<
                     message: "Invalid Content Type",
                     code: HttpCodes.ClientError.BadRequest
                 })
-            )
+            ),
+            ParseParamsDecorator(options.params ?? {})
         ],
         async function(event) {
             const { request } = event
