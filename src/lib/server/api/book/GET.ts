@@ -5,6 +5,7 @@ import type { Implements } from "$lib/utils/types"
 import type { Book } from "@prisma/client"
 
 import type { ApiMethodReturn } from ".."
+import type { RequestEvent } from "."
 
 
 type BookGetMethodReturn = Implements<ApiMethodReturn, {
@@ -16,7 +17,10 @@ type BookGetMethodReturn = Implements<ApiMethodReturn, {
     message: string
 }>
 
-export async function GET(isbn?: string): Promise<BookGetMethodReturn> {
+// export async function GET(isbn?: string): Promise<BookGetMethodReturn> {
+export async function GET(event: RequestEvent): Promise<BookGetMethodReturn> {
+    event.route.id
+
     try {
         if (isbn) {
             const book = await db.books.book.getUniqueBook({ where: { isbn } })

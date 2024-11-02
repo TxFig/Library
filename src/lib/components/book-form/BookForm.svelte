@@ -1,7 +1,5 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
     import { page } from "$app/stores"
-    import type { SuperFormCreateBook } from "$lib/server/api/book/POST";
     import type { Author, Language, Location, Publisher, Subject } from "@prisma/client";
     import { getToastStore } from "@skeletonlabs/skeleton";
     import SuperDebug, { superForm, fieldProxy } from "sveltekit-superforms";
@@ -14,9 +12,11 @@
     import { formISBNRegex } from "$lib/validation/book/isbn";
     import EditableComboboxField from "$lib/components/form/EditableComboboxField.svelte";
     import FetchSimilarBooksByTitle from "./FetchSimilarBooksByTitle.svelte";
+    import type { SchemaToSuperValidated } from "$lib/validation/utils";
+    import type { BookCreateSchema } from "$lib/validation/book/book";
 
 
-    export let data: SuperFormCreateBook
+    export let data: SchemaToSuperValidated<BookCreateSchema>
     export let editing: boolean = false
     export let allAuthors: Author[]
     export let allPublishers: Publisher[]

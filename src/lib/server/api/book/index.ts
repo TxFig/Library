@@ -5,6 +5,7 @@ import DELETE from "./DELETE"
 import image from "./image"
 import subjects from "./subjects"
 
+export type { RequestEvent } from "$types/api/book/$types"
 
 export default {
     GET,

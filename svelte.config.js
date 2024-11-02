@@ -16,7 +16,10 @@ const config = {
     ],
 
     kit: {
-        adapter: adapter()
+        adapter: adapter(),
+        alias: {
+            "$types": "./.svelte-kit/types/src/routes"
+        }
     }
 }
 
