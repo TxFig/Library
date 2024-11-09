@@ -1,5 +1,5 @@
 import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
-import { json } from "@sveltejs/kit"
+import { error, json } from "@sveltejs/kit"
 
 
 export type ApiMethodReturn<Data = any, Errors = any> = {
@@ -46,6 +46,29 @@ export function ApiMethodResponse<Data = any>(methodReturn: ApiMethodReturn<Data
     }
 }
 
+export class ApiError extends Error {
+    code: HttpErrorCodesValues
+
+    constructor(code: HttpErrorCodesValues, message: string) {
+        super(message)
+        this.code = code
+    }
+}
+
+export function handleApiError(err: unknown): Response {
+    if (!(err instanceof ApiError)) {
+        error(HttpCodes.ServerError.InternalServerError, {
+            message: "Something went wrong",
+            error: err
+        })
+    }
+
+    return ApiMethodResponse({
+        success: false,
+        message: err.message,
+        code: err.code
+    })
+}
 
 import book from "./book"
 import user from "./user"
@@ -62,17 +85,3 @@ export default {
     bookCollection,
     rating
 }
-
-import { PublicIdSchema } from "$lib/validation/book/publicId"
-import { BookCreateSchema } from "$lib/validation/book/book"
-
-export const apiEndpoints = {
-    book: {
-        GET: { publicId: PublicIdSchema },
-        POST: { schema: BookCreateSchema },
-        PATCH: { schema: BookCreateSchema },
-        PUT: { schema: BookCreateSchema },
-        DELETE: { publicId: PublicIdSchema },
-
-    }
-} as const
