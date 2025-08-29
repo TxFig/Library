@@ -1,6 +1,6 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import ErrorMessage from "$lib/components/form/ErrorMessage.svelte";
-    import TextInput from "$lib/components/form/TextInput.svelte";
+    import TextInputField from "$lib/components/form/TextInputField.svelte";
     import type { SuperFormCreateUser } from "$lib/server/api/user/POST";
     import type { PermissionGroup, User } from "@prisma/client";
     import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
@@ -59,7 +59,7 @@
     use:enhance
 >
     <div>
-        <TextInput
+        <TextInputField
             text="Email"
             placeholder="Enter email..."
             bind:value={$form.email}
@@ -70,7 +70,7 @@
         <ErrorMessage errors={$errors.email}/>
     </div>
     <div>
-        <TextInput
+        <TextInputField
             text="Username"
             placeholder="Enter username..."
             bind:value={$form.username}
@@ -80,7 +80,6 @@
         />
         <ErrorMessage errors={$errors.username}/>
     </div>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="label flex flex-col">
         <span>Permission Group <sup class="text-red-500">*</sup></span>
         <Combobox
@@ -90,4 +89,4 @@
         />
         <ErrorMessage errors={$errors.permissionGroup}/>
     </label>
-</form>
+</form> -->

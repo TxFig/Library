@@ -1,18 +1,22 @@
 import { env } from "$env/dynamic/private"
-import generateExpirationDate from "$lib/utils/generate-expiration-date"
-import type { Session, User } from "@prisma/client"
+import type { Session } from "@prisma/client"
 import { v4 as uuidv4 } from "uuid"
-import { prisma } from ".."
-import { PageDataUserInclude, type PageDataUser } from "./types"
+import prisma from "$lib/server/database/prisma"
+import { PageData } from "$lib/types"
 
+
+function newSessionExpirationDate() {
+    const date = new Date()
+    date.setSeconds(date.getSeconds() + +env.SESSION_EXPIRATION_TIME)
+    return date
+}
 
 export async function createSession(userId: number): Promise<Session> {
-    const token = uuidv4()
-    const expireDate = generateExpirationDate(+env.SESSION_EXPIRATION_TIME)
-
     return await prisma.session.create({
         data: {
-            token, userId, expireDate
+            userId,
+            token: uuidv4(),
+            expireDate: newSessionExpirationDate()
         }
     })
 }
@@ -24,7 +28,7 @@ export async function deleteSessionByToken(token: string): Promise<Session> {
 }
 
 export async function getEntireUserAndSessionBySessionToken(sessionToken: string): Promise<
-    { user: PageDataUser, session: Session } |
+    { user: PageData.User.Raw, session: PageData.Session.Raw } |
     { user: null, session: null }
 > {
     const result = await prisma.session.findUnique({
@@ -33,7 +37,7 @@ export async function getEntireUserAndSessionBySessionToken(sessionToken: string
         },
         include: {
             user: {
-                include: PageDataUserInclude
+                include: PageData.User.include
             }
         }
     })

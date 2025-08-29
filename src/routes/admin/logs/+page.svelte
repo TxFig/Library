@@ -28,7 +28,6 @@
             <th>Time</th>
             <th>Level</th>
             <th>Message</th>
-            <th>User Id</th>
             <th>Metadata</th>
         </tr>
     </thead>
@@ -46,14 +45,15 @@
                     : "text-gray-600"
                 }>{log.level}</td>
                 <td>{log.message}</td>
-                <td>{log.userId ?? ""}</td>
                 {#if log.metadata}
-                    <button
-                        class="btn variant-outline rounded"
-                        on:click={() =>
-                            modalStore.trigger(dataModal(log.metadata))
-                        }
-                    >Show</button>
+                    <td>
+                        <button
+                            class="btn variant-outline rounded"
+                            on:click={() =>
+                                modalStore.trigger(dataModal(log.metadata))
+                            }
+                        >Show</button>
+                    </td>
                 {:else}
                     <td></td>
                 {/if}

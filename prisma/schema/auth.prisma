@@ -1,24 +1,25 @@
 model User {
     id       Int    @id @default(autoincrement())
-    opaqueId String @unique
+    publicId String @unique @default(dbgenerated("generate_public_id()"))
 
-    email          String  @unique
-    username       String  @unique
-    profilePicture Boolean @default(false)
+    email    String @unique
+    username String @unique
 
     emailConfirmationRequest EmailConfirmationRequest?
-    session                  Session[]
-
-    userBookReadingState UserBookReadingState[]
+    sessions                 Session[]
 
     permissionGroupId Int
     permissionGroup   PermissionGroup @relation(fields: [permissionGroupId], references: [id])
 
-    userSettings UserSettings?
+    settings UserSettings?
 
-    bookCollections BookCollection[]
-    logs LogEntry[]
-    ratings UserBookRating[]
+    readingStates UserBookReadingState[]
+    ratings       UserBookRating[]
+    collections   BookCollection[]
+
+    copies         BookCopy[]
+    copiesRequests CopyRequest[]
+    copiesLoans    CopyLoan[]
 }
 
 model UserSettings {
@@ -35,8 +36,8 @@ model EmailConfirmationRequest {
     token      String   @unique
     expireDate DateTime
 
-    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId Int  @unique
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Session {

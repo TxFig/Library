@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import type { SvelteComponent } from "svelte"
 	import { getModalStore } from "@skeletonlabs/skeleton"
     import UserForm from "./UserForm.svelte"
@@ -34,4 +34,4 @@
             <button class="btn variant-filled" on:click={submitForm}>{parent.buttonTextConfirm}</button>
         </footer>
 	</div>
-{/if}
+{/if} -->

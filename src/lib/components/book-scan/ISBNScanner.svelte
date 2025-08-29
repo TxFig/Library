@@ -1,60 +1,72 @@
 <script lang="ts">
-    import { page } from "$app/stores";
+    import { page } from "$app/state"
     import Quagga from "@ericblade/quagga2"
     import type { QuaggaJSConfigObject, QuaggaJSResultObject } from "@ericblade/quagga2"
-    import DeviceSwitcher from "./DeviceSwitcher.svelte";
-    import { onDestroy } from "svelte";
+    import { onDestroy, type ComponentProps } from "svelte"
+    import { type VideoDeviceInfo } from "./devices";
+    import ResultLoadingToast from "./ResultLoadingToast.svelte";
 
 
+    let {
+        devicesInfo,
+        onDetected = undefined,
+        afterInit = undefined,
+        class: externalClasses
+    }: {
+        devicesInfo: VideoDeviceInfo[]
+        onDetected?: (isbn: string) => Promise<void>
+        afterInit?: () => void | Promise<void>
+        class?: string
+    } = $props()
 
 
-    const generateQuaggaConfig: (deviceId?: string) => QuaggaJSConfigObject = (deviceId) => ({
+    let deviceIndex: number | undefined = $state()
+    export { deviceIndex }
+    const generateQuaggaConfig: () => QuaggaJSConfigObject = () => ({
         inputStream: {
             target: "#input-target",
             constraints: {
-                deviceId,
-                facingMode: "environment",
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                deviceId: devicesInfo[deviceIndex!].deviceId,
+                facingMode: { ideal: "environment" },
+                width: devicesInfo[deviceIndex!].width,
+                height: devicesInfo[deviceIndex!].height
             }
         },
         decoder: {
             readers: ["ean_reader"],
         },
+        frequency: 10
     })
 
-    export let deviceId: string | undefined = undefined
-    $: if (
-        deviceId &&
-        $page.data.user &&
-        window.navigator.mediaDevices
-    ) QuaggaInit(deviceId)
-
-    function QuaggaInit(deviceId: string): void {
+    function QuaggaInit(): void {
         Quagga.stop()
         Quagga.init(
-            generateQuaggaConfig(deviceId),
+            generateQuaggaConfig(),
             QuaggaInitCallback
         )
     }
 
-    export const Restart = () => deviceId && QuaggaInit(deviceId)
+    $effect(() => {
+        if (page.data.user && window.navigator.mediaDevices && deviceIndex !== undefined)
+            QuaggaInit()
+    })
 
     function QuaggaInitCallback(err: any): void {
         if (err) {
-            console.log("Error Initializing Quagga:", err)
             return
         }
         Quagga.start()
+        afterInit?.()
     }
 
-    type OnDetected = (isbn: string) => void | Promise<void>
-    export let onDetected: OnDetected | undefined = undefined
-
+    let toasts: ComponentProps<typeof ResultLoadingToast>[] = $state([])
+    let loadingISBNs = $derived(toasts.map(t => t.isbn))
     async function onDetect(result: QuaggaJSResultObject) {
         const isbn = result.codeResult.code
-        if (isbn && onDetected) {
-            await onDetected(isbn)
+        if (!isbn || loadingISBNs.includes(isbn)) return
+        if (onDetected) {
+            const promise = onDetected(isbn)
+            toasts.push({ isbn, promise })
         }
     }
 
@@ -65,12 +77,34 @@
         Quagga.offDetected(onDetect)
     })
 
-    let externalClasses: string = ""
-    export { externalClasses as class }
+    $effect(() => {
+        if (devicesInfo.length > 0) {
+            deviceIndex = 0
+        }
+        else if (devicesInfo.length > 1) {
+            deviceIndex = 1
+        }
+        else {
+            deviceIndex = undefined
+        }
+    })
+
+    export function incrementIndex() {
+        if (deviceIndex === undefined) return
+        deviceIndex = (deviceIndex + 1) % devicesInfo.length
+    }
+
+    export const restart = () => deviceIndex && QuaggaInit()
+    export const switchCamera = () => incrementIndex()
+
 </script>
 
-<div id="input-target" class={`relative ${externalClasses}`}>
-    <DeviceSwitcher bind:deviceSelectedId={deviceId}/>
+<div id="input-target" class="relative {externalClasses}">
+    <div class="absolute left-1/2 -translate-x-1/2 bottom-4 flex flex-col gap-2">
+        {#each toasts as toast}
+            <ResultLoadingToast {...toast} />
+        {/each}
+    </div>
 </div>
 
 <style>
@@ -83,11 +117,5 @@
     :global(#input-target > canvas) {
         position: absolute;
         top: 0; left: 0;
-    }
-
-    :global(#input-target > button) {
-        position: absolute;
-        bottom: 5%; right: 5%;
-        z-index: 1;
     }
 </style>

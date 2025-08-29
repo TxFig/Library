@@ -1,6 +1,6 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import type { PageData } from "./$types";
-    import type { BookCollectionWithBooks, BuiltInBookCollectionWithBooks } from "$lib/server/database/books/types";
+    import type { BookCollectionWithBooks, BuiltInBookCollectionWithBooks } from "$lib/server/types";
     import BookCollection from "$lib/components/user/BookCollection.svelte";
     import BuiltInBookCollection from "$lib/components/user/BuiltInBookCollection.svelte";
     import Icon from "@iconify/svelte";
@@ -95,4 +95,4 @@
             {/each}
         </div>
     {/if}
-</div>
+</div> -->

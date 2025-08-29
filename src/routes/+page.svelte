@@ -1,11 +1,11 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import Icon from "@iconify/svelte"
     import type { PageData } from "./$types"
     import type { Author, Publisher } from "@prisma/client";
     import { type SearchOptions } from "$lib/utils/search";
     import type { FuseOptionKey } from "fuse.js"
     import SearchBar from "$lib/components/SearchBar.svelte";
-    import type { BookEditionWithSearchProperties } from "$lib/server/database/books/types";
+    import type { BookEditionWithSearchProperties } from "$lib/server/types";
 
 
     export let data: PageData
@@ -72,7 +72,6 @@
         <div class="flex gap-2 items-center">
             <div class="flex gap-2 h-fit">
                 {#each filterKeys as f}
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
                     <span
                         class="chip {filters[f] ? 'variant-filled' : 'variant-outline'}"
                         on:click={() => { filter(f) }}
@@ -102,7 +101,7 @@
                 <a href="/book/{item.book.publicId}/{item.publicId}/" class="flex flex-col items-center justify-center">
                     {#if item.image.length > 0}
                         <img
-                        src="/images/{item.book.publicId}/{item.publicId}/{smallestImage.height}.webp"
+                            src="/images/{item.book.publicId}/{item.publicId}/{smallestImage.height}.webp"
                             alt={item.title}
                             class="mb-1"
                             loading="lazy"
@@ -125,4 +124,4 @@
             {/if}
         {/each}
     </div>
-</div>
+</div> -->

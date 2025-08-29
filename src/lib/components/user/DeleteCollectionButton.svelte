@@ -1,6 +1,6 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import { invalidateAll } from "$app/navigation";
-    import type { BookCollectionWithBooks } from "$lib/server/database/books/types";
+    import type { BookCollectionWithBooks } from "$lib/server/types";
     import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
     import { getModalStore, getToastStore, type ModalSettings } from "@skeletonlabs/skeleton";
@@ -40,7 +40,7 @@
             }
         })
 
-        if (response.status == HttpCodes.Success) {
+        if (response.status == HttpCodes.Success.OK) {
             await invalidateAll()
             onDelete()
         } else {
@@ -55,4 +55,4 @@
 
 <button class="btn-icon variant-ghost-error" on:click={onDeleteCollection}>
     <Icon icon="mdi:delete" width="16" height="16"/>
-</button>
+</button> -->

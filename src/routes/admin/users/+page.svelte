@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import type { PageData } from "./$types";
     import CreateUserButton from "$lib/components/admin/UsersTab/CreateUserButton.svelte";
     import EditUserButton from "$lib/components/admin/UsersTab/EditUserButton.svelte";
@@ -73,4 +73,4 @@
             </tbody>
         </table>
     </div>
-</div>
+</div> -->

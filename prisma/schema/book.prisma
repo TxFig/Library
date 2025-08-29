@@ -1,6 +1,6 @@
 model Book {
     id       Int    @id @default(autoincrement())
-    publicId String @unique
+    publicId String @unique @default(dbgenerated("generate_public_id()"))
 
     authors  Author[]
     subjects Subject[]
@@ -9,68 +9,53 @@ model Book {
 
 model BookEdition {
     id       Int    @id @default(autoincrement())
-    publicId String @unique
+    publicId String @unique @default(dbgenerated("generate_public_id()"))
 
     bookId Int
     book   Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
-    title         String
-    subtitle      String?
-    numberOfPages Int?
-    publishDate   PublishDate?
-    isbn10        String?      @unique
-    isbn13        String?      @unique
-    image         Image[]
+    title     String
+    subtitle  String?
+    pageCount Int?
+
+    isbn10 String? @unique
+    isbn13 String? @unique
 
     languageId Int?
     language   Language? @relation(fields: [languageId], references: [id])
 
-    authors      Author[]
-    publishers   Publisher[]
-    readingState UserBookReadingState[]
-    collections  BookCollection[]
-    ratings      UserBookRating[]
+    authors    Author[]
+    publishers Publisher[]
+
+    publishDate   PublishDate?
+    image         Image[]
+    ratings       UserBookRating[]
+    readingStates UserBookReadingState[]
+    collections   BookCollection[]
 
     copies BookCopy[]
-}
-
-model BookCopy {
-    id Int @id @default(autoincrement())
-
-    editionId Int
-    edition   BookEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
-
-    locationId Int
-    location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 }
 
 model Image {
     id Int @id @default(autoincrement())
 
-    bookEditionId Int
-    BookEdition   BookEdition @relation(fields: [bookEditionId], references: [id])
-
-    width  Int
-    height Int
-
+    width     Int
+    height    Int
     createdAt DateTime @default(now())
+
+    editionId Int
+    edition   BookEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
 }
 
 model PublishDate {
-    id    Int  @id @default(autoincrement())
+    id Int @id @default(autoincrement())
+
     year  Int
     month Int?
     day   Int?
 
     editionId Int         @unique
     edition   BookEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
-}
-
-model Location {
-    id    Int    @id @default(autoincrement())
-    value String @unique
-
-    copies BookCopy[]
 }
 
 model Language {
@@ -103,14 +88,13 @@ model Subject {
 }
 
 model BookCollection {
-    id   Int    @id @default(autoincrement())
-    name String
+    id Int @id @default(autoincrement())
 
-    editions BookEdition[]
-
-    ownerId Int
-    owner   User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
+    name      String
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
+
+    ownerId  Int
+    owner    User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    editions BookEdition[]
 }

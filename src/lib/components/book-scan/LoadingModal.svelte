@@ -2,7 +2,9 @@
     import { getModalStore, ProgressRadial } from "@skeletonlabs/skeleton";
     import type { SvelteComponent } from "svelte";
 
-    export let parent: SvelteComponent
+    let {}: {
+        parent: SvelteComponent
+    } = $props()
 
 
     const modalStore = getModalStore()

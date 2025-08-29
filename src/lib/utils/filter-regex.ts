@@ -1,4 +1,5 @@
 export const filterRegex = (regex: RegExp, value: string) =>
-    [...value].filter(v => regex.test(v)).join("")
+    [...value].filter(char => regex.test(char)).join("")
+
 
 export default filterRegex

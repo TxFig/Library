@@ -1,25 +1,26 @@
 <script lang="ts">
     import { ProgressRadial } from "@skeletonlabs/skeleton"
+    import type { HTMLButtonAttributes } from "svelte/elements"
 
-    let loading = false
 
-    let externalClasses: string | undefined = undefined
-    export { externalClasses as class }
+    let {
+        loading = false,
+        children,
+        class: externalClasses,
+        contentClass,
+        ...rest
+    }: { contentClass?: string, loading?: boolean } & HTMLButtonAttributes = $props()
 </script>
 
 <button
-    class="btn variant-filled relative w-full {externalClasses}"
-    on:click={() => { loading = true }}
+    class={["btn relative", externalClasses]}
     disabled={loading}
+    {...rest}
 >
     {#if loading}
-        <ProgressRadial
-            width="w-6"
-            meter="stroke-primary-500"
-            track="stroke-primary-500/50"
-
-        />
-    {:else}
-        <slot />
+        <ProgressRadial width="w-6" class="!absolute" />
     {/if}
+    <span class={[contentClass, "!ml-0", { "opacity-0": loading }]}>
+        {@render children?.()}
+    </span>
 </button>

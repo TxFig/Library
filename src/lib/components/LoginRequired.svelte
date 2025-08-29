@@ -1,42 +1,42 @@
 <script lang="ts">
     import Icon from "@iconify/svelte";
-    import TextInput from "./form/TextInput.svelte";
+    import TextInputField from "./form/TextInputField.svelte";
     import { getToastStore } from "@skeletonlabs/skeleton";
     import type { SubmitFunction } from "../../routes/auth/login/$types";
-    import { EmailSchema } from "$lib/validation/utils";
+    // import { EmailSchema } from "$lib/_validation/utils";
     import { enhance } from "$app/forms";
 
 
     const toastStore = getToastStore()
 
     let error: string | undefined = undefined
-    const enhanceHandler: SubmitFunction = function({ formData, cancel }) {
-        const data = formData.get("email")
-        const parsingResult = EmailSchema.safeParse(data)
-        if (!parsingResult.success) {
-            error = parsingResult.error.errors[0].message
-            cancel()
-        }
+    // const enhanceHandler: SubmitFunction = function({ formData, cancel }) {
+    //     const data = formData.get("email")
+    //     const parsingResult = EmailSchema.safeParse(data)
+    //     if (!parsingResult.success) {
+    //         error = parsingResult.error.errors[0].message
+    //         cancel()
+    //     }
 
-        return ({ result }) => {
-            if (result.type == "success" && result.data?.message) {
-                toastStore.trigger({
-                    message: result.data.message,
-                    background: "variant-filled-success"
-                })
-            }
-            else if (result.type == "failure") {
-                error = result.data?.error
+    //     return ({ result }) => {
+    //         if (result.type == "success" && result.data?.message) {
+    //             toastStore.trigger({
+    //                 message: result.data.message,
+    //                 background: "variant-filled-success"
+    //             })
+    //         }
+    //         else if (result.type == "failure") {
+    //             error = result.data?.error
 
-                if (result.data?.message) {
-                    toastStore.trigger({
-                        message: result.data.message,
-                        background: "variant-filled-error"
-                    })
-                }
-            }
-        }
-    }
+    //             if (result.data?.message) {
+    //                 toastStore.trigger({
+    //                     message: result.data.message,
+    //                     background: "variant-filled-error"
+    //                 })
+    //             }
+    //         }
+    //     }
+    // }
 
 </script>
 
@@ -51,11 +51,11 @@
             class="space-y-8"
             action="/auth/login"
             method="POST"
-            use:enhance={enhanceHandler}
         >
+            <!-- use:enhance={enhanceHandler} -->
             <p class="text-2xl">Login</p>
             <div>
-                <TextInput
+                <TextInputField
                     text="Email"
                     type="email"
                     placeholder="Email..."

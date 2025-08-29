@@ -1,7 +1,7 @@
-<script lang="ts">
-    import BookForm from "$lib/components/book-form/BookForm.svelte";
+<!-- <script lang="ts">
+    // import BookForm from "$lib/components/book-form/_BookForm.svelte";
     import NotLoggedIn from "$lib/components/NotLoggedIn.svelte";
-    import fetchImageAsFile from "$lib/utils/fetch-image-as-file";
+    import fetchImageAsFile from "$lib/utils/fetch-url-as-file";
     import { onMount } from "svelte";
     import type { PageData } from "./$types";
 
@@ -34,4 +34,4 @@
     </div>
 {:else}
     <NotLoggedIn />
-{/if}
+{/if} -->

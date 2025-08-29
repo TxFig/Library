@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import { invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
     import type { ApiJsonResponse } from "$lib/server/api";
@@ -9,7 +9,7 @@
     import { type SvelteComponent } from "svelte";
     import SearchBar from "../SearchBar.svelte";
     import type { SearchOptions } from "$lib/utils/search";
-    import type { BookCollectionWithBooks } from "$lib/server/database/books/types";
+    import type { BookCollectionWithBooks } from "$lib/server/types";
     import type { BookCollectionAddBookDeleteMethodReturn } from "$lib/server/api/book-collection/book/DELETE";
     import type { Book } from "@prisma/client";
 
@@ -34,7 +34,7 @@
 
         const json: ApiJsonResponse<BookCollectionAddBookPostMethodReturn> = await response.json()
 
-        if (json.status === HttpCodes.Success) {
+        if (json.status === HttpCodes.Success.OK) {
             // toastStore.trigger({
             //     message: "Book Successfully Added to Collection",
             //     background: "variant-filled-success"
@@ -62,7 +62,7 @@
 
         const json: ApiJsonResponse<BookCollectionAddBookDeleteMethodReturn> = await response.json()
 
-        if (json.status === HttpCodes.Success) {
+        if (json.status === HttpCodes.Success.OK) {
             // toastStore.trigger({
             //     message: "Book Successfully Removed to Collection",
             //     background: "variant-filled-success"
@@ -156,15 +156,15 @@
                 <button
                     class="btn {parent.buttonNeutral}"
                     on:click={parent.onClose}
-                >{parent.buttonTextCancel}</button>
+                >{parent.buttonTextCancel}</button> -->
                 <!-- <button
                     class="btn {parent.buttonPositive}"
                     on:click={addToCollection}
                     disabled={bookCollectionsWithoutCurrentBook.length === 0 || selected === ""}
                 >Add to Collection</button> -->
-            </footer>
+            <!-- </footer>
         {:else}
             <p>You must be logged in to add books to collections</p>
         {/if}
     </div>
-{/if}
+{/if} -->

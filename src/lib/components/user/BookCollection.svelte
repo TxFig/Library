@@ -1,5 +1,5 @@
-<script lang="ts">
-    import type { BookCollectionWithBooks } from "$lib/server/database/books/types";
+<!-- <script lang="ts">
+    import type { BookCollectionWithBooks } from "$lib/server/types";
     import Icon from "@iconify/svelte";
     import { getToastStore, popup, type PopupSettings } from "@skeletonlabs/skeleton";
     import DeleteCollectionButton from "./DeleteCollectionButton.svelte";
@@ -37,7 +37,7 @@
         })
 
         const json: ApiJsonResponse<BookCollectionPatchMethodReturn> = await response.json()
-        if (json.status === HttpCodes.Success) {
+        if (json.status === HttpCodes.Success.OK) {
             collection.name = newName
             isEditing = false
         }
@@ -92,12 +92,9 @@
                 <button class="btn-icon variant-ghost-secondary" on:click={() => isEditing = true}>
                     <Icon icon="mdi:pencil" width="16" height="16"/>
                 </button>
-                <!-- <button class="btn-icon variant-ghost-tertiary">
-                    <Icon icon="mdi:eye" width="16" height="16"/>
-                </button> -->
                 <DeleteCollectionButton {collection} {onDelete} />
             </div>
         </div>
     </legend>
     <CollectionDisplay {collection} />
-</fieldset>
+</fieldset> -->

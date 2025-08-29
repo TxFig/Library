@@ -1,10 +1,6 @@
-// See https://kit.svelte.dev/docs/types#app
-
-import type { PageDataUser } from "$lib/server/database/auth/types"
-import type { Session } from "@prisma/client"
+import type { PageData } from "$lib/types"
 
 
-// for information about these interfaces
 declare global {
     namespace App {
         interface Error {
@@ -20,13 +16,14 @@ declare global {
         }
 
         interface Locals {
-            user: PageDataUser | null
-            session: Session | null
+            user: PageData.User.Raw | null
+            session: PageData.Session.Raw | null
         }
 
         interface PageData {
-            user: PageDataUser | null
-            session: Session | null
+            user: PageData.User | null
+            session: PageData.Session | null
+            publicAccess: boolean
         }
         // interface Platform {}
 
@@ -39,4 +36,4 @@ declare global {
     }
 }
 
-export { }
+export {}

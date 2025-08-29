@@ -2,8 +2,11 @@ import type { Values } from "./types"
 
 
 export const HttpCodes = {
-    // Successful
-    Success: 200,
+    Success: {
+        OK: 200,
+        Created: 201,
+        NoContent: 204,
+    },
 
     // Redirection
     Found: 302,
@@ -24,11 +27,14 @@ export const HttpCodes = {
 
 export type HttpCodes = typeof HttpCodes
 
-export type ClientError = HttpCodes["ClientError"]
-export type ClientErrorValues = Values<ClientError>
-export type ServerError = HttpCodes["ServerError"]
-export type ServerErrorValues = Values<ServerError>
+export type HttpSuccess = HttpCodes["Success"]
+export type HttpSuccessValues = Values<HttpSuccess>
 
-export type HttpErrorCodesValues = ClientErrorValues | ServerErrorValues
+export type HttpClientError = HttpCodes["ClientError"]
+export type HttpClientErrorValues = Values<HttpClientError>
+export type HttpServerError = HttpCodes["ServerError"]
+export type HttpServerErrorValues = Values<HttpServerError>
+
+export type HttpErrorCodesValues = HttpClientErrorValues | HttpServerErrorValues
 
 export default HttpCodes

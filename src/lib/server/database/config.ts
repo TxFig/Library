@@ -1,5 +1,5 @@
 import type { AppSettings } from "@prisma/client"
-import { prisma } from "."
+import prisma from "$lib/server/database/prisma"
 
 
 export async function getInitialSetup() {

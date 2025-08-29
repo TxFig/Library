@@ -1,10 +1,15 @@
 import type { Permission, PermissionGroup } from "@prisma/client";
-import { prisma } from "..";
+import prisma from "$lib/server/database/prisma"
 
-
-export type PermissionGroupWithAssociatedPermissions = PermissionGroup & {
+/**
+ * @deprecated
+ */
+type PermissionGroupWithAssociatedPermissions = PermissionGroup & {
     permissions: Permission[]
 }
+/**
+ * @deprecated
+ */
 export async function getAllPermissionGroupsWithPermissions(): Promise<PermissionGroupWithAssociatedPermissions[]> {
     return await prisma.permissionGroup.findMany({
         include: {
@@ -13,7 +18,13 @@ export async function getAllPermissionGroupsWithPermissions(): Promise<Permissio
     })
 }
 
+export async function getAllPermissions(): Promise<Permission[]> {
+    return await prisma.permission.findMany()
+}
+
+
 
 export default {
-    getAllPermissionGroupsWithPermissions: getAllPermissionGroupsWithPermissions
+    getAllPermissionGroupsWithPermissions,
+    getAllPermissions
 }

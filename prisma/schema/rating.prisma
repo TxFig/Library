@@ -1,8 +1,8 @@
 model UserBookRating {
-    userId Int
-    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    Int
+    user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     editionId Int
-    edition   BookEdition @relation(fields: [editionId], references: [id])
+    edition   BookEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
 
     rating Float
 

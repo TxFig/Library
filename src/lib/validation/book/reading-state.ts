@@ -1,17 +1,12 @@
-import { z } from "zod"
-import { ReadingState } from "@prisma/client"
+import * as v from "valibot"
 
 
-const StateSchema = z.union([
-    z.literal(ReadingState.NOT_READ),
-    z.literal(ReadingState.READING),
-    z.literal(ReadingState.READ),
-    z.literal(ReadingState.WANT_TO_READ)
-])
+export const readingStates = ["NOT_READ", "READING", "READ", "WANT_TO_READ"] as const
+export type ReadingState = typeof readingStates[number]
 
-export const ReadingStateUpdateSchema = z.object({
-    state: StateSchema,
-    bookId: z.number()
+export const ReadingStateUpdateSchema = v.object({
+    state: v.picklist(readingStates)
 })
 export type ReadingStateUpdateSchema = typeof ReadingStateUpdateSchema
-export type ReadingStateUpdateData = z.infer<ReadingStateUpdateSchema>
+export type ReadingStateUpdateSchemaInput = v.InferInput<ReadingStateUpdateSchema>
+export type ReadingStateUpdateSchemaOutput = v.InferOutput<ReadingStateUpdateSchema>

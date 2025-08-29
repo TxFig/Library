@@ -1,74 +1,114 @@
-import { json, error } from "@sveltejs/kit"
-import type { RequestHandler } from "./$types"
-
+import { fetchBookData } from "$lib/external-book-apis"
+import authValidator from "$lib/request-validators/auth"
+import paramsValidator from "$lib/request-validators/params"
 import db from "$lib/server/database/"
 import HttpCodes from "$lib/utils/http-codes"
 import { ISBNSchema } from "$lib/validation/book/isbn"
-import { applyDecorators } from "$lib/decorators"
-import { ParseParamsDecorator } from "$lib/decorators/parse-params"
-import AuthDecorator from "$lib/decorators/auth"
-import { fetchBookData } from "$lib/external-book-apis"
-import log, { logError } from "$lib/logging"
+import { error, json } from "@sveltejs/kit"
+import type { RequestHandler } from "./$types"
+import type { Prisma } from "@prisma/client"
+import { ScanPage } from "$lib/types"
+import applyTransformSpec from "$lib/utils/transform-object"
+import { getFormDataOrJson } from "$lib/request-validators/data-schema"
+import api from "$lib/server/api"
+import { externalBookEditionToBookEditionSchemaOutput, externalBookToBookSchemaOutput } from "$lib/external-book-apis/utils"
 
 
-export const POST: RequestHandler = applyDecorators(
-    [
-        AuthDecorator(["Create Book"]),
-        ParseParamsDecorator({
-            isbn: {
-                schema: ISBNSchema,
-                onError: () => error(HttpCodes.ClientError.BadRequest, "Invalid ISBN")
-            }
+export const POST: RequestHandler = async function(event) {
+    authValidator(event,
+        (status, message) => error(status, { message }),
+        ["Create Book"]
+    )
+    paramsValidator(event, {
+        isbn: {
+            schema: ISBNSchema,
+            onInvalid() {
+                error(HttpCodes.ClientError.BadRequest, {
+                    message: "Invalid ISBN Parameter"
+                })
+            },
+        }
+    })
+
+    const isbn = event.params.isbn
+
+    let duplicateBook: ScanPage.DuplicateEdition.Raw | null
+    try {
+        duplicateBook = await db.books.edition.getUnique({
+            where: isbn.length === 10 ?
+                { isbn10: isbn } : { isbn13: isbn },
+            include: ScanPage.DuplicateEdition.include
         })
-    ],
-    async ({ params, locals }) => {
-        const { isbn } = params
-        const userId = locals.user!.id
+    } catch (err) {
+        error(HttpCodes.ServerError.InternalServerError, {
+            message: "Internal Server Error"
+        })
+    }
 
-        const bookAlreadyExists = await db.books.book.doesBookExist({ isbn })
-        if (bookAlreadyExists) {
-            error(HttpCodes.ClientError.Conflict, {
-                message: "Book already exists in database.",
-            })
+    if (duplicateBook !== null) { // Duplicate Edition
+        const transformed = applyTransformSpec(duplicateBook, ScanPage.DuplicateEdition.spec)
+        return json(transformed, { status: HttpCodes.ClientError.Conflict })
+    }
+
+    const data = await fetchBookData(isbn)
+    if (!data) { // Not Found
+        return error(HttpCodes.ClientError.NotFound, {
+            message: "Edition not available in external services"
+        })
+    }
+
+    const body = await getFormDataOrJson<{ targetBookId: string }>(event)
+    let targetBookId: string | undefined = undefined
+    if (body instanceof FormData) {
+        let value = body.get("targetEdition")
+        if (value && typeof value === "string") {
+            targetBookId = value
         }
+    } else {
+        targetBookId = body?.targetBookId
+    }
 
-        try {
-
-            const data = await fetchBookData(isbn)
-
-            if (!data) {
-                return json({
-                    message: "Book not available in external APIs."
-                }, {
-                    status: HttpCodes.ClientError.NotFound
-                })
-            }
-
-            try {
-                await db.books.book.createBook(data)
-                await log("info", `Book created: ${isbn}`, userId, data)
-
-                return json({
-                    message: "Successfully Added Book"
-                }, {
-                    status: HttpCodes.Success
-                })
-            } catch (err) {
-                await logError(err, `Error creating book: ${isbn} in database`, userId)
-                return json({
-                    message: "Error adding Book"
-                }, {
-                    status: HttpCodes.ServerError.InternalServerError
-                })
-            }
-        }
-        catch (err) {
-            logError(err, `Error fetching book data for: ${isbn}`, userId)
-            return json({
-                message: "Error fetching book data"
-            }, {
-                status: HttpCodes.ServerError.InternalServerError
+    if (!targetBookId) {
+        const input = externalBookToBookSchemaOutput(data)
+        const book = await api.books.POST(input, event.locals)
+        if (book.success) {
+            return json(book.data, { status: HttpCodes.Success.Created })
+        } else {
+            error(HttpCodes.ServerError.InternalServerError, {
+                message: "Internal Server Error"
             })
         }
     }
-)
+
+    const book = db.books.book.getUnique({
+        where: { publicId: targetBookId }
+    })
+    if (!book) {
+        error(HttpCodes.ClientError.BadRequest, {
+            message: "Target Book Not Found"
+        })
+    }
+
+    const input = externalBookEditionToBookEditionSchemaOutput(data.edition)
+    const edition = await api.books.bookPublicId.editions.POST(targetBookId, input, event.locals)
+
+    if (edition.success) {
+        if (data.authors.length > edition.data.book.authors.length) {
+            const result = await api.books.bookPublicId.authors.PATCH(targetBookId, data.authors, event.locals)
+            if (!result.success) {
+                error(HttpCodes.ServerError.InternalServerError, {
+                    message: "Internal Server Error"
+                })
+            }
+            edition.data.book.authors = data.authors
+        }
+        // TODO: update subjects
+
+        return json(edition.data, { status: HttpCodes.Success.Created })
+    }
+    else {
+        error(HttpCodes.ServerError.InternalServerError, {
+            message: "Internal Server Error"
+        })
+    }
+}

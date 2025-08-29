@@ -1,61 +1,61 @@
 <script lang="ts">
-    import { enhance } from "$app/forms"
-    import { page } from "$app/stores"
-    import { getToastStore } from "@skeletonlabs/skeleton"
-    import type { SubmitFunction } from "./$types"
-    import { EmailSchema } from "$lib/validation/utils";
-    import TextInput from "$lib/components/form/TextInput.svelte";
+    import SuperDebug, { superForm } from "sveltekit-superforms"
+    import type { PageData } from "./$types"
+    import TextInputField from "$lib/components/form/TextInputField.svelte"
+    import ErrorMessage from "$lib/components/form/ErrorMessage.svelte"
+    import ButtonWithSpinner from "$lib/components/ButtonWithSpinner.svelte"
+    import { valibotClient } from "sveltekit-superforms/adapters"
+    import { LoginSchema } from "$lib/validation/auth/login"
+    import { getToastStore } from "@skeletonlabs/skeleton";
 
+
+    let { data }: { data: PageData } = $props()
 
     const toastStore = getToastStore()
+    const { form, errors, enhance, delayed } = superForm(data.form, {
+        validators: valibotClient(LoginSchema),
+        delayMs: 100,
 
-    let error: string | undefined = undefined
-    const enhanceHandler: SubmitFunction = function({ formData, cancel }) {
-        const data = formData.get("email")
-        const parsingResult = EmailSchema.safeParse(data)
-        if (!parsingResult.success) {
-            error = parsingResult.error.errors[0].message
-            cancel()
-        }
-
-        return ({ result }) => {
-            if (result.type == "success" && result.data?.message) {
+        onUpdate({ form }) {
+            if (form.message) {
                 toastStore.trigger({
-                    message: result.data.message,
-                    background: "variant-filled-success"
+                    message: form.message.text,
+                    background: form.message.type == "success" ?
+                        "variant-filled-success" : "variant-filled-error",
                 })
             }
-            else if (result.type == "failure") {
-                error = result.data?.error
+        },
+    })
 
-                if (result.data?.message) {
-                    toastStore.trigger({
-                        message: result.data.message,
-                        background: "variant-filled-error"
-                    })
-                }
-            }
-        }
-    }
-
+    let buttonWithSpinner: ButtonWithSpinner
+    $effect(() => {
+        buttonWithSpinner.loading = $delayed
+    })
 </script>
 
 <div class="w-full h-full flex justify-center items-center">
-    <form method="post" class="flex flex-col gap-8 w-1/3 justify-center" use:enhance={enhanceHandler}>
-        <h1 class="text-2xl">Log In</h1>
-        <div>
-            <TextInput
+    <form
+        method="post"
+        use:enhance
+        class="flex flex-col gap-8 w-1/3 justify-center"
+    >
+        <h2 class="h2">Log In</h2>
+        <ErrorMessage errors={$errors.email}>
+            <TextInputField
                 text="Email"
                 name="email"
                 placeholder="email@example.com"
-                value={$page.url.searchParams.get("email") ?? ""}
+                bind:value={$form.email}
                 required
                 type="email"
             />
-            {#if error}
-                <p class="text-red-600">{error}</p>
-            {/if}
-        </div>
-        <button type="submit" class="btn variant-filled-primary">Send Email</button>
+        </ErrorMessage>
+        <ButtonWithSpinner
+            class="variant-filled-primary"
+            type="submit"
+            bind:this={buttonWithSpinner}
+        >
+            Send Email
+        </ButtonWithSpinner>
     </form>
 </div>

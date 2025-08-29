@@ -5,18 +5,17 @@ export type SearchOptions<Item> = IFuseOptions<Item> & {
     filter?: (item: Item) => boolean
 }
 
-export function search<Item extends Record<string, any>>(
+export function search<Item>(
     items: Item[],
     query: string,
     options?: SearchOptions<Item>
 ): Item[] {
-    const filteredItems = options?.filter ? items.filter(options.filter) : items
-
-    if (items.length < 2 || options?.keys?.length === 0 || query === "") {
-        return filteredItems
+    if (query === "") {
+        return items
     }
 
-    const fuse = new Fuse(filteredItems, options)
+    const searchItems = options?.filter ? items.filter(options.filter) : items
+    const fuse = new Fuse(searchItems, options)
     const results = fuse.search(query)
     return results.map(result => result.item)
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Autocomplete, InputChip, type AutocompleteOption } from "@skeletonlabs/skeleton"
 
+
     let inputValue = ""
     export let selectedOptions: string[] = []
     export let options: string[]
@@ -27,8 +28,7 @@
 <!-- svelte-ignore a11y-label-has-associated-control -->
 <label class="label">
     <span>
-        {title}
-        {#if required}
+        {title}{#if required}
             <sup class="text-red-500">*</sup>
         {/if}
     </span>

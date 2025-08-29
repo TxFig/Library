@@ -1,39 +1,39 @@
-import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
-import type { Implements } from "$lib/utils/types"
-import type { ApiMethodReturn } from ".."
-import db from "$lib/server/database/"
-import log, { logError } from "$lib/logging"
-import type { User } from "@prisma/client"
+// import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
+// import type { Implements } from "$lib/utils/types"
+// import type { ApiMethodReturn } from ".."
+// import db from "$lib/server/database/"
+// import { log, logError } from "$lib/server/database/logs"
+// import type { User } from "@prisma/client"
 
 
-export type UserDeleteMethodReturn = Implements<ApiMethodReturn, {
-    success: true
-    message: string,
-    data: User,
-} | {
-    success: false,
-    code: HttpErrorCodesValues,
-    message: string,
-}>
+// export type UserDeleteMethodReturn = Implements<ApiMethodReturn, {
+//     success: true
+//     message: string,
+//     data: User,
+// } | {
+//     success: false,
+//     code: HttpErrorCodesValues,
+//     message: string,
+// }>
 
-export async function DELETE(opaqueId: string, userId: number): Promise<UserDeleteMethodReturn> {
-    try {
-        const user = await db.auth.user.deleteUser(opaqueId)
-        await log("info", `User deleted: ${user.id}`, userId, user)
+// export async function DELETE(opaqueId: string, userId: number): Promise<UserDeleteMethodReturn> {
+//     try {
+//         const user = await db.auth.user.deleteUser(opaqueId)
+//         await log("info", `User deleted: ${user.id}`, userId, user)
 
-        return {
-            message: "User Deleted Successfully",
-            success: true,
-            data: user
-        }
-    } catch (err) {
-        await logError(err, `Error deleting user: ${opaqueId} in database`, userId)
-        return {
-            success: false,
-            code: HttpCodes.ServerError.InternalServerError,
-            message: "Error deleting user in database"
-        }
-    }
-}
+//         return {
+//             message: "User Deleted Successfully",
+//             success: true,
+//             data: user
+//         }
+//     } catch (err) {
+//         await logError(err, `Error deleting user: ${opaqueId} in database`, userId)
+//         return {
+//             success: false,
+//             code: HttpCodes.ServerError.InternalServerError,
+//             message: "Error deleting user in database"
+//         }
+//     }
+// }
 
-export default DELETE
+// export default DELETE

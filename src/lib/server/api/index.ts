@@ -1,9 +1,10 @@
-import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes"
-import { error, json } from "@sveltejs/kit"
+import { HttpCodes, type HttpErrorCodesValues, type HttpSuccessValues } from "$lib/utils/http-codes"
+import { json } from "@sveltejs/kit"
 
 
 export type ApiMethodReturn<Data = any, Errors = any> = {
     success: true,
+    code?: HttpSuccessValues,
     message?: string,
     data: Data
 } | {
@@ -17,7 +18,7 @@ export type ApiJsonResponse<MethodReturn extends ApiMethodReturn> =
     MethodReturn extends { success: true } ?
         {
             data: MethodReturn["data"],
-            status: HttpCodes["Success"]
+            status: HttpCodes["Success"]["OK"]
         }
     : MethodReturn extends { success: false } ?
         {
@@ -27,61 +28,42 @@ export type ApiJsonResponse<MethodReturn extends ApiMethodReturn> =
         }
     : never
 
-export function ApiMethodResponse<Data = any>(methodReturn: ApiMethodReturn<Data>): Response {
+export function ApiMethodResponse(methodReturn: ApiMethodReturn): Response {
     if (methodReturn.success) {
-        return json({
-            data: methodReturn.data,
-            status: HttpCodes.Success
-        }, {
-            status: HttpCodes.Success
-        })
+        return json(
+            {
+                data: methodReturn.data,
+                status: methodReturn.code ?? HttpCodes.Success.OK
+            },
+            {
+                status: methodReturn.code ?? HttpCodes.Success.OK
+            }
+        )
     } else {
         return json({
             message: methodReturn.message,
-            status: methodReturn.code,
-            errors: methodReturn.errors
+            errors: methodReturn.errors,
+            status: methodReturn.code
         }, {
             status: methodReturn.code
         })
     }
 }
 
-export class ApiError extends Error {
-    code: HttpErrorCodesValues
 
-    constructor(code: HttpErrorCodesValues, message: string) {
-        super(message)
-        this.code = code
-    }
-}
-
-export function handleApiError(err: unknown): Response {
-    if (!(err instanceof ApiError)) {
-        error(HttpCodes.ServerError.InternalServerError, {
-            message: "Something went wrong",
-            error: err
-        })
-    }
-
-    return ApiMethodResponse({
-        success: false,
-        message: err.message,
-        code: err.code
-    })
-}
-
-import book from "./book"
+import books from "./books"
 import user from "./user"
-import readingState from "./reading-state"
 import settings from "./settings"
 import bookCollection from "./book-collection"
-import rating from "./rating"
+import editions from "./editions"
+import copies from "./copies"
+
 
 export default {
-    book,
+    books,
     user,
-    readingState,
     settings,
     bookCollection,
-    rating
+    editions,
+    copies
 }

@@ -1,5 +1,5 @@
 import type { Location } from "@prisma/client"
-import { prisma } from ".."
+import prisma from "$lib/server/database/prisma"
 
 
 export function getAllLocations(): Promise<Location[]> {
@@ -8,5 +8,5 @@ export function getAllLocations(): Promise<Location[]> {
 
 
 export default {
-    getAllLocations
+    getAllLocations,
 }

@@ -1,7 +1,6 @@
 import { env } from "$env/dynamic/private"
-import { logFatal } from "$lib/logging";
+import { logFatal } from "$lib/server/database/logs";
 import db from "$lib/server/database/"
-import isDateExpired from "$lib/utils/is-date-expired";
 import type { Handle, RequestEvent } from "@sveltejs/kit"
 import { validate as validateUUID } from "uuid"
 
@@ -25,7 +24,8 @@ async function handleAuth(event: RequestEvent): Promise<RequestEvent> {
 
     if (!session) return resolveWithoutUserAndSession()
 
-    if (session && isDateExpired(session.expireDate)) {
+    const expired = session.expireDate.getTime() < Date.now()
+    if (expired) {
         await db.auth.session.deleteSessionByToken(sessionToken)
         return resolveWithoutUserAndSession()
     }

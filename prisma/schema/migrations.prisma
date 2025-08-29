@@ -1,5 +1,0 @@
-model Migration {
-    id               Int     @id @default(autoincrement())
-    name             String  @unique
-    hasDataMigration Boolean @default(false)
-}

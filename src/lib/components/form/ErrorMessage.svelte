@@ -1,32 +1,60 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import type { Snippet } from "svelte"
+    import type { SvelteHTMLElements } from "svelte/elements"
 
-    export let errors:
-        { _errors?: string[] } |
-        { _errors?: string[] }[] & Record<string | number, string[]> |
-        string[] |
-        undefined = undefined
 
-    $: message = errors ?
-        Array.isArray(errors) ? errors[0] :
-        errors._errors ? errors._errors[0] :
-        Object.values(errors)[0]
-    : undefined
+    let {
+        errors = undefined,
+        children,
+        ...rest
+    }: {
+        errors?:
+            { _errors?: string[] } & Record<string | number, string[]> |
+            string[] |
+            undefined,
+        children: Snippet
+    } & SvelteHTMLElements["div"] = $props()
+
+    let message = $state<string>()
+    $effect(() => {
+        if (!errors) {
+            message = undefined
+            return
+        }
+
+        if (Array.isArray(errors)) {
+            message = errors[0]
+            return
+        }
+
+        if (errors._errors) {
+            message = errors._errors[0]
+            return
+        }
+
+        message = Object.values(errors)[0][0]
+    })
 
     let container: HTMLDivElement
     let input: HTMLInputElement | null
 
-    $: if (input) message ?
-        input.setAttribute("data-invalid", "") :
-        input.removeAttribute("data-invalid")
+    $effect(() => {
+        if (!input) return
 
-    onMount(() => {
+        if (message) {
+            input.setAttribute("data-invalid", "")
+        } else {
+            input.removeAttribute("data-invalid")
+        }
+    })
+
+    $effect(() => {
         input = container.querySelector("input")
     })
 </script>
 
-<div bind:this={container}>
-    <slot />
+<div bind:this={container} {...rest}>
+    {@render children?.()}
     {#if message}
         <p class="text-red-600">{message}</p>
     {/if}

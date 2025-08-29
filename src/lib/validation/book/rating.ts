@@ -1,10 +1,9 @@
-import { z } from "zod";
+import * as v from "valibot"
 
 
-export const RatingUpdateSchema = z.object({
-    rating: z.number().min(0).max(10),
-    bookId: z.number()
+export const RatingUpdateSchema = v.object({
+    rating: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(5)),
 })
-
 export type RatingUpdateSchema = typeof RatingUpdateSchema
-export type RatingUpdateData = z.infer<RatingUpdateSchema>
+export type RatingUpdateSchemaInput = v.InferInput<RatingUpdateSchema>
+export type RatingUpdateSchemaOutput = v.InferOutput<RatingUpdateSchema>

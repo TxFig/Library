@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import { SlideToggle, getToastStore } from "@skeletonlabs/skeleton";
     import type { PageData } from "./$types";
     import HttpCodes from "$lib/utils/http-codes"
@@ -39,7 +39,6 @@
     <div class="flex flex-col gap-4">
         <p class="text-2xl">Your Settings</p>
         <div class="flex gap-4">
-            <!-- svelte-ignore a11y-label-has-associated-control -->
             <label class="flex items-center gap-2">
                 <p>Visible Reading State</p>
                 <SlideToggle
@@ -51,4 +50,4 @@
             </label>
         </div>
     </div>
-</div>
+</div> -->

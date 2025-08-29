@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import Icon from "@iconify/svelte";
     import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import UserFormModal from "./UserFormModal.svelte";
@@ -50,4 +50,4 @@
     class="btn-icon"
 >
     <Icon icon="mdi:pencil" width="24" height="24"/>
-</button>
+</button> -->

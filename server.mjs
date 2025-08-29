@@ -3,7 +3,9 @@ import path from "path"
 import chalk from "chalk";
 import { z } from "zod"
 import { PrismaClient } from "@prisma/client"
-import express from "express"
+import polka from "polka"
+import serveStatic from "serve-static";
+import compression from "compression";
 import { handler } from "./build/handler.js"
 
 
@@ -64,7 +66,7 @@ const prisma = new PrismaClient()
 console.log(chalk.cyan("Library server starting..."))
 console.log()
 
-const app = express()
+const app = polka()
 
 app.use((req, res, next) => {
     res.on("finish", async () => {
@@ -85,9 +87,10 @@ app.use((req, res, next) => {
     next()
 })
 
-// @ts-ignore
+app.use(compression())
+
 const imagesPath = path.join(process.env.STATIC, "images")
-app.use("/images", express.static(imagesPath))
+app.use("/images", serveStatic(imagesPath))
 
 app.use(handler)
 

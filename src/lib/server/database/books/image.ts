@@ -1,39 +1,29 @@
-import type { Image } from "@prisma/client";
-import { prisma } from "..";
-
-export type BookImageInput = Omit<Image, "id" | "bookEditionId" | "createdAt">
+import type { Prisma } from "@prisma/client";
+import prisma from "$lib/server/database/prisma"
 
 
-export async function createBookImage(bookEditionId: number, image: BookImageInput[]): Promise<void> {
+export type ImageInput = Prisma.ImageCreateWithoutEditionInput
+export async function createBookImage(editionId: number, image: ImageInput[]): Promise<void> {
     await prisma.image.createMany({
         data: image.map(img => ({
-            bookEditionId,
+            editionId,
             ...img
         }))
     })
 }
 
-export async function updateBookImage(bookEditionId: number, image: BookImageInput[]): Promise<void> {
+export async function updateBookImage(editionId: number, image: ImageInput[]): Promise<void> {
     await prisma.image.deleteMany({
         where: {
-            bookEditionId
+            editionId
         }
     })
     if (image.length > 0) {
-        await createBookImage(bookEditionId, image)
+        await createBookImage(editionId, image)
     }
-}
-
-export async function deleteBookImage(bookEditionId: number): Promise<void> {
-    await prisma.image.deleteMany({
-        where: {
-            bookEditionId
-        }
-    })
 }
 
 export default {
     createBookImage,
     updateBookImage,
-    deleteBookImage
 }

@@ -1,11 +1,9 @@
 model LogEntry {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
-    message   String
-    level     LogLevel
 
-    userId   Int?
-    user     User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    message  String
+    level    LogLevel
     metadata Json?
 }
 

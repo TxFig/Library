@@ -1,16 +1,8 @@
-import { z } from "zod";
-import { EmailSchema } from "../utils";
-import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms";
+import * as v from "valibot"
+import { EmailSchema } from "./email"
 
 
-export const LoginSchema = z.object({
+export const LoginSchema = v.object({
     email: EmailSchema
 })
 export type LoginSchema = typeof LoginSchema
-export type LoginFormData = z.output<typeof LoginSchema>
-
-export type SuperFormLogin = SuperValidated<
-    Infer<LoginSchema>,
-    App.Superforms.Message,
-    InferIn<LoginSchema>
->

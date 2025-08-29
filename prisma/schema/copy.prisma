@@ -1,0 +1,86 @@
+model Location {
+    id    Int    @id @default(autoincrement())
+    value String @unique
+
+    copies BookCopy[]
+
+    parentId Int?
+    parent   Location?  @relation("LocationHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+    children Location[] @relation("LocationHierarchy")
+}
+
+enum CopyStatus {
+    available
+    on_loan
+    unavailable
+}
+
+model BookCopy {
+    id       Int    @id @default(autoincrement())
+    publicId String @unique @default(dbgenerated("generate_public_id()"))
+
+    editionId Int
+    edition   BookEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+    locationId Int
+    location   Location @relation(fields: [locationId], references: [id])
+
+    ownerId Int
+    owner   User @relation(fields: [ownerId], references: [id])
+
+    requests CopyRequest[]
+    status   CopyStatus    @default(available)
+    loans    CopyLoan[]
+}
+
+enum CopyLoanStatus {
+    reserved
+    active
+    returned
+    cancelled
+}
+
+model CopyLoan {
+    id       Int    @id @default(autoincrement())
+    publicId String @unique @default(dbgenerated("generate_public_id()"))
+
+    copyId Int
+    copy   BookCopy @relation(fields: [copyId], references: [id])
+
+    userId Int
+    user   User @relation(fields: [userId], references: [id])
+
+    requestId Int         @unique
+    request   CopyRequest @relation(fields: [requestId], references: [id])
+
+    startDate DateTime
+    duration  Int
+    status    CopyLoanStatus
+}
+
+enum CopyRequestStatus {
+    pending
+    accepted
+    rejected
+    cancelled
+}
+
+model CopyRequest {
+    id       Int    @id @default(autoincrement())
+    publicId String @unique @default(dbgenerated("generate_public_id()"))
+
+    copyId Int
+    copy   BookCopy @relation(fields: [copyId], references: [id], onDelete: Cascade)
+
+    userId Int
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    startDate DateTime
+    duration  Int
+    status    CopyRequestStatus @default(pending)
+
+    loan CopyLoan?
+
+    resolvedAt DateTime?
+    createdAt  DateTime  @default(now())
+}

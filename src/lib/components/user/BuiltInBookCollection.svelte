@@ -1,5 +1,5 @@
-<script lang="ts">
-    import type { BuiltInBookCollectionWithBooks } from "$lib/server/database/books/types";
+<!-- <script lang="ts">
+    import type { BuiltInBookCollectionWithBooks } from "$lib/server/types";
     import Icon from "@iconify/svelte";
     import CollectionDisplay from "./CollectionDisplay.svelte";
 
@@ -18,4 +18,4 @@
         <span>{collection.name}</span>
     </legend>
     <CollectionDisplay {collection} />
-</fieldset>
+</fieldset> -->

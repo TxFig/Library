@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import Icon from "@iconify/svelte";
     import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import UserFormModal from "./UserFormModal.svelte";
@@ -38,4 +38,4 @@
 <button class="btn variant-outline-primary" on:click={createUser}>
     <Icon icon="mdi:user-add" width="24" height="24"/>
     <span>Create User</span>
-</button>
+</button> -->

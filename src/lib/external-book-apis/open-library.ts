@@ -1,27 +1,28 @@
-import fetchImageAsFile from "$lib/utils/fetch-image-as-file";
-import { isObjectNotEmpty } from "$lib/utils/is-object-empty";
-import type { DateObjectWithYear } from "$lib/validation/book/publish-date";
+import fetchImageAsFile from "$lib/utils/fetch-url-as-file";
+import type { DateObject } from "$lib/validation/book/publish-date";
 import type { ExternalBookData } from ".";
 import type { Cover, OpenLibraryBookData, OpenLibrarySearchResult } from "./open-library-types";
+import months from "$lib/utils/months";
 
 
 export async function getParsedOpenLibraryBook(isbn: string): Promise<ExternalBookData | null> {
     const book = await getOpenLibraryBook(isbn)
     if (!book) return null
 
-    return await parseOpenLibraryBookData(isbn, book)
+    return await parseOpenLibraryBookData(book)
 }
 
 const generateFetchUrl =
     (isbn: string) => `https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:${isbn}`
 
+const objectAndNotEmpty = (obj?: object) => obj && obj.constructor === Object && Object.keys(obj).length !== 0
 export async function getOpenLibraryBook(isbn: string): Promise<OpenLibraryBookData | null> {
     const url = generateFetchUrl(isbn)
     const response = await fetch(url)
     if (!response.ok) return null
     const json: OpenLibrarySearchResult = await response.json()
 
-    if (!isObjectNotEmpty(json)) {
+    if (!objectAndNotEmpty(json)) {
         return null
     }
 
@@ -39,13 +40,12 @@ async function fetchCoverImage(cover: Cover): Promise<File | undefined> {
 }
 
 const PublishDateRegex = /^(?:(January|February|March|April|May|June|July|August|September|October|November|December)?(?:\s+(\d{1,2}))?(?:,?\s*)?(\d{4}))$/
-const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-function parseOpenLibraryDate(date: string): DateObjectWithYear | undefined {
+function parseOpenLibraryDate(date: string): DateObject | undefined {
     const match = date.match(PublishDateRegex)
     if (!match) return undefined
 
     const [_, month, day, year] = match
-    const dateObj: DateObjectWithYear = {
+    const dateObj: DateObject = {
         year: Number(year),
         month: undefined,
         day: undefined
@@ -60,18 +60,13 @@ function parseOpenLibraryDate(date: string): DateObjectWithYear | undefined {
     return dateObj
 }
 
-export async function parseOpenLibraryBookData(isbn: string, book: OpenLibraryBookData): Promise<ExternalBookData> {
-    const publish_date = book.publish_date ?
+export async function parseOpenLibraryBookData(book: OpenLibraryBookData): Promise<ExternalBookData> {
+    const publishDate = book.publish_date ?
         parseOpenLibraryDate(book.publish_date)
     : undefined
 
-    const isbn10 = book.identifiers?.isbn_10 ?
-        book.identifiers.isbn_10[0]
-    : undefined
-
-    const isbn13 = book.identifiers?.isbn_13 ?
-        book.identifiers.isbn_13[0]
-    : undefined
+    const isbn10 = book.identifiers?.isbn_10?.[0]
+    const isbn13 = book.identifiers?.isbn_13?.[0]
 
     const image = book.cover ?
         await fetchCoverImage(book.cover)
@@ -82,16 +77,17 @@ export async function parseOpenLibraryBookData(isbn: string, book: OpenLibraryBo
     const subjects = book.subjects?.map(publisher => publisher.name) ?? []
 
     return {
-        isbn,
-        title: book.title,
-        subtitle: book.subtitle,
-        number_of_pages: book.number_of_pages,
-        publish_date,
-        isbn10,
-        isbn13,
-        image,
         authors,
-        publishers,
         subjects,
+        edition: {
+            title: book.title,
+            subtitle: book.subtitle,
+            pageCount: book.number_of_pages,
+            isbn10,
+            isbn13,
+            publishers,
+            publishDate,
+            image
+        }
     }
 }

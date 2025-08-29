@@ -1,22 +1,44 @@
 <script lang="ts">
-    import type { FieldProxy, ValidationErrors, Infer } from "sveltekit-superforms";
-    import NumberInput from "../form/NumberInput.svelte";
-    import type { DateObject } from "$lib/validation/book/publish-date";
-    import ErrorMessage from "../form/ErrorMessage.svelte";
-    import type { BookCreateSchema } from "$lib/validation/book/book";
+    import ErrorMessage from "../form/ErrorMessage.svelte"
+    import { minYear, type PublishDateSchemaInput } from "$lib/validation/book/publish-date"
+    import Combobox from "../form/Combobox.svelte"
+    import months from "$lib/utils/months"
 
-    export let proxy: FieldProxy<DateObject>
-    export let errors: ValidationErrors<Infer<BookCreateSchema>>["edition.publishDate"] = undefined
+
+    let {
+        year = $bindable(),
+        month = $bindable(),
+        day = $bindable(),
+        errors,
+        yearErrors,
+    }: {
+        year: PublishDateSchemaInput["year"],
+        month?: PublishDateSchemaInput["month"],
+        day?: PublishDateSchemaInput["day"],
+        errors?: string[],
+        yearErrors?: string[],
+    } = $props()
+
+    const currentYear = new Date().getFullYear()
+    const years = Array.from({ length: currentYear - minYear + 1 }, (_, i) => currentYear - i)
+    const days = Array.from({ length: 31 }, (_, i) => i + 1)
+    let monthSelected = $state(month ? months[month] : undefined)
+    $effect(() => {
+        if (!monthSelected) return
+        month = months.indexOf(monthSelected)
+    })
 </script>
 
-<!-- svelte-ignore a11y-label-has-associated-control -->
-<label class="label">
-    <span>Publish Date</span>
-    <ErrorMessage errors={errors} >
-    <div class="flex gap-4 md:gap-8">
-        <NumberInput text="Day" bind:value={$proxy.day} class="w-full" />
-        <NumberInput text="Month" bind:value={$proxy.month} class="w-full" />
-        <NumberInput text="Year" bind:value={$proxy.year} class="w-full" required />
-    </div>
+<div class="space-y-2">
+    <h3 class="h3">Publish Date</h3>
+
+    <ErrorMessage errors={yearErrors ? undefined : errors}>
+        <div class="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8">
+            <ErrorMessage errors={yearErrors}>
+                <Combobox name="year" options={years} placeholder="Year" bind:value={year} required width="w-full"/>
+            </ErrorMessage>
+            <Combobox name="month" options={months} placeholder="Month" bind:value={monthSelected} width="w-full"/>
+            <Combobox name="day" options={days} placeholder="Day" bind:value={day} width="w-full"/>
+        </div>
     </ErrorMessage>
-</label>
+</div>

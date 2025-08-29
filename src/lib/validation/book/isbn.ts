@@ -1,11 +1,16 @@
-import { z } from "zod"
+import * as v from "valibot"
+
 
 export const formISBNRegex = /^[0-9X]*$/
 const allSpacesAndHyphensRegex = /[-\s]/g
 const ISBNFormatRegex = /^(?:[0-9]{9}[0-9X]|978[0-9]{10})$/
 
+export function formatISBN(isbn: string): string {
+    return isbn.replace(allSpacesAndHyphensRegex, "")
+}
+
 export function validateISBN(isbn: string): boolean {
-    isbn = isbn.replace(allSpacesAndHyphensRegex, "")
+    isbn = formatISBN(isbn)
     if (!ISBNFormatRegex.test(isbn)) return false
 
     if (isbn.length === 10)
@@ -37,9 +42,9 @@ function validateISBN13(isbn: string): boolean {
     return sum % 10 === 0
 }
 
-
-export const ISBNSchema = z
-    .string()
-    .min(1, "ISBN Required")
-    .refine(validateISBN, "Invalid ISBN")
-    .transform(value => value.replace(allSpacesAndHyphensRegex, ""))
+export const ISBNSchema = v.pipe(
+    v.string(),
+    v.minLength(1, "ISBN Required"),
+    v.check(validateISBN, "Invalid ISBN"),
+    v.transform(value => value.replace(allSpacesAndHyphensRegex, ""))
+)

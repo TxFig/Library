@@ -1,41 +1,54 @@
 <script lang="ts">
-    import type { ReadingStateUpdateData } from "$lib/validation/book/reading-state";
-    import { ReadingState } from "@prisma/client";
+    import { readingStates, type ReadingState, type ReadingStateUpdateSchemaInput } from "$lib/validation/book/reading-state";
+    import Icon from "@iconify/svelte";
     import Combobox from "../form/Combobox.svelte";
+    import { type ComponentProps } from "svelte";
 
-    export let readingState: ReadingState | null = null
-    export let bookId: number
-    let state: ReadingState = readingState ?? "NOT_READ"
+    let {
+        state: rState = $bindable(),
+        editionId,
+        ...rest
+    }: {
+        state?: ReadingState,
+        editionId: string
+    } & Partial<ComponentProps<typeof Combobox>> = $props()
 
-    async function setReadingState(state: ReadingState) {
-        const updateData: ReadingStateUpdateData = {
-            state,
-            bookId
-        }
-
-        await fetch(`/api/reading-state/`, {
+    function updateUserReadingState() {
+        if (rState === undefined || rState === "NOT_READ") return
+        fetch(`/api/editions/${editionId}/reading-state/`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(updateData),
+            body: JSON.stringify({
+                state: rState
+            } satisfies ReadingStateUpdateSchemaInput),
         })
     }
 
-    const values = ["NOT_READ", "READING", "READ", "WANT_TO_READ"] as const
-    const labels = ["Not Read", "Currently Reading", "Read", "Want to Read"]
+    const labels = ["Not Read", "Currently Reading", "Read", "Want to Read"] as const
     const icons = ["fa6-regular:eye-slash", "fa6-regular:bookmark", "fa6-regular:circle-check", "material-symbols:star-outline"]
+
+    function onClick(value: string, index: number) {
+        rState = readingStates[index]
+        updateUserReadingState()
+    }
 </script>
 
-<div class="flex flex-col gap-2">
-    <Combobox
-        name="readingStateCombobox"
-        value={labels[values.indexOf(state)]}
-        options={labels}
-        icons={icons}
-        width="w-60"
-        onClick={
-            (_, index) => setReadingState(values[index])
-        }
-    />
-</div>
+<Combobox
+    {...rest}
+    name="readingStateCombobox"
+    value={labels[readingStates.indexOf(rState ?? "NOT_READ")]}
+    options={labels}
+    {onClick}
+>
+    {#snippet display(value, index)}
+        <div class="flex items-center gap-2">
+            <Icon
+                icon={icons[index ?? labels.indexOf(value)]}
+                height="16"
+            />
+            <span>{value}</span>
+        </div>
+    {/snippet}
+</Combobox>

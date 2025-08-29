@@ -1,5 +1,5 @@
-import fetchImageAsFile from "$lib/utils/fetch-image-as-file";
-import type { DateObjectWithYear } from "$lib/validation/book/publish-date";
+import fetchImageAsFile from "$lib/utils/fetch-url-as-file";
+import type { DateObject } from "$lib/validation/book/publish-date";
 import type { ExternalBookData } from ".";
 import type { GoogleBooksBookData, GoogleBooksSearchResult, ImageLinks } from "./google-books-types";
 
@@ -9,7 +9,7 @@ export async function getParsedGoogleBooksBook(isbn: string): Promise<ExternalBo
     const book = await getGoogleBooksBook(isbn)
     if (!book) return null
 
-    return await parseGoogleBookBookData(isbn, book)
+    return await parseGoogleBookBookData(book)
 }
 
 const generateFetchUrl =
@@ -28,7 +28,7 @@ export async function getGoogleBooksBook(isbn: string): Promise<GoogleBooksBookD
     return json.items[0]
 }
 
-function parseGoogleBooksDate(date: string): DateObjectWithYear | undefined {
+function parseGoogleBooksDate(date: string): DateObject | undefined {
     const [year, month, day] = date.split("-")
 
     return {
@@ -46,8 +46,8 @@ async function fetchCoverImage(imageLinks: ImageLinks): Promise<File | undefined
     return undefined
 }
 
-export async function parseGoogleBookBookData(isbn: string, book: GoogleBooksBookData): Promise<ExternalBookData> {
-    const publish_date = book.volumeInfo.publishedDate ?
+export async function parseGoogleBookBookData(book: GoogleBooksBookData): Promise<ExternalBookData> {
+    const publishDate = book.volumeInfo.publishedDate ?
         parseGoogleBooksDate(book.volumeInfo.publishedDate)
     : undefined
 
@@ -69,16 +69,18 @@ export async function parseGoogleBookBookData(isbn: string, book: GoogleBooksBoo
     const subjects = book.volumeInfo.categories ?? []
 
     return {
-        isbn,
-        title: book.volumeInfo.title,
-        subtitle: book.volumeInfo.subtitle,
-        number_of_pages: book.volumeInfo.pageCount,
-        publish_date,
-        isbn10,
-        isbn13,
-        image,
         authors,
-        publishers,
         subjects,
+        edition: {
+            title: book.volumeInfo.title,
+            subtitle: book.volumeInfo.subtitle,
+            pageCount: book.volumeInfo.pageCount,
+            isbn10,
+            isbn13,
+            language: book.volumeInfo.language,
+            publishers,
+            publishDate,
+            image
+        }
     }
 }

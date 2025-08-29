@@ -1,5 +1,5 @@
 export type Entries<T> = {
-    [K in keyof T]: [K, T[K]]
+    [K in keyof T]-?: [K, T[K]]
 }[keyof T][]
 
 export type Values<Obj> = Obj[keyof Obj]
@@ -9,4 +9,7 @@ export type ReplaceFields<
     Fields extends { [key in keyof Obj]?: any }
 > = Omit<Obj, keyof Fields> & Fields
 
+/**
+ * @deprecated
+ */
 export type Implements<T, U extends T> = U

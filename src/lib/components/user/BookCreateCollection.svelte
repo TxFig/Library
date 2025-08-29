@@ -1,9 +1,9 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import { invalidate, invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
     import type { ApiJsonResponse } from "$lib/server/api";
     import type { BookCollectionPostMethodReturn } from "$lib/server/api/book-collection/POST";
-    import type { BookCollectionWithBooks } from "$lib/server/database/books/types";
+    import type { BookCollectionWithBooks } from "$lib/server/types";
     import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
     import { getToastStore } from "@skeletonlabs/skeleton";
@@ -29,7 +29,7 @@
         })
 
         const json: ApiJsonResponse<BookCollectionPostMethodReturn> = await response.json()
-        if (json.status === HttpCodes.Success) {
+        if (json.status === HttpCodes.Success.OK) {
             await invalidateAll()
             onCreate(json.data)
         }
@@ -77,4 +77,4 @@
     <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto p-4">
         <p class="text-center text-surface-400">No books in this collection</p>
     </div>
-</fieldset>
+</fieldset> -->

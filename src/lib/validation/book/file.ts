@@ -1,26 +1,33 @@
-import { z } from "zod"
+import * as v from "valibot"
 import { env } from "$env/dynamic/public"
 import prettyBytes from "pretty-bytes"
 
 
-const DEFAULT_MAX_IMAGE_UPLOAD_SIZE = 16_000_000
-export const FileSchema = z.instanceof(File)
-    .refine(
-        (file) => file.size <= Number(env.PUBLIC_MAX_IMAGE_UPLOAD_SIZE) || DEFAULT_MAX_IMAGE_UPLOAD_SIZE,
-        `Image size can not exceeded ${prettyBytes(Number(env.PUBLIC_MAX_IMAGE_UPLOAD_SIZE) || DEFAULT_MAX_IMAGE_UPLOAD_SIZE)}`
+const DEFAULT_MAX_UPLOAD_SIZE = 16_000_000
+const MAX_FILE_SIZE = Number(env.PUBLIC_MAX_IMAGE_UPLOAD_SIZE) || DEFAULT_MAX_UPLOAD_SIZE
+export const FileSchema = v.pipe(
+    v.file(),
+    v.maxSize(
+        MAX_FILE_SIZE,
+        `Image size can not exceed ${prettyBytes(MAX_FILE_SIZE)}`
     )
+)
 
-const ACCEPTED_IMAGE_TYPES = [
+export const ACCEPTED_IMAGE_TYPES = [
     "image/jpeg",
     "image/jpg",
     "image/png",
     "image/webp",
-]
-export const ImageFileSchema = FileSchema
-    .refine(
-        (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+] as const
+export const ImageFileSchema = v.pipe(
+    FileSchema,
+    v.mimeType(
+        ACCEPTED_IMAGE_TYPES,
         `File type must be one of ${ACCEPTED_IMAGE_TYPES.join(", ")}`
     )
+)
+
+export const UrlSchema = v.pipe(v.string(), v.url())
 
 
 export default FileSchema

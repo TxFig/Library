@@ -8,9 +8,14 @@ export async function setFlashState(state: boolean): Promise<void> {
         } else {
             await Quagga.CameraAccess.disableTorch()
         }
-    } catch (err) {
-        console.log(err)
-    }
+    } catch {}
 }
 
-export default setFlashState
+export async function isFlashAvailable(): Promise<boolean> {
+    try {
+        await Quagga.CameraAccess.disableTorch()
+        return true
+    } catch {
+        return false
+    }
+}

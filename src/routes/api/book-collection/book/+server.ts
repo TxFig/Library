@@ -1,52 +1,52 @@
-import HttpCodes from "$lib/utils/http-codes"
-import { json } from "@sveltejs/kit"
-import type { RequestHandler } from "./$types"
-import { applyDecorators } from "$lib/decorators"
-import AuthDecorator from "$lib/decorators/auth"
-import { ISBNSchema } from "$lib/validation/book/isbn"
-import api, { ApiMethodResponse } from "$lib/server/api"
+// import HttpCodes from "$lib/utils/http-codes"
+// import { json } from "@sveltejs/kit"
+// import type { RequestHandler } from "./$types"
+// // import { applyDecorators } from "$lib/decorators"
+// // import AuthDecorator from "$lib/decorators/auth"
+// // import { ISBNSchema } from "$lib/_validation/book/isbn"
+// import api, { ApiMethodResponse } from "$lib/server/api"
 
 
-export const POST: RequestHandler = applyDecorators(
-    [AuthDecorator(["View Book"])],
-    async ({ request, locals }) => {
-        const userId = locals.user!.id
-        const body = await request.json()
-        const { collectionName, isbn } = body
+// export const POST: RequestHandler = applyDecorators(
+//     [AuthDecorator(["View Book"])],
+//     async ({ request, locals }) => {
+//         const userId = locals.user!.id
+//         const body = await request.json()
+//         const { collectionName, isbn } = body
 
-        const parsingResultISBN = ISBNSchema.safeParse(isbn)
-        if (!collectionName || typeof collectionName !== "string" || !parsingResultISBN.success) {
-            return json({
-                message: "Invalid Request"
-            }, {
-                status: HttpCodes.ClientError.BadRequest
-            })
-        }
+//         const parsingResultISBN = ISBNSchema.safeParse(isbn)
+//         if (!collectionName || typeof collectionName !== "string" || !parsingResultISBN.success) {
+//             return json({
+//                 message: "Invalid Request"
+//             }, {
+//                 status: HttpCodes.ClientError.BadRequest
+//             })
+//         }
 
-        return ApiMethodResponse(
-            await api.bookCollection.book.POST(userId, collectionName, isbn)
-        )
-    }
-)
+//         return ApiMethodResponse(
+//             await api.bookCollection.book.POST(userId, collectionName, isbn)
+//         )
+//     }
+// )
 
-export const DELETE: RequestHandler = applyDecorators(
-    [AuthDecorator(["View Book"])],
-    async ({ request, locals }) => {
-        const userId = locals.user!.id
-        const body = await request.json()
-        const { collectionName, isbn } = body
+// export const DELETE: RequestHandler = applyDecorators(
+//     [AuthDecorator(["View Book"])],
+//     async ({ request, locals }) => {
+//         const userId = locals.user!.id
+//         const body = await request.json()
+//         const { collectionName, isbn } = body
 
-        const parsingResultISBN = ISBNSchema.safeParse(isbn)
-        if (!collectionName || typeof collectionName !== "string" || !parsingResultISBN.success) {
-            return json({
-                message: "Invalid Request"
-            }, {
-                status: HttpCodes.ClientError.BadRequest
-            })
-        }
+//         const parsingResultISBN = ISBNSchema.safeParse(isbn)
+//         if (!collectionName || typeof collectionName !== "string" || !parsingResultISBN.success) {
+//             return json({
+//                 message: "Invalid Request"
+//             }, {
+//                 status: HttpCodes.ClientError.BadRequest
+//             })
+//         }
 
-        return ApiMethodResponse(
-            await api.bookCollection.book.DELETE(userId, collectionName, isbn)
-        )
-    }
-)
+//         return ApiMethodResponse(
+//             await api.bookCollection.book.DELETE(userId, collectionName, isbn)
+//         )
+//     }
+// )

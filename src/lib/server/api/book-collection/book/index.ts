@@ -1,8 +1,8 @@
-import POST from "./POST"
-import DELETE from "./DELETE"
+// import POST from "./POST"
+// import DELETE from "./DELETE"
 
 
 export default {
-    POST,
-    DELETE
+    // POST,
+    // DELETE
 }

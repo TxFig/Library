@@ -1,58 +1,58 @@
-import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes";
-import type { UserCreateSchema } from "$lib/validation/auth/user";
-import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms";
-import db from "$lib/server/database/";
-import type { Implements } from "$lib/utils/types";
-import type { ApiMethodReturn } from "..";
-import log, { logError } from "$lib/logging";
-import type { User } from "@prisma/client";
+// import HttpCodes, { type HttpErrorCodesValues } from "$lib/utils/http-codes";
+// import type { UserCreateSchema } from "$lib/_validation/auth/user";
+// import type { Infer, InferIn, SuperValidated } from "sveltekit-superforms";
+// import db from "$lib/server/database/";
+// import type { Implements } from "$lib/utils/types";
+// import type { ApiMethodReturn } from "..";
+// import { log, logError } from "$lib/server/database/logs";
+// import type { User } from "@prisma/client";
 
 
-export type SuperFormCreateUser = SuperValidated<
-    Infer<UserCreateSchema>,
-    App.Superforms.Message,
-    InferIn<UserCreateSchema>
->
+// export type SuperFormCreateUser = SuperValidated<
+//     Infer<UserCreateSchema>,
+//     App.Superforms.Message,
+//     InferIn<UserCreateSchema>
+// >
 
-export type UserPostMethodReturn = Implements<ApiMethodReturn, {
-    success: true
-    message: string,
-    data: User
-} | {
-    success: false
-    code: HttpErrorCodesValues,
-    message: string,
-}>
+// export type UserPostMethodReturn = Implements<ApiMethodReturn, {
+//     success: true
+//     message: string,
+//     data: User
+// } | {
+//     success: false
+//     code: HttpErrorCodesValues,
+//     message: string,
+// }>
 
-export async function POST(form: SuperFormCreateUser, userId: number): Promise<UserPostMethodReturn> {
-    const { data } = form
+// export async function POST(form: SuperFormCreateUser, userId: number): Promise<UserPostMethodReturn> {
+//     const { data } = form
 
-    const doesUserExist = await db.auth.user.doesUserExist({ email: data.email })
-    if (doesUserExist) {
-        return {
-            code: HttpCodes.ClientError.Conflict,
-            message: "User Already Exists",
-            success: false
-        }
-    }
+//     const doesUserExist = await db.auth.user.getCount({ where: { email: data.email } }) !== 0
+//     if (doesUserExist) {
+//         return {
+//             code: HttpCodes.ClientError.Conflict,
+//             message: "User Already Exists",
+//             success: false
+//         }
+//     }
 
-    try {
-        const createdUser = await db.auth.user.createUser(data)
-        await log("info", `User created: ${createdUser.id}`, userId, data)
+//     try {
+//         const createdUser = await db.auth.user.createUser(data)
+//         await log("info", `User created: ${createdUser.id}`, userId, data)
 
-        return {
-            message: "User Created Successfully",
-            success: true,
-            data: createdUser
-        }
-    } catch (err) {
-        await logError(err, `Error creating user: ${data.email} in database`, userId)
-        return {
-            success: false,
-            code: HttpCodes.ServerError.InternalServerError,
-            message: "Error creating user in database"
-        }
-    }
-}
+//         return {
+//             message: "User Created Successfully",
+//             success: true,
+//             data: createdUser
+//         }
+//     } catch (err) {
+//         await logError(err, `Error creating user: ${data.email} in database`, userId)
+//         return {
+//             success: false,
+//             code: HttpCodes.ServerError.InternalServerError,
+//             message: "Error creating user in database"
+//         }
+//     }
+// }
 
-export default POST
+// export default POST

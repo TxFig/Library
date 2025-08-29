@@ -1,45 +1,45 @@
-import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes";
-import type { Implements } from "$lib/utils/types";
-import type { ApiMethodReturn } from "..";
-import db from "$lib/server/database/"
-import log, { logError } from "$lib/logging";
+// import { HttpCodes, type HttpErrorCodesValues } from "$lib/utils/http-codes";
+// import type { Implements } from "$lib/utils/types";
+// import type { ApiMethodReturn } from "..";
+// import db from "$lib/server/database/"
+// import { log, logError } from "$lib/server/database/logs";
 
 
-export type BookCollectionDeleteMethodReturn = Implements<ApiMethodReturn, {
-    success: true
-    message: string,
-    data: undefined
-} | {
-    success: false
-    code: HttpErrorCodesValues,
-    message: string,
-}>
+// export type BookCollectionDeleteMethodReturn = Implements<ApiMethodReturn, {
+//     success: true
+//     message: string,
+//     data: undefined
+// } | {
+//     success: false
+//     code: HttpErrorCodesValues,
+//     message: string,
+// }>
 
-export async function DELETE(collectionId: number, userId: number): Promise<BookCollectionDeleteMethodReturn> {
-    try {
-        const collection = await db.books.collection.getCollectionById(collectionId)
-        if (!collection) {
-            return {
-                success: false,
-                code: HttpCodes.ClientError.Unauthorized,
-                message: "Collection does not exist"
-            }
-        }
-        await db.books.collection.deleteCollection(collectionId, userId)
-        await log("info", `Collection deleted: ${collectionId}`, userId)
-        return {
-            message: "Collection Deleted Successfully",
-            success: true,
-            data: undefined
-        }
-    } catch (err) {
-        await logError(err, `Error deleting collection: ${collectionId} in database`, userId)
-        return {
-            success: false,
-            code: HttpCodes.ServerError.InternalServerError,
-            message: "Error Deleting Collection"
-        }
-    }
-}
+// export async function DELETE(collectionId: number, userId: number): Promise<BookCollectionDeleteMethodReturn> {
+//     try {
+//         const collection = await db.books.collection.getCollectionById(collectionId)
+//         if (!collection) {
+//             return {
+//                 success: false,
+//                 code: HttpCodes.ClientError.Unauthorized,
+//                 message: "Collection does not exist"
+//             }
+//         }
+//         await db.books.collection.deleteCollection(collectionId, userId)
+//         await log("info", `Collection deleted: ${collectionId}`, { userId })
+//         return {
+//             message: "Collection Deleted Successfully",
+//             success: true,
+//             data: undefined
+//         }
+//     } catch (err) {
+//         await logError(err, `Error deleting collection: ${collectionId} in database`, { userId })
+//         return {
+//             success: false,
+//             code: HttpCodes.ServerError.InternalServerError,
+//             message: "Error Deleting Collection"
+//         }
+//     }
+// }
 
-export default DELETE
+// export default DELETE

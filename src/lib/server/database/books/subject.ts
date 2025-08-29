@@ -1,54 +1,44 @@
 import type { Prisma, Subject } from "@prisma/client";
-import { prisma } from "..";
+import prisma from "$lib/server/database/prisma"
+import applyTransformSpec, { type ApplyTransformSpec } from "$lib/utils/transform-object";
+import { subjectTransform } from "$lib/transforms";
 
 
-export function getAllSubjects(): Promise<Subject[]> {
-    return prisma.subject.findMany()
+export function getAll<T extends Prisma.SubjectFindManyArgs>(
+    ...args: Parameters<typeof prisma.subject.findMany<T>>
+) {
+    return prisma.subject.findMany(...args)
 }
 
-export async function getSubjectWithBooksByName(value: string, bookInclude: Prisma.BookInclude = {}) {
-    return prisma.subject.findUnique({
-        where: { value },
-        include: {
-            books: {
-                include: bookInclude
-            }
-        }
-    })
+export function getUnique<T extends Prisma.SubjectFindUniqueArgs>(
+    ...args: Parameters<typeof prisma.subject.findUnique<T>>
+) {
+    return prisma.subject.findUnique(...args)
 }
 
-export async function getSubjectsByISBN(isbn: string): Promise<Subject[]> {
-    return prisma.subject.findMany({
+export async function deleteFn(bookPublicId: string, subject: string) {
+    await prisma.subject.delete({
         where: {
             books: {
                 some: {
-                    isbn
-                }
-            }
-        }
-    })
-}
-
-export async function deleteBookSubjects(bookId: number, subjects: string[]): Promise<void> {
-    if (subjects.length === 0) return
-    await prisma.subject.deleteMany({
-        where: {
-            books: {
-                some: {
-                    id: bookId
+                    publicId: bookPublicId
                 }
             },
-            value: {
-                in: subjects
-            }
+            value: subject
         }
     })
 }
 
+export async function getAllTransformed() {
+    return applyTransformSpec(
+        await getAll(),
+        { $: subjectTransform }
+    )
+}
+export type SubjectTransformed = ApplyTransformSpec<Subject, { $: typeof subjectTransform }>
 
 export default {
-    getAllSubjects,
-    getSubjectWithBooksByName,
-    getSubjectsByISBN,
-    deleteBookSubjects
+    getAll,
+    getAllTransformed,
+    delete: deleteFn,
 }

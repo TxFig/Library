@@ -17,8 +17,12 @@ const config = {
 
     kit: {
         adapter: adapter(),
-        alias: {
-            "$types": "./.svelte-kit/types/src/routes"
+        typescript: {
+            config: (config) => {
+                config.include.push("../prisma/**/*.js")
+                config.include.push("../prisma/**/*.ts")
+                return config
+            }
         }
     }
 }

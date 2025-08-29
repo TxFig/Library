@@ -1,60 +1,97 @@
+import { logError } from "$lib/server/database/logs";
 import db from "$lib/server/database/";
+import HttpCodes from "$lib/utils/http-codes";
+import { LoginSchema } from "$lib/validation/auth/login";
+import type { Prisma } from "@prisma/client";
 import { fail, type Actions } from "@sveltejs/kit";
-import HttpCodes from "$lib/utils/http-codes"
-import { EmailSchema } from "$lib/validation/utils";
-import isDateExpired from "$lib/utils/is-date-expired";
+import { message, superValidate } from "sveltekit-superforms";
+import { valibot } from "sveltekit-superforms/adapters";
+import type { PageServerLoad } from "./$types";
+import { env } from "$env/dynamic/public";
 
+
+export const load: PageServerLoad = async ({ url }) => ({
+    form: await superValidate({
+        email: url.searchParams.get("email") ?? ""
+    }, valibot(LoginSchema), { errors: false })
+})
 
 export const actions: Actions = {
-    default: async ({ request, url }) => {
+    default: async function({ request, url }) {
         const formData = await request.formData()
-        const data = formData.get("email")
-        const parsingResult = EmailSchema.safeParse(data)
+        const form = await superValidate(formData, valibot(LoginSchema))
 
-        if (!parsingResult.success) {
-            return fail(HttpCodes.ClientError.BadRequest, {
-                error: parsingResult.error.errors[0].message,
-                message: undefined
+        if (!form.valid) {
+            return fail(HttpCodes.ClientError.BadRequest, { form })
+        }
+
+        const email = form.data.email
+        let user: Prisma.UserGetPayload<{
+            include: { emailConfirmationRequest: true }
+        }> | null
+        try {
+            user = await db.auth.user.getUnique({
+                where: { email },
+                include: { emailConfirmationRequest: true }
+            })
+        } catch (err) {
+            await logError(err, "Error retrieving user from database")
+            return message(form, {
+                type: "error",
+                text: "Internal Server Error"
+            }, {
+                status: HttpCodes.ServerError.InternalServerError
             })
         }
 
-        const email = parsingResult.data
-        const user = await db.auth.user.getUniqueUser({
-            where: { email },
-            include: { emailConfirmationRequest: true }
-        })
         if (!user) {
-            return fail(HttpCodes.ClientError.BadRequest, {
-                error: undefined,
-                message: "User doesn't exist"
+            return message(form, {
+                type: "error",
+                text: "User not found"
+            }, {
+                status: HttpCodes.ClientError.NotFound
             })
         }
 
         if (user.emailConfirmationRequest) {
-            if (!isDateExpired(user.emailConfirmationRequest.expireDate)) {
-                return fail(HttpCodes.ClientError.BadRequest, {
-                    error: undefined,
-                    message: "A email confirmation request already was sent"
+            if (user.emailConfirmationRequest.expireDate > new Date()) {
+                return message(form, {
+                    type: "error",
+                    text: "Confirmation email already sent"
+                }, {
+                    status: HttpCodes.ClientError.Conflict
                 })
-            } else {
-                db.auth.emailConfirmation.deleteEmailConfirmationRequestByToken(
+            }
+            try {
+                await db.auth.emailConfirmation.deleteByToken(
                     user.emailConfirmationRequest.token
                 )
+            } catch (err) {
+                await logError(err, "Error deleting email confirmation request from database")
+                return message(form, {
+                    type: "error",
+                    text: "Internal Server Error"
+                }, {
+                    status: HttpCodes.ServerError.InternalServerError
+                })
             }
         }
 
-        const redirectPath = url.searchParams.get("redirect") ?? undefined
+        const redirectPath = url.searchParams.get(env.PUBLIC_REDIRECT_QUERY_KEY) ?? undefined
         try {
-            await db.auth.emailConfirmation.sendConfirmationEmailAndSaveRequest(user, redirectPath)
+            await db.auth.emailConfirmation.sendEmailAndCreateRequest(user, redirectPath)
         } catch {
-            return fail(HttpCodes.ServerError.InternalServerError, {
-                error: undefined,
-                message: "Error sending email"
+            return message(form, {
+                type: "error",
+                text: "Error sending email"
+            }, {
+                status: HttpCodes.ServerError.InternalServerError
             })
         }
 
-        return {
-            message: "Confirmation email was sent"
-        }
+        return message(form, {
+            type: "success",
+            text: "Confirmation email was sent"
+        })
     }
 }

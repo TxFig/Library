@@ -4,7 +4,7 @@ import publisher from "./publisher"
 import subject from "./subject"
 import location from "./location"
 import language from "./language"
-import collection from "./collection"
+// import collection from "./collection"
 import image from "./image"
 import edition from "./edition"
 
@@ -16,7 +16,7 @@ export default {
     subject,
     location,
     language,
-    collection,
+    // collection,
     image,
-    edition
+    edition,
 }

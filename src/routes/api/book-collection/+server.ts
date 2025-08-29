@@ -1,35 +1,35 @@
-import type { RequestHandler } from "./$types";
-import { json } from "@sveltejs/kit";
-import { HttpCodes } from "$lib/utils/http-codes"
-import { applyDecorators } from "$lib/decorators";
-import AuthDecorator from "$lib/decorators/auth";
-import { superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
-import { BookCollectionCreateSchema } from "$lib/validation/book-collection/collection";
-import api, { ApiMethodResponse } from "$lib/server/api";
+// import type { RequestHandler } from "./$types";
+// import { json } from "@sveltejs/kit";
+// import { HttpCodes } from "$lib/utils/http-codes"
+// // import { applyDecorators } from "$lib/decorators";
+// // import AuthDecorator from "$lib/decorators/auth";
+// import { superValidate } from "sveltekit-superforms";
+// import { zod } from "sveltekit-superforms/adapters";
+// // import { BookCollectionCreateSchema } from "$lib/_validation/book-collection/collection";
+// import api, { ApiMethodResponse } from "$lib/server/api";
 
 
-export const POST: RequestHandler = applyDecorators(
-    [AuthDecorator(["View Book"])],
+// export const POST: RequestHandler = applyDecorators(
+//     [AuthDecorator(["View Book"])],
 
-    async ({ locals, request }) => {
-        const userId = locals.user!.id
-        // const formData = await request.formData()
-        const data = await request.json()
+//     async ({ locals, request }) => {
+//         const userId = locals.user!.id
+//         // const formData = await request.formData()
+//         const data = await request.json()
 
-        const form = await superValidate(data, zod(BookCollectionCreateSchema))
+//         const form = await superValidate(data, zod(BookCollectionCreateSchema))
 
-        if (!form.valid) {
-            return json({
-                message: "Name is required",
-                errors: form.errors
-            }, {
-                status: HttpCodes.ClientError.BadRequest
-            })
-        }
+//         if (!form.valid) {
+//             return json({
+//                 message: "Name is required",
+//                 errors: form.errors
+//             }, {
+//                 status: HttpCodes.ClientError.BadRequest
+//             })
+//         }
 
-        return ApiMethodResponse(
-            await api.bookCollection.POST(form, userId)
-        )
-    }
-)
+//         return ApiMethodResponse(
+//             await api.bookCollection.POST(form, userId)
+//         )
+//     }
+// )

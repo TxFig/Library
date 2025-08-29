@@ -1,5 +1,5 @@
-<script lang="ts">
-    import type { BookCollectionWithBooks, BuiltInBookCollectionWithBooks } from "$lib/server/database/books/types";
+<!-- <script lang="ts">
+    import type { BookCollectionWithBooks, BuiltInBookCollectionWithBooks } from "$lib/server/types";
 
     export let collection: BookCollectionWithBooks | BuiltInBookCollectionWithBooks
 </script>
@@ -25,4 +25,4 @@
             {/if}
         {/each}
     {/if}
-</div>
+</div> -->

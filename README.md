@@ -117,12 +117,14 @@ Otherwise, change them to match your PostgreSQL configuration.
 
 `SESSION_COOKIE_NAME` is the name of the session cookie.
 
+`PUBLIC_REDIRECT_QUERY_KEY`: Query key used for redirecting the user after some server action.
+
 `ADMIN_EMAIL` is the email address of the first admin user.
 
 
 ### Size Limits (optional, leave defaults)
 
-`MAX_IMAGE_UPLOAD_SIZE` is the maximum size of an image upload in bytes.
+`PUBLIC_MAX_IMAGE_UPLOAD_SIZE` is the maximum size of an image upload in bytes.
 
 `BODY_SIZE_LIMIT` is the maximum size of the request body in bytes.
 

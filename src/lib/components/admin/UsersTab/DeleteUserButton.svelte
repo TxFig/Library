@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import HttpCodes from "$lib/utils/http-codes";
     import Icon from "@iconify/svelte";
     import { getModalStore, getToastStore, type ModalSettings } from "@skeletonlabs/skeleton";
@@ -25,7 +25,7 @@
                 method: "DELETE"
             })
             const json: ApiJsonResponse<UserDeleteMethodReturn> = await response.json()
-            if (json.status === HttpCodes.Success) {
+            if (json.status === HttpCodes.Success.OK) {
                 users = users.filter(u => u.id != user.id)
             } else {
                 toastStore.trigger({
@@ -48,4 +48,4 @@
     class="btn-icon"
 >
     <Icon icon="mdi:delete" width="24" height="24"/>
-</button>
+</button> -->

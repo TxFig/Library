@@ -2,7 +2,8 @@ import { env } from "$env/dynamic/private"
 import fs from "fs"
 import path from "path"
 import sharp from "sharp"
-import type { BookImageInput } from "$lib/server/database/books/image"
+import type { ImageInput } from "$lib/server/database/books/image"
+import { logError } from "$lib/server/database/logs"
 
 
 function clearFolder(folder: string): void {
@@ -14,22 +15,30 @@ function clearFolder(folder: string): void {
 }
 
 const resizeHeights = [1080, 720, 480, 320]
-export async function generateResizedImages(bookPublicId: string, editionPublicId: string, file: File): Promise<BookImageInput[]> {
+function possibleHeights(height: number): number[] {
+    const heights = resizeHeights.filter(resizeHeight => resizeHeight <= height)
+    if (heights.length === 0) {
+        heights.push(height)
+    }
+
+    return heights
+}
+
+export async function generateResizedImages(bookPublicId: string, editionPublicId: string, file: File): Promise<ImageInput[]> {
     const arrayBuffer = await file.arrayBuffer()
     const image = sharp(arrayBuffer)
 
     let metadata = await image.metadata()
     if (!metadata.width || !metadata.height) {
-        // TODO: Handle Error
         throw new Error(`Image file doesn't contain width or height`)
     }
     const size = {
         width: metadata.width,
         height: metadata.height
     }
-    const heights = resizeHeights.filter(height => height <= size.height)
-    if (heights.length === 0) heights.push(size.height)
-    const generatedSizes: BookImageInput[] = []
+    const heights = possibleHeights(size.height)
+
+    const generatedSizes: ImageInput[] = []
 
     const folder = path.join(env.STATIC, "images", bookPublicId, editionPublicId)
     if (!fs.existsSync(folder)) {
@@ -49,7 +58,7 @@ export async function generateResizedImages(bookPublicId: string, editionPublicI
                 .toFile(filepath)
 
         } catch (err) {
-            // console.log(err) // TODO: Log error
+            logError(err, "Error generating resized image")
         }
         generatedSizes.push({ width, height })
     }
